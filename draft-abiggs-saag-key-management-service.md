@@ -636,8 +636,8 @@ The basic JSON representations for the request and response payloads are defined
 The basic JSON representation for KMS request message payloads is defined as follows using JSON content rules with references to rules defined in previous sections.
 
 ~~~
-sequence (
-  "sequence" : integer
+requestId (
+  "requestId" : integer
 )
 
 credential {
@@ -739,7 +739,7 @@ Error response message example:
 JWS(K_kms_priv, {
   "status": 403,
   "reason": "The ephemeral key used in the request has expired.",
-  "sequence": 7
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -777,7 +777,7 @@ JWE(K_kms_pub, {
   }, 
   "method": "create",
   "uri": "/ecdhe",
-  "sequence": 0,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "jwk" : {
     "kty": "EC",
     "crv": "P-256",
@@ -805,7 +805,7 @@ Response message example:
 ~~~
 JWS(K_kms_priv, {
   "status": 201,
-  "sequence": 0,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "key": {
     "uri": "/ecdhe/ea9f3858-1240-4328-ae22-a15f6072306f",
     "jwk" : {
@@ -859,7 +859,7 @@ JWE(K_ephemeral, {
   }  
   "method": "delete",
   "uri": "/ecdhe/ea9f3858-1240-4328-ae22-a15f6072306f",
-  "sequence": 7
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -878,7 +878,7 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 204,
-  "sequence": 7
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -923,7 +923,7 @@ JWE(K_ephemeral, {
   }  
   "method": "create",
   "uri": "/resources",
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "userIds": [
     "b46e8124-b6e8-47e0-af0d-e7f1a2072dac",
     "39d56a84-c6f9-459e-9fd1-40ab4ad3e89a"
@@ -951,7 +951,7 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 201,
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "resource": {
       "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
       "authorizationUris": [
@@ -996,7 +996,7 @@ JWE(K_ephemeral, {
   }  
   "method": "create",
   "uri": "/keys",
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "count": 2  
 })
 ~~~
@@ -1017,7 +1017,7 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 201,
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "keys": [
     {
       "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
@@ -1082,7 +1082,7 @@ JWE(K_ephemeral, {
   }  
   "method": "update",
   "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
 })
 ~~~
@@ -1104,7 +1104,7 @@ Response message example:
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "key": {
     "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -1171,7 +1171,7 @@ JWE(K_ephemeral, {
   }  
   "method": "retrieve",
   "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-  "sequence": 7
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -1188,7 +1188,7 @@ JWE(K_ephemeral, {
   }
   "method": "retrieve",
   "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-  "sequence": 7
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -1205,7 +1205,7 @@ JWE(K_ephemeral, {
   }  
   "method": "retrieve",
   "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "prefer": "recently-bound",
   "count": 10
 })
@@ -1230,7 +1230,7 @@ Response message example (for specific key):
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "key": {
     "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
     "jwk": {
@@ -1254,7 +1254,7 @@ Response message example (all keys bound to a resource):
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "keys": [
   {
     "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
@@ -1316,7 +1316,7 @@ JWE(K_ephemeral, {
   }  
   "method": "create",
   "uri": "/authorizations",
-  "sequence": 7,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
   "userIds": [
     "119a0582-2e2b-4c0c-ba6a-753d05171803",
@@ -1342,8 +1342,8 @@ Response message example:
 JWE(K_ephemeral, {
 {
   "status": 201,
-  "sequence": 7,
-  "collection": [
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "authorizations": [
   {
     "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
     "userId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
@@ -1375,7 +1375,7 @@ Request message example:
 
 ~~~
 JWE(K_ephemeral, {
-  "requestId": "1234",
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
@@ -1405,8 +1405,8 @@ Response message example:
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "sequence": 7,
-  "object": {
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "authorization": {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
     "userId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
@@ -1415,6 +1415,57 @@ JWE(K_ephemeral, {
 ~~~
 
 If successful, the KMS response to a delete authorization request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition. 
+
+### Ping
+
+Ping is a simple request intended to provide an efficient means for verifying the integrity of the secure channel between client and KMS.  Ping MUST be implemented as a safe and idempotent operation that causes the server to do nothing more than return a basic response payload in reaction to the client request.  The method of a ping request is "update" and the uri is "/ping".
+
+Request payload definition:
+
+~~~
+root {
+  request
+}
+~~~
+
+Request message example:
+
+~~~
+JWE(K_ephemeral, {
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "update",
+  "uri": "/ping"
+})
+~~~
+
+The response message conforms to the basic response message structure with no additional data.
+
+Response payload definition:
+
+~~~
+root {
+  response
+}
+~~~
+
+Response message example:
+
+~~~
+JWE(K_ephemeral, {
+{
+  "status": 200,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
+})
+~~~
+
+If successful, the client may deduce that the KMS was able to successfully decrypt the received KMS request message, parse the contents, confirm the identity and authorization of the requesting client, and return a suitable response.  
 
 # Mandatory-to-Implement
 

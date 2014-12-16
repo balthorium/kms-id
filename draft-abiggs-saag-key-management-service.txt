@@ -98,14 +98,14 @@ Table of Contents
        4.7.6.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  37
        4.7.7.  Create Authorizations . . . . . . . . . . . . . . . .  41
        4.7.8.  Delete Authorization  . . . . . . . . . . . . . . . .  43
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  44
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  45
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  45
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  45
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  45
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  46
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  47
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  47
+       4.7.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  44
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  46
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  46
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  46
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  47
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  47
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  47
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  48
 
 
 
@@ -113,6 +113,8 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 2]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  49
 
 1.  Introduction
 
@@ -160,8 +162,6 @@ Internet-Draft           key-management-service            November 2014
    services (KMS).  In this architecture a KMS service provides to its
    users a means by which their communications clients may securely
    create, share, rotate, and store E2E encryption keying material.  It
-   does so in a fashion that permits the decoupling of such services
-   from the communications media, thereby permitting the former to
 
 
 
@@ -170,6 +170,8 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 3]
 Internet-Draft           key-management-service            November 2014
 
 
+   does so in a fashion that permits the decoupling of such services
+   from the communications media, thereby permitting the former to
    reside under the direct control of the communicating parties or the
    organizations within which they do business.
 
@@ -216,8 +218,6 @@ Internet-Draft           key-management-service            November 2014
       and integrity of communications resources.
 
    KMS server
-
-
 
 
 
@@ -1234,8 +1234,8 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 22]
 Internet-Draft           key-management-service            November 2014
 
 
-   sequence (
-     "sequence" : integer
+   requestId (
+     "requestId" : integer
    )
 
    credential {
@@ -1371,7 +1371,7 @@ Internet-Draft           key-management-service            November 2014
    JWS(K_kms_priv, {
      "status": 403,
      "reason": "The ephemeral key used in the request has expired.",
-     "sequence": 7
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
 4.7.  Requests
@@ -1428,7 +1428,7 @@ Internet-Draft           key-management-service            November 2014
      },
      "method": "create",
      "uri": "/ecdhe",
-     "sequence": 0,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "jwk" : {
        "kty": "EC",
        "crv": "P-256",
@@ -1479,7 +1479,7 @@ Internet-Draft           key-management-service            November 2014
 
    JWS(K_kms_priv, {
      "status": 201,
-     "sequence": 0,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "key": {
        "uri": "/ecdhe/ea9f3858-1240-4328-ae22-a15f6072306f",
        "jwk" : {
@@ -1580,7 +1580,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "delete",
      "uri": "/ecdhe/ea9f3858-1240-4328-ae22-a15f6072306f",
-     "sequence": 7
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
    The response message conforms to the basic response message
@@ -1597,7 +1597,7 @@ Internet-Draft           key-management-service            November 2014
 
    JWE(K_ephemeral, {
      "status": 204,
-     "sequence": 7
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
    If successful, the KMS response to a delete ephemeral key request
@@ -1692,7 +1692,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "create",
      "uri": "/resources",
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "userIds": [
        "b46e8124-b6e8-47e0-af0d-e7f1a2072dac",
        "39d56a84-c6f9-459e-9fd1-40ab4ad3e89a"
@@ -1740,7 +1740,7 @@ Internet-Draft           key-management-service            November 2014
 
    JWE(K_ephemeral, {
      "status": 201,
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "resource": {
          "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
          "authorizationUris": [
@@ -1804,7 +1804,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "create",
      "uri": "/keys",
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "count": 2
    })
 
@@ -1852,7 +1852,7 @@ Internet-Draft           key-management-service            November 2014
 
    JWE(K_ephemeral, {
      "status": 201,
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "keys": [
        {
          "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
@@ -1948,7 +1948,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "update",
      "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
    })
 
@@ -1978,7 +1978,7 @@ Internet-Draft           key-management-service            November 2014
    JWE(K_ephemeral, {
    {
      "status": 200,
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "key": {
        "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -2094,7 +2094,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "retrieve",
      "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-     "sequence": 7
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
    Request message example (all keys bound to a resource):
@@ -2109,7 +2109,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "retrieve",
      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-     "sequence": 7
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
    Request message example (10 keys most recently bound to a resource):
@@ -2140,7 +2140,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "retrieve",
      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "prefer": "recently-bound",
      "count": 10
    })
@@ -2189,7 +2189,7 @@ Internet-Draft           key-management-service            November 2014
    JWE(K_ephemeral, {
    {
      "status": 200,
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "key": {
        "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
        "jwk": {
@@ -2245,7 +2245,7 @@ Internet-Draft           key-management-service            November 2014
    JWE(K_ephemeral, {
    {
      "status": 200,
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "keys": [
      {
        "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
@@ -2325,7 +2325,7 @@ Internet-Draft           key-management-service            November 2014
      }
      "method": "create",
      "uri": "/authorizations",
-     "sequence": 7,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
      "userIds": [
        "119a0582-2e2b-4c0c-ba6a-753d05171803",
@@ -2357,8 +2357,8 @@ Internet-Draft           key-management-service            November 2014
    JWE(K_ephemeral, {
    {
      "status": 201,
-     "sequence": 7,
-     "collection": [
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "authorizations": [
      {
        "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
        "userId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
@@ -2411,7 +2411,7 @@ Internet-Draft           key-management-service            November 2014
 
 
    JWE(K_ephemeral, {
-     "requestId": "1234",
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
@@ -2439,8 +2439,8 @@ Internet-Draft           key-management-service            November 2014
    JWE(K_ephemeral, {
    {
      "status": 200,
-     "sequence": 7,
-     "object": {
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "authorization": {
        "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
        "userId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
        "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
@@ -2452,12 +2452,12 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-5.  Mandatory-to-Implement
+4.7.9.  Ping
 
-   Implementations MUST support the following JWK key types from
-   [I-D.ietf-jose-json-web-algorithms]:
-
-   o  "RSA" for the KMS static public/private key
+   Ping is a simple request intended to provide an efficient means for
+   verifying the integrity of the secure channel between client and KMS.
+   Ping MUST be implemented as a safe and idempotent operation that
+   causes the server to do nothing more than return a basic response
 
 
 
@@ -2465,6 +2465,69 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 44]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   payload in reaction to the client request.  The method of a ping
+   request is "update" and the uri is "/ping".
+
+   Request payload definition:
+
+   root {
+     request
+   }
+
+   Request message example:
+
+   JWE(K_ephemeral, {
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "update",
+     "uri": "/ping"
+   })
+
+   The response message conforms to the basic response message structure
+   with no additional data.
+
+   Response payload definition:
+
+   root {
+     response
+   }
+
+   Response message example:
+
+   JWE(K_ephemeral, {
+   {
+     "status": 200,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
+   })
+
+   If successful, the client may deduce that the KMS was able to
+   successfully decrypt the received KMS request message, parse the
+   contents, confirm the identity and authorization of the requesting
+   client, and return a suitable response.
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 45]
+
+Internet-Draft           key-management-service            November 2014
+
+
+5.  Mandatory-to-Implement
+
+   Implementations MUST support the following JWK key types from
+   [I-D.ietf-jose-json-web-algorithms]:
+
+   o  "RSA" for the KMS static public/private key
 
    o  "EC" for the Ephemeral Diffie Hellman exchange
 
@@ -2503,6 +2566,18 @@ Internet-Draft           key-management-service            November 2014
 
    Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
 
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 46]
+
+Internet-Draft           key-management-service            November 2014
+
+
 8.  Appendix B.  Document History
 
    -00
@@ -2510,17 +2585,6 @@ Internet-Draft           key-management-service            November 2014
    o  Initial draft.
 
 9.  References
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 45]
-
-Internet-Draft           key-management-service            November 2014
-
 
 9.1.  Normative References
 
@@ -2562,6 +2626,14 @@ Internet-Draft           key-management-service            November 2014
    [RFC5869]  Krawczyk, H. and P. Eronen, "HMAC-based Extract-and-Expand
               Key Derivation Function (HKDF)", RFC 5869, May 2010.
 
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 47]
+
+Internet-Draft           key-management-service            November 2014
+
+
    [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
               Verification of Domain-Based Application Service Identity
               within Internet Public Key Infrastructure Using X.509
@@ -2570,13 +2642,6 @@ Internet-Draft           key-management-service            November 2014
 
    [RFC6749]  Hardt, D., "The OAuth 2.0 Authorization Framework", RFC
               6749, October 2012.
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 46]
-
-Internet-Draft           key-management-service            November 2014
-
 
    [RFC7159]  Bray, T., "The JavaScript Object Notation (JSON) Data
               Interchange Format", RFC 7159, March 2014.
@@ -2618,20 +2683,19 @@ Internet-Draft           key-management-service            November 2014
    [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
               RFC 5652, September 2009.
 
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 48]
+
+Internet-Draft           key-management-service            November 2014
+
+
 Authors' Addresses
 
    Andrew Biggs
    Cisco Systems
 
    Email: adb@cisco.com
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 47]
-
-Internet-Draft           key-management-service            November 2014
 
 
    Shaun Cooley
@@ -2677,12 +2741,4 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 48]
+Biggs & Cooley            Expires May 21, 2015                 [Page 49]
