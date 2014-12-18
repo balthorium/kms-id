@@ -656,15 +656,15 @@ request (
   "client" : client,
   "method" : method,
   kmsUri,
-  sequence
+  requestId
 )
 ~~~
 
 The attributes of a KMS request message payload are defined as follows.
 
-sequence
+requestId
 
-> An integer selected by the client and provided in a monotonically increasing order with each request, beginning with the initial create ephemeral key request.
+> A string selected by the client and provided in each request to uniquely identify the request.  The string is treated opaquely by the server and returned verbatim in the associated response.
 
 userId
 
@@ -699,8 +699,8 @@ The basic JSON representation for KMS request message payloads is defined as fol
 ~~~
 response (
   "status" : integer,
-  ?"reason" : string
-  sequence
+  ?"reason" : string,
+  requestId
 )
 ~~~
 
@@ -714,9 +714,9 @@ reason
 
 > An optional natural language string to describe the response status in terms that are useful for tracing and troubleshooting the API.  
 
-sequence
+requestId
 
-> An echo of the sequence number provided in the request.
+> An echo of the requestId provided in the request.
 
 The JSON content rules above are used in conjunction with additional response type specific rules, defined later in this document, to produce the full response payload definition for each KMS operation.
 
