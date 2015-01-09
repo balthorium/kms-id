@@ -621,7 +621,7 @@ Common Messages
 
 Ephemeral Key Agreement Messages
 
-> Ephemeral key agreement messages are those exchanged between the client and KMS for the purpose of establishing a new shared ephemeral key (see {{proto-ecdhe}}).  Key agreement request payloads are encrypted as JWE objects using the authenticated and validated static public key of the KMS.  Key agreement response payloads are signed as JWS objects using the static private key of the KMS.
+> Ephemeral key agreement messages are those exchanged between the client and KMS for the purpose of establishing a new shared ephemeral key (see {{proto-ecdhe}}).  Key agreement request payloads are encrypted as JWE objects using the authenticated and validated static public key of the KMS.  Key agreement response payloads are signed as JWS objects using the static private key of the KMS.  The value of the JWE or JWS header "kid" attribute of an ephemeral key agreement message MUST be a well known key identifier for the KMS static public key.
 
 Error Messages
 
