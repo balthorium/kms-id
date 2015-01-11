@@ -2163,11 +2163,11 @@ Internet-Draft           key-management-service            November 2014
 
    The response message conforms to the basic response message structure
    and includes a representation of the key or keys selected by the
-   request.  In the case of a request for a specific individual key, the
-   response will contain a representation of a single key.  In the case
-   of a request for all keys or a subset of keys bound to a resource,
-   the response will contain an array representing all KMS keys
-   currently bound to the resource.
+   request.  When responding to a request for a specific key, the KMS
+   will return a response that includes a KMS key object representation
+   as described in Section 4.4.1.  When responding to a request for
+   multiple keys, the KMS will return a response that includes an array
+   of KMS key object representations.
 
    Response payload definition:
 

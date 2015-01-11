@@ -436,7 +436,7 @@ Authorization
 
 The KMS protocol is composed from representations of these fundamental object types.  These representations are defined in the following sections.
 
-### KMS Key Objects
+### KMS Key Objects {#proto-kms-key-object}
 
 The JSON representations for KMS key objects is defined as follows using JSON content rules {{I-D.newton-json-content-rules}}.
 
@@ -505,7 +505,7 @@ bindDate
 
 > The point in time when the key was bound, in {{RFC3339}} date-time format.
 
-### KMS Authorization Objects
+### KMS Authorization Objects {#proto-kms-authorization-object}
 
 The JSON representations for KMS authorization objects is defined as follows using JSON content rules with references to rules defined in previous sections.
 
@@ -545,7 +545,7 @@ resourceUri
 
 Note, with respect to this specification user identifiers are opaque, however they MUST map to unique identifiers provided as part of user authentication.
 
-### KMS Resource Objects (KRO)
+### KMS Resource Objects (KRO) {#proto-kms-resource-object}
 
 The JSON representation for KMS resource objects is defined as follows using JSON content rules with references to rules defined in previous sections.
 
@@ -1217,7 +1217,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-The response message conforms to the basic response message structure and includes a representation of the key or keys selected by the request.  In the case of a request for a specific individual key, the response will contain a representation of a single key.  In the case of a request for all keys or a subset of keys bound to a resource, the response will contain an array representing all KMS keys currently bound to the resource.
+The response message conforms to the basic response message structure and includes a representation of the key or keys selected by the request.  When responding to a request for a specific key, the KMS will return a response that includes a KMS key object representation as described in {{proto-kms-key-object}}.  When responding to a request for multiple keys, the KMS will return a response that includes an array of KMS key object representations.
 
 Response payload definition:
 
