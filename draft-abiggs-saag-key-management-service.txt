@@ -1015,7 +1015,7 @@ Internet-Draft           key-management-service            November 2014
 
    createDate
 
-      The point in time when the key was created, in RFC-3339 date-time
+      The point in time when the key was created, in [RFC3339] date-time
       format.
 
    expirationDate
@@ -1030,7 +1030,7 @@ Internet-Draft           key-management-service            November 2014
 
    bindDate
 
-      The point in time when the key was bound, in RFC-3339 date-time
+      The point in time when the key was bound, in [RFC3339] date-time
       format.
 
 4.4.2.  KMS Authorization Objects
@@ -2022,13 +2022,13 @@ Internet-Draft           key-management-service            November 2014
 
    Clients engaging in E2E encryption require a means for retrieving
    keys from the KMS.  A key request may take one of three forms, it may
-   be
+   be a request for
 
-   o  a request for a specific key,
+   o  a specific key,
 
-   o  a request all keys bound to a particular resource, or
+   o  all keys bound to a particular resource,
 
-   o  a request for a subset of keys bound to a particular resource.
+   o  a subset of keys bound to a particular resource.
 
    In all cases, the request message conforms to the basic request
    message structure with "retrieve" as the value for the method
@@ -2038,34 +2038,34 @@ Internet-Draft           key-management-service            November 2014
    key object to be retrieved.  If the key is unbound, the KMS MUST
    reject the request unless it originates from the user that requested
    the key's creation, and SHOULD reject the request unless it
-   originates from the same clientId that requested the key's creation.
-   If the key is bound, the KMS MUST reject the request unless the
-   request originates from a user for which there exists a corresponding
-   authorization on the resource to which the requested key is bound.
+   originates from the same client that requested the key's creation (as
+   determined by clientId).  If the key is bound, the KMS MUST reject
+   the request if the request originates from a user for which there
+   does not exist a corresponding authorization on the resource to which
+   the requested key is bound.
 
-   To retrieve all keys bound to a particular resource, the uri of the
-   request is that of the resource concatenated with "/keys".  To
-   retrieve a select subset of keys bound to a particular resource, the
-   client constructs a request for all keys and augments this with the
-   additional attributes "count" and "prefer".  The count attribute
-   specifies the maximum number of keys that the KMS may return in the
-   response message, and the prefer attribute is a token indicating a
-   preference criterion.  Defined preference criteria are:
+   To retrieve all keys bound to a resource, the uri of the request is
+   that of the resource concatenated with "/keys".  The KMS MUST reject
+   the request if the request originates from a user for which there
+   does not exist a corresponding authorization on the resource.
 
-   o  recently-bound
+   To retrieve a subset of keys bound to a resource, the client submits
+   a request in the same fashion as for requesting all keys but also
+   includes one or more additional attributes indicating selection
+   criteria.  These additional attributes include the following:
 
-   o  recently-requested
+   o  boundAfter
 
-   The recently-bound criterion prefers keys that have been most
-   recently bound to the resource.  The recently-requested criterion
-   prefers keys that have been most recently requested by their specific
-   uri (including requests made by other clients).  The KMS MUST reject
-   the request unless the request originates from a user for which there
-   exists a corresponding authorization on the resource from which bound
-   keys are being requested.
+   o  boundBefore
 
-   Request payload definition:
+   Each of these parameters is optional and clients MAY employ them in
+   any combination.
 
+   If the request includes a "boundAfter" attribute, the value MUST
+   conform to the [RFC3339] date-time format and the KMS response MUST
+   NOT include any key with a "bindDate" that chronologically precedes
+   it.  Similarly, if the request includes a "boundBefore" attribute,
+   the value MUST conform to the [RFC3339] date-time format and the KMS
 
 
 
@@ -2074,12 +2074,27 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 37]
 Internet-Draft           key-management-service            November 2014
 
 
+   response MUST NOT include any key with a "bindDate" that is either
+   equal to or chronologically subsequent to it.
+
+   To limit the number of keys returned in a KMS response, a client MAY
+   include a "count" attribute.  If the request includes a "count"
+   attribute, it must be of JSON type integer and the cardinality of the
+   set of keys returned in the KMS response MUST NOT exceed its value.
+   In the event it becomes necessary for the KMS to truncate the set of
+   keys included in the KMS response, due to the limitations imposed by
+   the "count" attribute, the truncated subset MUST be composed of those
+   keys which satisfy the request's other selection criteria (if any)
+   and also constitute a subset of that selection for which the elements
+   possess the chronologically largest "bindDate" values.
+
+   Request payload definition:
+
    root {
      request,
-     ?(
-        "prefer": string /recently-bound|recently-requested/,
-        "count": integer
-     )
+     ?"boundAfter" : date-time,
+     ?"boundBefore" : date-time,
+     ?"count" : integer
    }
 
    Request message example (individual key):
@@ -2097,22 +2112,7 @@ Internet-Draft           key-management-service            November 2014
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
-   Request message example (all keys bound to a resource):
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "retrieve",
-     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
-   })
-
-   Request message example (10 keys most recently bound to a resource):
+   Request message example (10 most recently bound keys):
 
 
 
@@ -2141,24 +2141,33 @@ Internet-Draft           key-management-service            November 2014
      "method": "retrieve",
      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "prefer": "recently-bound",
      "count": 10
+   })
+
+   Request message example (keys bound after a given time, 25 max):
+
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "retrieve",
+     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "boundAfter": "2015-01-11T18:23:21Z",
+     "count": 25
    })
 
    The response message conforms to the basic response message structure
    and includes a representation of the key or keys selected by the
    request.  In the case of a request for a specific individual key, the
    response will contain a representation of a single key.  In the case
-   of a request for all keys bound to a resource, the response will
-   contain an array representing all KMS keys currently bound to the
-   resource.
-
-   In the case of a request for a select subset of keys bound to a
-   resource, the response will contain an array representing the set of
-   KMS keys currently bound to the resource and which most closely
-   satisfy the preference criterion indicated in the request.  In this
-   case, the size of the keys array in the response MUST NOT exceed the
-   count as given in the request.
+   of a request for all keys or a subset of keys bound to a resource,
+   the response will contain an array representing all KMS keys
+   currently bound to the resource.
 
    Response payload definition:
 
@@ -2168,15 +2177,6 @@ Internet-Draft           key-management-service            November 2014
    }
 
    Response message example (for specific key):
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2206,7 +2206,7 @@ Internet-Draft           key-management-service            November 2014
      }
    })
 
-   Response message example (all keys bound to a resource):
+   Response message example (for keys bound to a specific resource):
 
 
 

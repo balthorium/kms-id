@@ -491,7 +491,7 @@ clientId
 
 createDate
 
-> The point in time when the key was created, in {{!RFC-3339}} date-time format.
+> The point in time when the key was created, in {{!RFC3339}} date-time format.
 
 expirationDate
 
@@ -503,7 +503,7 @@ resourceUri
 
 bindDate
 
-> The point in time when the key was bound, in {{RFC-3339}} date-time format.
+> The point in time when the key was bound, in {{RFC3339}} date-time format.
 
 ### KMS Authorization Objects
 
@@ -1148,7 +1148,7 @@ To retrieve a subset of keys bound to a resource, the client submits a request i
 
 Each of these parameters is optional and clients MAY employ them in any combination.
 
-If the request includes a "boundAfter" attribute, the value MUST conform to the {{RFC-3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that chronologically precedes it.  Similarly, if the request includes a "boundBefore" attribute, the value MUST conform to the {{RFC-3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that is either equal to or chronologically subsequent to it.  
+If the request includes a "boundAfter" attribute, the value MUST conform to the {{RFC3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that chronologically precedes it.  Similarly, if the request includes a "boundBefore" attribute, the value MUST conform to the {{RFC3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that is either equal to or chronologically subsequent to it.  
 
 To limit the number of keys returned in a KMS response, a client MAY include a "count" attribute.  If the request includes a "count" attribute, it must be of JSON type integer and the cardinality of the set of keys returned in the KMS response MUST NOT exceed its value.  In the event it becomes necessary for the KMS to truncate the set of keys included in the KMS response, due to the limitations imposed by the "count" attribute, the truncated subset MUST be composed of those keys which satisfy the request's other selection criteria (if any) and also constitute a subset of that selection for which the elements possess the chronologically largest "bindDate" values.
 
