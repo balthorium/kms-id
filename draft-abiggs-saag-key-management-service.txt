@@ -2431,7 +2431,7 @@ Internet-Draft           key-management-service            November 2014
 
    root {
      response,
-     authorization
+     ?authorization
    }
 
    Response message example:
@@ -2448,16 +2448,16 @@ Internet-Draft           key-management-service            November 2014
    })
 
    If successful, the KMS response to a delete authorization request
-   MUST have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
+   MUST have a status of 200 if the authorization object representation
+   is included, and 204 if not.  In the case of a request failure, the
+   KMS response status SHOULD be that of an [RFC7231] defined status
+   code with semantics that correspond to the failure condition.
 
 4.7.9.  Ping
 
    Ping is a simple request intended to provide an efficient means for
    verifying the integrity of the secure channel between client and KMS.
    Ping MUST be implemented as a safe and idempotent operation that
-   causes the server to do nothing more than return a basic response
 
 
 
@@ -2466,6 +2466,7 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 44]
 Internet-Draft           key-management-service            November 2014
 
 
+   causes the server to do nothing more than return a basic response
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
 
@@ -2511,7 +2512,6 @@ Internet-Draft           key-management-service            November 2014
    successfully decrypt the received KMS request message, parse the
    contents, confirm the identity and authorization of the requesting
    client, and return a suitable response.
-
 
 
 
