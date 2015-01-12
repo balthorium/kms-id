@@ -1399,7 +1399,7 @@ Response payload definition:
 ~~~
 root {
   response,
-  authorization
+  ?authorization
 }
 ~~~
 
@@ -1418,7 +1418,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-If successful, the KMS response to a delete authorization request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition. 
+If successful, the KMS response to a delete authorization request MUST have a status of 200 if the authorization object representation is included, and 204 if not.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition. 
 
 ### Ping
 
