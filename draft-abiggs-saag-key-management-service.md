@@ -512,7 +512,9 @@ The JSON representations for KMS authorization objects is defined as follows usi
 ~~~
 authorizationRep {
   kmsUri,
-  "userId" : string,
+  "authId" : string,
+  "authType" : < "explicit" "implicit" >,
+  "createDate" : date-time,
   "resourceUri" : kmsUri,
 }
 
@@ -535,9 +537,17 @@ uri
 
 > A standard definition for KMS object identifiers.
 
-userId
+authId
 
-> The unique identifier of the user that is authorized.
+> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identitites as recognized by the identity provider employed by the KMS for OAuth2 token validation. 
+
+authType
+
+> Indicates whether this is an implicit authorization or an explicit authorization.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that a value of "explicit" be regarded as an indication that the authId represents the identifier of a specific individual identity as recognized by the identity provider, and a value of "implicit" be regarded as an indication that the authId represents the identifier of a grouping of identitites as recognized by the identity provider.
+
+createDate
+
+> The point in time when the authorization was created, in {{!RFC3339}} date-time format.
 
 resourceUri
 
