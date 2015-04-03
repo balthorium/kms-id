@@ -646,7 +646,7 @@ requestId (
 )
 
 credential {
-  "userId": string
+  "userId": ?string
   "bearer": string / "jwk": jwk
 }
 
@@ -673,7 +673,7 @@ requestId
 
 userId
 
-> The unique identifier of the user making the request.  
+> The unique identifier of the user making the request.  This field is optional, and MUST be disregarded if the requesting user's identity can be securely derived from either the bearer token or jwk.
 
 bearer
 
@@ -776,7 +776,6 @@ JWE(K_kms_pub, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }, 
@@ -858,7 +857,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -922,7 +920,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -995,7 +992,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1081,7 +1077,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1175,7 +1170,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1192,7 +1186,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1210,7 +1203,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1319,7 +1311,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1388,7 +1379,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1445,7 +1435,6 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
