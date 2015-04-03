@@ -450,7 +450,7 @@ kmsUri (
 keyRep {
   kmsUri,
   "jwk" : jwk,
-  "authId" : string,
+  "userId" : string,
   "clientId" : string,
   "createDate" : date-time,
   "expirationDate" : date-time,
@@ -481,7 +481,7 @@ jwk
 
 > Symmetric keying material represented as a JWK object (see {{I-D.ietf-jose-json-web-key}}).
 
-authId
+userId
 
 > The authenticated unique identifier of the user that created the key.
 
@@ -646,7 +646,7 @@ requestId (
 )
 
 credential {
-  "authId": string
+  "userId": string
   "bearer": string / "jwk": jwk
 }
 
@@ -671,7 +671,7 @@ requestId
 
 > A string selected by the client and provided in each request to uniquely identify the request.  The string is treated opaquely by the server and returned verbatim in the associated response.
 
-authId
+userId
 
 > The unique identifier of the user making the request.  
 
@@ -776,7 +776,7 @@ JWE(K_kms_pub, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }, 
@@ -819,7 +819,7 @@ JWS(K_kms_priv, {
       "x": "8mdasnEZac2LWxMwKExikKU5LLacLQlcOt7A6n1ZGUC",
       "y": "lxs7ln5LtZUE_GE7yzc6BZOwBxtOftdsr8HVh-14ksS"
     },
-    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "expirationDate": "2014-10-09T16:54:48Z"
@@ -858,7 +858,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -995,7 +995,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1031,7 +1031,7 @@ JWE(K_ephemeral, {
         "kty": "oct",
         "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
       }
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
       "createDate": "2014-10-09T15:54:48Z",
       "expirationDate": "2014-10-09T16:04:48Z"
@@ -1043,7 +1043,7 @@ JWE(K_ephemeral, {
         "kty": "oct",
         "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
       }
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
       "createDate": "2014-10-09T15:54:48Z",
       "expirationDate": "2014-10-09T16:04:48Z"
@@ -1081,7 +1081,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1118,7 +1118,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1175,7 +1175,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1192,7 +1192,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1210,7 +1210,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1247,7 +1247,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1272,7 +1272,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1286,7 +1286,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
     }
-    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:56:43Z",
@@ -1319,7 +1319,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1388,7 +1388,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1445,7 +1445,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
