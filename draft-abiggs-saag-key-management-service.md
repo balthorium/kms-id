@@ -450,7 +450,7 @@ kmsUri (
 keyRep {
   kmsUri,
   "jwk" : jwk,
-  "userId" : string,
+  "authId" : string,
   "clientId" : string,
   "createDate" : date-time,
   "expirationDate" : date-time,
@@ -481,7 +481,7 @@ jwk
 
 > Symmetric keying material represented as a JWK object (see {{I-D.ietf-jose-json-web-key}}).
 
-userId
+authId
 
 > The authenticated unique identifier of the user that created the key.
 
@@ -513,7 +513,6 @@ The JSON representations for KMS authorization objects is defined as follows usi
 authorizationRep {
   kmsUri,
   "authId" : string,
-  "authType" : < "explicit" "implicit" >,
   "createDate" : date-time,
   "resourceUri" : kmsUri,
 }
@@ -539,11 +538,7 @@ uri
 
 authId
 
-> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identitites as recognized by the identity provider employed by the KMS for OAuth2 token validation. 
-
-authType
-
-> Indicates whether this is an implicit authorization or an explicit authorization.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that a value of "explicit" be regarded as an indication that the authId represents the identifier of a specific individual identity as recognized by the identity provider, and a value of "implicit" be regarded as an indication that the authId represents the identifier of a grouping of identitites as recognized by the identity provider.
+> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identitites as recognized by the identity provider employed by the KMS. 
 
 createDate
 
@@ -651,7 +646,7 @@ requestId (
 )
 
 credential {
-  "userId": string
+  "authId": string
   "bearer": string / "jwk": jwk
 }
 
@@ -676,7 +671,7 @@ requestId
 
 > A string selected by the client and provided in each request to uniquely identify the request.  The string is treated opaquely by the server and returned verbatim in the associated response.
 
-userId
+authId
 
 > The unique identifier of the user making the request.  
 
@@ -781,7 +776,7 @@ JWE(K_kms_pub, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }, 
@@ -824,7 +819,7 @@ JWS(K_kms_priv, {
       "x": "8mdasnEZac2LWxMwKExikKU5LLacLQlcOt7A6n1ZGUC",
       "y": "lxs7ln5LtZUE_GE7yzc6BZOwBxtOftdsr8HVh-14ksS"
     },
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "expirationDate": "2014-10-09T16:54:48Z"
@@ -863,7 +858,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -909,13 +904,13 @@ The request message conforms to the basic request message structure, where the m
 Request payload definition:
 
 ~~~
-userIds (
-  "userIds" : [ *string ]
+authIds (
+  "authIds" : [ *string ]
 )
 
 root {
   request,
-  ?userIds,
+  ?authIds,
   ?keyUris
 }
 ~~~
@@ -927,14 +922,14 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
   "method": "create",
   "uri": "/resources",
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "userIds": [
+  "authIds": [
     "b46e8124-b6e8-47e0-af0d-e7f1a2072dac",
     "39d56a84-c6f9-459e-9fd1-40ab4ad3e89a"
   ],
@@ -1000,7 +995,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1036,7 +1031,7 @@ JWE(K_ephemeral, {
         "kty": "oct",
         "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
       }
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
       "createDate": "2014-10-09T15:54:48Z",
       "expirationDate": "2014-10-09T16:04:48Z"
@@ -1048,7 +1043,7 @@ JWE(K_ephemeral, {
         "kty": "oct",
         "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
       }
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
       "createDate": "2014-10-09T15:54:48Z",
       "expirationDate": "2014-10-09T16:04:48Z"
@@ -1086,7 +1081,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1123,7 +1118,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1180,7 +1175,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1197,7 +1192,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1215,7 +1210,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1252,7 +1247,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1277,7 +1272,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
     }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:55:34Z",
@@ -1291,7 +1286,7 @@ JWE(K_ephemeral, {
       "kty": "oct",
       "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
     }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+    "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "createDate": "2014-10-09T15:54:48Z",
     "bindDate": "2014-10-09T15:56:43Z",
@@ -1313,7 +1308,7 @@ The request message conforms to the basic request message structure, where the m
 root {
   request,
   "resourceUri" : kmsUri,
-  "userIds" : [ *string ]
+  "authIds" : [ *string ]
 }
 ~~~
 
@@ -1324,7 +1319,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1332,7 +1327,7 @@ JWE(K_ephemeral, {
   "uri": "/authorizations",
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-  "userIds": [
+  "authIds": [
     "119a0582-2e2b-4c0c-ba6a-753d05171803",
     "557ac05d-5751-43b4-a04b-e7eb1499ee0a"
   ]
@@ -1360,12 +1355,12 @@ JWE(K_ephemeral, {
   "authorizations": [
   {
     "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
-    "userId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
+    "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
   },
   {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-    "userId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
   }]
 })
@@ -1393,7 +1388,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
@@ -1422,7 +1417,7 @@ JWE(K_ephemeral, {
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "authorization": {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-    "userId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
   }
 })
@@ -1450,7 +1445,7 @@ JWE(K_ephemeral, {
   "client": {
     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
     "credential": {
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+      "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
