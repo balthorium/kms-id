@@ -94,18 +94,18 @@ Table of Contents
        4.7.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  29
        4.7.3.  Create Resource . . . . . . . . . . . . . . . . . . .  30
        4.7.4.  Create Unbound Keys . . . . . . . . . . . . . . . . .  33
-       4.7.5.  Update Unbound Key (Bind) . . . . . . . . . . . . . .  36
-       4.7.6.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  38
-       4.7.7.  Create Authorizations . . . . . . . . . . . . . . . .  42
-       4.7.8.  Delete Authorization  . . . . . . . . . . . . . . . .  44
-       4.7.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  45
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  47
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  47
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  47
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  48
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  48
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  48
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  49
+       4.7.5.  Update Unbound Key (Bind) . . . . . . . . . . . . . .  35
+       4.7.6.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  37
+       4.7.7.  Create Authorizations . . . . . . . . . . . . . . . .  41
+       4.7.8.  Delete Authorization  . . . . . . . . . . . . . . . .  43
+       4.7.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  44
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  46
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  46
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  46
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  47
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  47
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  47
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  48
 
 
 
@@ -114,7 +114,7 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 2]
 Internet-Draft           key-management-service            November 2014
 
 
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  50
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  49
 
 1.  Introduction
 
@@ -963,7 +963,7 @@ Internet-Draft           key-management-service            November 2014
    keyRep {
      kmsUri,
      "jwk" : jwk,
-     "authId" : string,
+     "userId" : string,
      "clientId" : string,
      "createDate" : date-time,
      "expirationDate" : date-time,
@@ -994,7 +994,7 @@ Internet-Draft           key-management-service            November 2014
       Symmetric keying material represented as a JWK object (see
       [I-D.ietf-jose-json-web-key]).
 
-   authId
+   userId
 
       The authenticated unique identifier of the user that created the
       key.
@@ -1295,7 +1295,7 @@ Internet-Draft           key-management-service            November 2014
    )
 
    credential {
-     "authId": string
+     "userId": ?string
      "bearer": string / "jwk": jwk
    }
 
@@ -1322,9 +1322,12 @@ Internet-Draft           key-management-service            November 2014
       uniquely identify the request.  The string is treated opaquely by
       the server and returned verbatim in the associated response.
 
-   authId
+   userId
 
-      The unique identifier of the user making the request.
+      The unique identifier of the user making the request.  This field
+      is optional, and MUST be disregarded if the requesting user's
+      identity can be securely derived from either the bearer token or
+      jwk.
 
    bearer
 
@@ -1334,9 +1337,6 @@ Internet-Draft           key-management-service            November 2014
 
    jwk
 
-      A JWK object, in JSON format as defined in
-      [I-D.ietf-jose-json-web-key], containing the public key of the
-      client (presumably a server).  This JWK MUST contain an x5c header
 
 
 
@@ -1346,6 +1346,9 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 24]
 Internet-Draft           key-management-service            November 2014
 
 
+      A JWK object, in JSON format as defined in
+      [I-D.ietf-jose-json-web-key], containing the public key of the
+      client (presumably a server).  This JWK MUST contain an x5c header
       with a certificate chain that may be used to positively validate
       the public key.
 
@@ -1391,9 +1394,6 @@ Internet-Draft           key-management-service            November 2014
 
    reason
 
-      An optional natural language string to describe the response
-      status in terms that are useful for tracing and troubleshooting
-      the API.
 
 
 
@@ -1401,6 +1401,10 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 25]
 
 Internet-Draft           key-management-service            November 2014
 
+
+      An optional natural language string to describe the response
+      status in terms that are useful for tracing and troubleshooting
+      the API.
 
    requestId
 
@@ -1446,10 +1450,6 @@ Internet-Draft           key-management-service            November 2014
    The client request for creating an ephemeral key conforms to the
    basic request message payload, where the method is "create" and the
    uri is "/ecdhe".  In addition to the basic payload, the client
-   provides a jwk attribute for which the value is a JWK object
-   [I-D.ietf-jose-json-web-key] containing the public part of an EC key
-   pair generated by the client.  Unlike a basic request message,
-   however, the request payload is encrypted as the content of a JWE
 
 
 
@@ -1458,6 +1458,10 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 26]
 Internet-Draft           key-management-service            November 2014
 
 
+   provides a jwk attribute for which the value is a JWK object
+   [I-D.ietf-jose-json-web-key] containing the public part of an EC key
+   pair generated by the client.  Unlike a basic request message,
+   however, the request payload is encrypted as the content of a JWE
    [I-D.ietf-jose-json-web-key] secured with the static public key of
    the KMS server (K_kms_pub) as obtained from the server's validated
    PKIX certificate [RFC5280].
@@ -1478,7 +1482,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      },
@@ -1504,9 +1507,6 @@ Internet-Draft           key-management-service            November 2014
    the KMS MUST NOT use the server response to continue with key
    agreement.
 
-   Upon successful authentication and authorization of the request, the
-   KMS responds by generating its own EC key pair using the same curve
-
 
 
 Biggs & Cooley            Expires May 21, 2015                 [Page 27]
@@ -1514,6 +1514,8 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 27]
 Internet-Draft           key-management-service            November 2014
 
 
+   Upon successful authentication and authorization of the request, the
+   KMS responds by generating its own EC key pair using the same curve
    as indicated in the "crv" attribute of the request message JWK.  The
    KMS server returns the public part of this key pair to the resource
    client in the form of a KMS key object within the response payload.
@@ -1544,7 +1546,7 @@ Internet-Draft           key-management-service            November 2014
          "x": "8mdasnEZac2LWxMwKExikKU5LLacLQlcOt7A6n1ZGUC",
          "y": "lxs7ln5LtZUE_GE7yzc6BZOwBxtOftdsr8HVh-14ksS"
        },
-       "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "createDate": "2014-10-09T15:54:48Z",
        "expirationDate": "2014-10-09T16:54:48Z"
@@ -1560,8 +1562,6 @@ Internet-Draft           key-management-service            November 2014
    in time before which the key may be used for encrypting messages
    (both in [RFC3339] date-time format).
 
-   On receiving the ephemeral key creation response, the resource client
-   MUST verify the received JWS against the KMS server's validated
 
 
 
@@ -1570,6 +1570,8 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 28]
 Internet-Draft           key-management-service            November 2014
 
 
+   On receiving the ephemeral key creation response, the resource client
+   MUST verify the received JWS against the KMS server's validated
    static public key.  If verification fails, the client MUST NOT use
    the server response to continue with key agreement.
 
@@ -1619,8 +1621,6 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-
-
 Biggs & Cooley            Expires May 21, 2015                 [Page 29]
 
 Internet-Draft           key-management-service            November 2014
@@ -1630,7 +1630,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -1674,6 +1673,7 @@ Internet-Draft           key-management-service            November 2014
 
    As part of a create resource request, a KMS server MUST create at
    least one authorization object on the newly created resource object
+   to explicitly authorize the user making the request.  A client MAY
 
 
 
@@ -1682,7 +1682,6 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 30]
 Internet-Draft           key-management-service            November 2014
 
 
-   to explicitly authorize the user making the request.  A client MAY
    request the immediate creation of one or more additional
    authorizations such that corresponding users may be immediately
    authorized to access and operate on the new resource object.  If for
@@ -1733,6 +1732,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
+
 Biggs & Cooley            Expires May 21, 2015                 [Page 31]
 
 Internet-Draft           key-management-service            November 2014
@@ -1742,7 +1742,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -1772,28 +1771,6 @@ Internet-Draft           key-management-service            November 2014
 
    Response message example:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 32]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
      "status": 201,
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
@@ -1809,6 +1786,13 @@ Internet-Draft           key-management-service            November 2014
          ]
      }
    })
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 32]
+
+Internet-Draft           key-management-service            November 2014
+
 
    If successful, the KMS response to a create resource request MUST
    have a status of 201.  In the case of a request failure, the KMS
@@ -1838,23 +1822,10 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example:
 
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 33]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -1870,41 +1841,21 @@ Internet-Draft           key-management-service            November 2014
 
    Response payload definition:
 
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 33]
+
+Internet-Draft           key-management-service            November 2014
+
+
    root {
      response,
      keys / keyUris
    }
 
    Response message example:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 34]
-
-Internet-Draft           key-management-service            November 2014
-
 
    JWE(K_ephemeral, {
      "status": 201,
@@ -1917,7 +1868,7 @@ Internet-Draft           key-management-service            November 2014
            "kty": "oct",
            "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
          }
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
          "createDate": "2014-10-09T15:54:48Z",
          "expirationDate": "2014-10-09T16:04:48Z"
@@ -1929,7 +1880,7 @@ Internet-Draft           key-management-service            November 2014
            "kty": "oct",
            "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
          }
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
          "createDate": "2014-10-09T15:54:48Z",
          "expirationDate": "2014-10-09T16:04:48Z"
@@ -1946,6 +1897,15 @@ Internet-Draft           key-management-service            November 2014
    latest point in time before which the key may be bound to a resource
    (both in [RFC3339] date-time format).
 
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 34]
+
+Internet-Draft           key-management-service            November 2014
+
+
    The clientId attribute of each created key MUST be the clientId
    provided by the client in the client.clientId attribute of the
    request.
@@ -1954,13 +1914,6 @@ Internet-Draft           key-management-service            November 2014
    either an array of key object representations or an array of key
    object uris.  It is at the KMS server's discretion which of these is
    returned.
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 35]
-
-Internet-Draft           key-management-service            November 2014
-
 
    If successful, the KMS response to a create unbound keys request MUST
    have a status of 201.  In the case of a request failure, the KMS
@@ -1994,11 +1947,25 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example:
 
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 35]
+
+Internet-Draft           key-management-service            November 2014
+
+
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2007,16 +1974,6 @@ Internet-Draft           key-management-service            November 2014
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
    })
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 36]
-
-Internet-Draft           key-management-service            November 2014
-
 
    The response message conforms to the basic response message
    structure, and includes a representation of the full state of the
@@ -2043,7 +2000,7 @@ Internet-Draft           key-management-service            November 2014
          "kty": "oct",
          "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
        }
-       "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "createDate": "2014-10-09T15:54:48Z",
        "bindDate": "2014-10-09T15:55:34Z",
@@ -2051,6 +2008,15 @@ Internet-Draft           key-management-service            November 2014
        "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
      }
    })
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 36]
+
+Internet-Draft           key-management-service            November 2014
+
 
    On successfully binding a formerly unbound KMS key to a resource
    object, the state of the KMS key object MUST reflect the updated
@@ -2066,13 +2032,6 @@ Internet-Draft           key-management-service            November 2014
    have a status of 200.  In the case of a request failure, the KMS
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 37]
-
-Internet-Draft           key-management-service            November 2014
-
 
 4.7.6.  Retrieve Keys
 
@@ -2107,6 +2066,14 @@ Internet-Draft           key-management-service            November 2014
 
    To retrieve a subset of keys bound to a resource, the client submits
    a request in the same fashion as for requesting all keys but also
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 37]
+
+Internet-Draft           key-management-service            November 2014
+
+
    includes one or more additional attributes indicating selection
    criteria.  These additional attributes include the following:
 
@@ -2122,14 +2089,6 @@ Internet-Draft           key-management-service            November 2014
    NOT include any key with a "bindDate" that chronologically precedes
    it.  Similarly, if the request includes a "boundBefore" attribute,
    the value MUST conform to the [RFC3339] date-time format and the KMS
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 38]
-
-Internet-Draft           key-management-service            November 2014
-
-
    response MUST NOT include any key with a "bindDate" that is either
    equal to or chronologically subsequent to it.
 
@@ -2155,11 +2114,26 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example (individual key):
 
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 38]
+
+Internet-Draft           key-management-service            November 2014
+
+
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2170,27 +2144,10 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example (10 most recently bound keys):
 
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 39]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2206,7 +2163,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2222,6 +2178,14 @@ Internet-Draft           key-management-service            November 2014
    request.  When responding to a request for a specific key, the KMS
    will return a response that includes a KMS key object representation
    as described in Section 4.4.1.  When responding to a request for
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 39]
+
+Internet-Draft           key-management-service            November 2014
+
+
    multiple keys, the KMS will return a response that includes an array
    of KMS key object representations.
 
@@ -2234,14 +2198,6 @@ Internet-Draft           key-management-service            November 2014
 
    Response message example (for specific key):
 
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 40]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
    {
      "status": 200,
@@ -2253,7 +2209,7 @@ Internet-Draft           key-management-service            November 2014
          "kty": "oct",
          "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
        }
-       "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "createDate": "2014-10-09T15:54:48Z",
        "bindDate": "2014-10-09T15:55:34Z",
@@ -2281,19 +2237,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 41]
+Biggs & Cooley            Expires May 21, 2015                 [Page 40]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2310,7 +2254,7 @@ Internet-Draft           key-management-service            November 2014
          "kty": "oct",
          "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
        }
-       "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "createDate": "2014-10-09T15:54:48Z",
        "bindDate": "2014-10-09T15:55:34Z",
@@ -2324,7 +2268,7 @@ Internet-Draft           key-management-service            November 2014
          "kty": "oct",
          "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
        }
-       "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
+       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "createDate": "2014-10-09T15:54:48Z",
        "bindDate": "2014-10-09T15:56:43Z",
@@ -2349,7 +2293,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 42]
+Biggs & Cooley            Expires May 21, 2015                 [Page 41]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2375,7 +2319,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2405,7 +2348,8 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 43]
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 42]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2461,7 +2405,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 44]
+Biggs & Cooley            Expires May 21, 2015                 [Page 43]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2471,7 +2415,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2514,15 +2457,15 @@ Internet-Draft           key-management-service            November 2014
    Ping is a simple request intended to provide an efficient means for
    verifying the integrity of the secure channel between client and KMS.
    Ping MUST be implemented as a safe and idempotent operation that
+   causes the server to do nothing more than return a basic response
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 45]
+Biggs & Cooley            Expires May 21, 2015                 [Page 44]
 
 Internet-Draft           key-management-service            November 2014
 
 
-   causes the server to do nothing more than return a basic response
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
 
@@ -2539,7 +2482,6 @@ Internet-Draft           key-management-service            November 2014
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
        "credential": {
-         "authId": "842e2d82-7e71-4040-8eb9-d977fe888807",
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
@@ -2573,7 +2515,9 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 46]
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 45]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2629,7 +2573,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 47]
+Biggs & Cooley            Expires May 21, 2015                 [Page 46]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2685,7 +2629,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 48]
+Biggs & Cooley            Expires May 21, 2015                 [Page 47]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2741,7 +2685,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 49]
+Biggs & Cooley            Expires May 21, 2015                 [Page 48]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2797,4 +2741,4 @@ Authors' Addresses
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 50]
+Biggs & Cooley            Expires May 21, 2015                 [Page 49]
