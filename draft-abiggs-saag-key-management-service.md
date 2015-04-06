@@ -1033,9 +1033,9 @@ JWE(K_ephemeral, {
 
 If successful, the KMS response to a retrieve resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Create Unbound Keys
+### Create Keys
 
-When a client requires a symmetric key for use in the E2E encryption of a communications resource, it begins by requesting the creation of one or more unbound keys from the KMS.  A client may submit this request at any time, even before the communications resource exists.  The keys returned by this request are unbound, which is to say not yet associated with any KMS resource object.
+When a client requires a symmetric key for use in the E2E encryption of a communications resource, it begins by requesting the creation of one or more keys from the KMS.  The initial state of a newly created key is "unbound" in the sense that it does not yet belong to a particular resource.  A client may submit this request at any time, even before the communications resource exists.  The keys returned by this request are unbound, which is to say not yet associated with any KMS resource object.
 
 The request message conforms to the basic request message structure, where the method is "create", the uri is "/keys", and an additional count attribute is introduced to indicate the number of keys to be created.
 
@@ -1118,7 +1118,7 @@ As shown in the response payload definition, the KMS MUST return either an array
 
 If successful, the KMS response to a create unbound keys request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Update Unbound Key (Bind)
+### Update Key (Bind)
 
 To initiate the use of an unbound KMS key in securing a communications resource, a client will create a corresponding KMS resource object and subsequently bind the unbound key to that resource.  A client MAY begin using an unbound KMS key to encrypt a communications resource prior to the binding of that key.
 

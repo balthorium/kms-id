@@ -94,8 +94,8 @@ Table of Contents
        4.7.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  29
        4.7.3.  Create Resource . . . . . . . . . . . . . . . . . . .  30
        4.7.4.  Retrieve Resource . . . . . . . . . . . . . . . . . .  33
-       4.7.5.  Create Unbound Keys . . . . . . . . . . . . . . . . .  34
-       4.7.6.  Update Unbound Key (Bind) . . . . . . . . . . . . . .  37
+       4.7.5.  Create Keys . . . . . . . . . . . . . . . . . . . . .  34
+       4.7.6.  Update Key (Bind) . . . . . . . . . . . . . . . . . .  37
        4.7.7.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  39
        4.7.8.  Create Authorizations . . . . . . . . . . . . . . . .  43
        4.7.9.  Delete Authorization  . . . . . . . . . . . . . . . .  45
@@ -1871,14 +1871,16 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.5.  Create Unbound Keys
+4.7.5.  Create Keys
 
    When a client requires a symmetric key for use in the E2E encryption
    of a communications resource, it begins by requesting the creation of
-   one or more unbound keys from the KMS.  A client may submit this
-   request at any time, even before the communications resource exists.
-   The keys returned by this request are unbound, which is to say not
-   yet associated with any KMS resource object.
+   one or more keys from the KMS.  The initial state of a newly created
+   key is "unbound" in the sense that it does not yet belong to a
+   particular resource.  A client may submit this request at any time,
+   even before the communications resource exists.  The keys returned by
+   this request are unbound, which is to say not yet associated with any
+   KMS resource object.
 
    The request message conforms to the basic request message structure,
    where the method is "create", the uri is "/keys", and an additional
@@ -1893,8 +1895,6 @@ Internet-Draft           key-management-service            November 2014
    }
 
    Request message example:
-
-
 
 
 
@@ -2023,7 +2023,7 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.6.  Update Unbound Key (Bind)
+4.7.6.  Update Key (Bind)
 
    To initiate the use of an unbound KMS key in securing a
    communications resource, a client will create a corresponding KMS
