@@ -538,7 +538,7 @@ uri
 
 authId
 
-> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identitites as recognized by the identity provider employed by the KMS. 
+> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS. 
 
 createDate
 
@@ -969,6 +969,69 @@ JWE(K_ephemeral, {
 ~~~
 
 If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+
+### Retrieve Resource
+
+A client that is authorized on a given KMS resource object may retrieve the current state of that object as well as that of current set of KMS authorization objects and bound KMS keys.
+
+The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the KMS resource object as returned by the create operation from which it originated.
+
+Request payload definition:
+
+~~~
+root {
+  request
+}
+~~~
+
+Request message example:
+
+~~~
+JWE(K_ephemeral, {
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "retrieve",
+  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
+})
+~~~
+
+The response message conforms to the basic response message structure, and includes a representation of the retrieved KMS resource object.
+
+Response payload definition:
+
+~~~
+root {
+  response,
+  resource
+}
+~~~
+
+Response message example:
+
+~~~
+JWE(K_ephemeral, {
+  "status": 200,
+  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
+  "resource": {
+      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+      "authorizationUris": [
+        "/authorizations/50e9056d-0700-4919-b55f-84cd78a2a65e",
+        "/authorizations/db4c95ab-3fbf-42a8-989f-f53c1f13cc9a"
+      ],
+      "keyUris": [
+        "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
+        "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
+      ]
+  }
+})
+~~~
+
+If successful, the KMS response to a retrieve resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 ### Create Unbound Keys
 

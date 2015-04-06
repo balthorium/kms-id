@@ -70,9 +70,9 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
      1.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   4
      1.2.  Security Terms  . . . . . . . . . . . . . . . . . . . . .   5
-     1.3.  Notational Conventions  . . . . . . . . . . . . . . . . .   5
+     1.3.  Notational Conventions  . . . . . . . . . . . . . . . . .   6
    2.  Architectural Overview  . . . . . . . . . . . . . . . . . . .   6
-   3.  Use Cases . . . . . . . . . . . . . . . . . . . . . . . . . .   7
+   3.  Use Cases . . . . . . . . . . . . . . . . . . . . . . . . . .   8
      3.1.  Securing an HTTP File Sharing Service . . . . . . . . . .   9
      3.2.  Securing an XMPP Multi-User Chat  . . . . . . . . . . . .  10
      3.3.  KMS to KMS Key Federation . . . . . . . . . . . . . . . .  12
@@ -93,19 +93,19 @@ Table of Contents
        4.7.1.  Create Ephemeral Key  . . . . . . . . . . . . . . . .  26
        4.7.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  29
        4.7.3.  Create Resource . . . . . . . . . . . . . . . . . . .  30
-       4.7.4.  Create Unbound Keys . . . . . . . . . . . . . . . . .  33
-       4.7.5.  Update Unbound Key (Bind) . . . . . . . . . . . . . .  35
-       4.7.6.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  37
-       4.7.7.  Create Authorizations . . . . . . . . . . . . . . . .  41
-       4.7.8.  Delete Authorization  . . . . . . . . . . . . . . . .  43
-       4.7.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  44
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  46
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  46
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  46
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  47
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  47
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  47
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  48
+       4.7.4.  Retrieve Resource . . . . . . . . . . . . . . . . . .  33
+       4.7.5.  Create Unbound Keys . . . . . . . . . . . . . . . . .  34
+       4.7.6.  Update Unbound Key (Bind) . . . . . . . . . . . . . .  37
+       4.7.7.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  39
+       4.7.8.  Create Authorizations . . . . . . . . . . . . . . . .  43
+       4.7.9.  Delete Authorization  . . . . . . . . . . . . . . . .  45
+       4.7.10. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  46
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  48
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  48
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  48
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  49
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  49
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  49
 
 
 
@@ -114,7 +114,8 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 2]
 Internet-Draft           key-management-service            November 2014
 
 
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  49
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  50
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  51
 
 1.  Introduction
 
@@ -161,7 +162,6 @@ Internet-Draft           key-management-service            November 2014
    an architecture for the deployment of E2E encryption key management
    services (KMS).  In this architecture a KMS service provides to its
    users a means by which their communications clients may securely
-   create, share, rotate, and store E2E encryption keying material.  It
 
 
 
@@ -170,6 +170,7 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 3]
 Internet-Draft           key-management-service            November 2014
 
 
+   create, share, rotate, and store E2E encryption keying material.  It
    does so in a fashion that permits the decoupling of such services
    from the communications media, thereby permitting the former to
    reside under the direct control of the communicating parties or the
@@ -217,7 +218,6 @@ Internet-Draft           key-management-service            November 2014
       particularly as it applies to the establishment of confidentiality
       and integrity of communications resources.
 
-   KMS server
 
 
 
@@ -225,6 +225,8 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 4]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   KMS server
 
       A key management server (KMS) is responsible for creating,
       storing, and providing access to E2E encryption keying material by
@@ -268,12 +270,10 @@ Internet-Draft           key-management-service            November 2014
    "credential", "identity", "self-signed certificate", "trust", "trust
    anchor", "trust chain", "validate", and "verify".
 
-1.3.  Notational Conventions
 
-   In this document, the key words "MUST", "MUST NOT", "REQUIRED",
-   "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
-   and "OPTIONAL" are to be interpreted as described in BCP 14, RFC 2119
-   [RFC2119].
+
+
+
 
 
 
@@ -281,6 +281,13 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 5]
 
 Internet-Draft           key-management-service            November 2014
 
+
+1.3.  Notational Conventions
+
+   In this document, the key words "MUST", "MUST NOT", "REQUIRED",
+   "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+   and "OPTIONAL" are to be interpreted as described in BCP 14, RFC 2119
+   [RFC2119].
 
 2.  Architectural Overview
 
@@ -323,13 +330,6 @@ Internet-Draft           key-management-service            November 2014
 
    In addition to the familiar elements described above, this model also
    includes a key management server, or _KMS_, operated by a _KMS
-   provider_. The KMS server exposes an API through which clients may
-   securely establish and share cryptographic keying material used for
-   the E2E encryption of content that is transited through the cloud
-   provider's services.  This API is secured in such a way as to ensure
-   these keys are visible to none but the KMS server itself and the
-   clients authorized to consume the content they protect.  This
-   highlights an important distinction between the KMS provider and the
 
 
 
@@ -338,6 +338,13 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 6]
 Internet-Draft           key-management-service            November 2014
 
 
+   provider_. The KMS server exposes an API through which clients may
+   securely establish and share cryptographic keying material used for
+   the E2E encryption of content that is transited through the cloud
+   provider's services.  This API is secured in such a way as to ensure
+   these keys are visible to none but the KMS server itself and the
+   clients authorized to consume the content they protect.  This
+   highlights an important distinction between the KMS provider and the
    cloud provider: while the KMS provider is necessarily a _trusted
    party_, the cloud provider need not be.
 
@@ -378,13 +385,6 @@ Internet-Draft           key-management-service            November 2014
    secure, thereby facilitating the broadest possible adoption of secure
    communications though existing services.
 
-3.  Use Cases
-
-   The use cases described in this section are non-normative examples
-   meant to illustrate how the KMS architecture may be deployed to
-   provide E2E encryption of different types of communications
-   resources.  These use cases differ in detail, but generally follow a
-   common logical sequence as given below.
 
 
 
@@ -393,6 +393,14 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 7]
 
 Internet-Draft           key-management-service            November 2014
 
+
+3.  Use Cases
+
+   The use cases described in this section are non-normative examples
+   meant to illustrate how the KMS architecture may be deployed to
+   provide E2E encryption of different types of communications
+   resources.  These use cases differ in detail, but generally follow a
+   common logical sequence as given below.
 
    Note that all requests to the KMS server are via the KMS transport
    which, for clarity, has been omitted from the sequence diagrams
@@ -434,14 +442,6 @@ Internet-Draft           key-management-service            November 2014
    4.  Client B accesses the communications resource shared by client A
        and receives the encrypted data.
 
-   5.  Client B obtains, through some means not defined by this
-       specification, the URL of the KMS key used to encrypt the
-       communications resource.
-
-   6.  Client B requests the KMS key from the KMS server.  The KMS
-       server, recognizing user B as authorized on the KRO to which the
-       key is bound, returns the KMS key.
-
 
 
 
@@ -449,6 +449,14 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 8]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   5.  Client B obtains, through some means not defined by this
+       specification, the URL of the KMS key used to encrypt the
+       communications resource.
+
+   6.  Client B requests the KMS key from the KMS server.  The KMS
+       server, recognizing user B as authorized on the KRO to which the
+       key is bound, returns the KMS key.
 
    7.  Client B decrypts the communications resource using the KMS key.
 
@@ -491,20 +499,18 @@ Internet-Draft           key-management-service            November 2014
 
                       Figure 3: File Sharing Use Case
 
-   This sequence begins with the assumption that each client has, at
-   some point, already established a secure channel to the KMS via
-   authenticated key agreement.
-
-   1.  Client A requests from the KMS some number of unbound KMS keys.
-
-
-
 
 
 Biggs & Cooley            Expires May 21, 2015                  [Page 9]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   This sequence begins with the assumption that each client has, at
+   some point, already established a secure channel to the KMS via
+   authenticated key agreement.
+
+   1.  Client A requests from the KMS some number of unbound KMS keys.
 
    2.  Client A selects an unbound key from the set of keys obtained
        step (1), encrypts the file to be shared, and posts the encrypted
@@ -546,12 +552,6 @@ Internet-Draft           key-management-service            November 2014
    architecture we may regard the XMPP MUC service as the resource
    server, the users' XMPP clients as the resource clients, and the XMPP
    service itself (not shown) as the KMS transport.
-
-
-
-
-
-
 
 
 
@@ -1078,7 +1078,7 @@ Internet-Draft           key-management-service            November 2014
       of this attribute are out of scope for this document, however it
       is RECOMMENDED that an implementation regard the value of this
       attribute as mapped to either an individual identity or a grouping
-      of identitites as recognized by the identity provider employed by
+      of identities as recognized by the identity provider employed by
       the KMS.
 
    createDate
@@ -1799,7 +1799,79 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.4.  Create Unbound Keys
+4.7.4.  Retrieve Resource
+
+   A client that is authorized on a given KMS resource object may
+   retrieve the current state of that object as well as that of current
+   set of KMS authorization objects and bound KMS keys.
+
+   The request message conforms to the basic request message structure,
+   where the method is "retrieve", and the uri is that of the KMS
+   resource object as returned by the create operation from which it
+   originated.
+
+   Request payload definition:
+
+   root {
+     request
+   }
+
+   Request message example:
+
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "retrieve",
+     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+     "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
+   })
+
+   The response message conforms to the basic response message
+   structure, and includes a representation of the retrieved KMS
+   resource object.
+
+   Response payload definition:
+
+   root {
+     response,
+     resource
+   }
+
+   Response message example:
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 33]
+
+Internet-Draft           key-management-service            November 2014
+
+
+   JWE(K_ephemeral, {
+     "status": 200,
+     "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
+     "resource": {
+         "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+         "authorizationUris": [
+           "/authorizations/50e9056d-0700-4919-b55f-84cd78a2a65e",
+           "/authorizations/db4c95ab-3fbf-42a8-989f-f53c1f13cc9a"
+         ],
+         "keyUris": [
+           "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
+           "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
+         ]
+     }
+   })
+
+   If successful, the KMS response to a retrieve resource request MUST
+   have a status of 200.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
+
+4.7.5.  Create Unbound Keys
 
    When a client requires a symmetric key for use in the E2E encryption
    of a communications resource, it begins by requesting the creation of
@@ -1822,6 +1894,18 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example:
 
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 34]
+
+Internet-Draft           key-management-service            November 2014
+
+
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -1841,21 +1925,42 @@ Internet-Draft           key-management-service            November 2014
 
    Response payload definition:
 
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 33]
-
-Internet-Draft           key-management-service            November 2014
-
-
    root {
      response,
      keys / keyUris
    }
 
    Response message example:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 35]
+
+Internet-Draft           key-management-service            November 2014
+
 
    JWE(K_ephemeral, {
      "status": 201,
@@ -1897,15 +2002,6 @@ Internet-Draft           key-management-service            November 2014
    latest point in time before which the key may be bound to a resource
    (both in [RFC3339] date-time format).
 
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 34]
-
-Internet-Draft           key-management-service            November 2014
-
-
    The clientId attribute of each created key MUST be the clientId
    provided by the client in the client.clientId attribute of the
    request.
@@ -1915,12 +2011,19 @@ Internet-Draft           key-management-service            November 2014
    object uris.  It is at the KMS server's discretion which of these is
    returned.
 
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 36]
+
+Internet-Draft           key-management-service            November 2014
+
+
    If successful, the KMS response to a create unbound keys request MUST
    have a status of 201.  In the case of a request failure, the KMS
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.5.  Update Unbound Key (Bind)
+4.7.6.  Update Unbound Key (Bind)
 
    To initiate the use of an unbound KMS key in securing a
    communications resource, a client will create a corresponding KMS
@@ -1947,21 +2050,6 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example:
 
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 35]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -1978,6 +2066,13 @@ Internet-Draft           key-management-service            November 2014
    The response message conforms to the basic response message
    structure, and includes a representation of the full state of the
    newly bound key.
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 37]
+
+Internet-Draft           key-management-service            November 2014
+
 
    Response payload definition:
 
@@ -2009,15 +2104,6 @@ Internet-Draft           key-management-service            November 2014
      }
    })
 
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 36]
-
-Internet-Draft           key-management-service            November 2014
-
-
    On successfully binding a formerly unbound KMS key to a resource
    object, the state of the KMS key object MUST reflect the updated
    resourceUri attribute, MUST reflect a bindDate as the current time,
@@ -2033,7 +2119,18 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.6.  Retrieve Keys
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 38]
+
+Internet-Draft           key-management-service            November 2014
+
+
+4.7.7.  Retrieve Keys
 
    Clients engaging in E2E encryption require a means for retrieving
    keys from the KMS.  A key request may take one of three forms, it may
@@ -2066,14 +2163,6 @@ Internet-Draft           key-management-service            November 2014
 
    To retrieve a subset of keys bound to a resource, the client submits
    a request in the same fashion as for requesting all keys but also
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 37]
-
-Internet-Draft           key-management-service            November 2014
-
-
    includes one or more additional attributes indicating selection
    criteria.  These additional attributes include the following:
 
@@ -2089,6 +2178,14 @@ Internet-Draft           key-management-service            November 2014
    NOT include any key with a "bindDate" that chronologically precedes
    it.  Similarly, if the request includes a "boundBefore" attribute,
    the value MUST conform to the [RFC3339] date-time format and the KMS
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 39]
+
+Internet-Draft           key-management-service            November 2014
+
+
    response MUST NOT include any key with a "bindDate" that is either
    equal to or chronologically subsequent to it.
 
@@ -2114,22 +2211,6 @@ Internet-Draft           key-management-service            November 2014
 
    Request message example (individual key):
 
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 38]
-
-Internet-Draft           key-management-service            November 2014
-
-
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -2143,6 +2224,23 @@ Internet-Draft           key-management-service            November 2014
    })
 
    Request message example (10 most recently bound keys):
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 40]
+
+Internet-Draft           key-management-service            November 2014
+
 
    JWE(K_ephemeral, {
      "client": {
@@ -2178,14 +2276,6 @@ Internet-Draft           key-management-service            November 2014
    request.  When responding to a request for a specific key, the KMS
    will return a response that includes a KMS key object representation
    as described in Section 4.4.1.  When responding to a request for
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 39]
-
-Internet-Draft           key-management-service            November 2014
-
-
    multiple keys, the KMS will return a response that includes an array
    of KMS key object representations.
 
@@ -2197,6 +2287,16 @@ Internet-Draft           key-management-service            November 2014
    }
 
    Response message example (for specific key):
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 41]
+
+Internet-Draft           key-management-service            November 2014
+
 
    JWE(K_ephemeral, {
    {
@@ -2237,7 +2337,19 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 40]
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 42]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2282,7 +2394,7 @@ Internet-Draft           key-management-service            November 2014
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.7.7.  Create Authorizations
+4.7.8.  Create Authorizations
 
    An authorization establishes a relationship between a resource and a
    user that entitles the user to retrieve bound keys from, and bind new
@@ -2293,7 +2405,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 41]
+Biggs & Cooley            Expires May 21, 2015                 [Page 43]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2349,7 +2461,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 42]
+Biggs & Cooley            Expires May 21, 2015                 [Page 44]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2379,7 +2491,7 @@ Internet-Draft           key-management-service            November 2014
    applied to the resource object, the entire create authorizations
    request MUST be failed by the KMS.
 
-4.7.8.  Delete Authorization
+4.7.9.  Delete Authorization
 
    To remove an authorization from a KMS resource object, any user
    currently authorized on the same resource object may issue a delete
@@ -2405,7 +2517,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 43]
+Biggs & Cooley            Expires May 21, 2015                 [Page 45]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2452,7 +2564,7 @@ Internet-Draft           key-management-service            November 2014
    KMS response status SHOULD be that of an [RFC7231] defined status
    code with semantics that correspond to the failure condition.
 
-4.7.9.  Ping
+4.7.10.  Ping
 
    Ping is a simple request intended to provide an efficient means for
    verifying the integrity of the secure channel between client and KMS.
@@ -2461,7 +2573,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 44]
+Biggs & Cooley            Expires May 21, 2015                 [Page 46]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2517,7 +2629,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 45]
+Biggs & Cooley            Expires May 21, 2015                 [Page 47]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2573,7 +2685,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 46]
+Biggs & Cooley            Expires May 21, 2015                 [Page 48]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2629,7 +2741,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 47]
+Biggs & Cooley            Expires May 21, 2015                 [Page 49]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2685,7 +2797,7 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 48]
+Biggs & Cooley            Expires May 21, 2015                 [Page 50]
 
 Internet-Draft           key-management-service            November 2014
 
@@ -2741,4 +2853,4 @@ Authors' Addresses
 
 
 
-Biggs & Cooley            Expires May 21, 2015                 [Page 49]
+Biggs & Cooley            Expires May 21, 2015                 [Page 51]
