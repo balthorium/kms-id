@@ -1446,7 +1446,7 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/authorizations",
   "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
 })
 ~~~
