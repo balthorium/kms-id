@@ -99,13 +99,13 @@ Table of Contents
        4.7.7.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  39
        4.7.8.  Create Authorizations . . . . . . . . . . . . . . . .  43
        4.7.9.  Retrieve Authorizations . . . . . . . . . . . . . . .  45
-       4.7.10. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  48
+       4.7.10. Delete Authorization  . . . . . . . . . . . . . . . .  47
+       4.7.11. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  48
    5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  49
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  50
    7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  50
    8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  50
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  50
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  50
 
 
 
@@ -114,6 +114,7 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 2]
 Internet-Draft           key-management-service            November 2014
 
 
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  50
      9.2.  Informative References  . . . . . . . . . . . . . . . . .  51
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  52
 
@@ -161,7 +162,6 @@ Internet-Draft           key-management-service            November 2014
    In the interest of addressing these challenges this document presents
    an architecture for the deployment of E2E encryption key management
    services (KMS).  In this architecture a KMS service provides to its
-   users a means by which their communications clients may securely
 
 
 
@@ -170,6 +170,7 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 3]
 Internet-Draft           key-management-service            November 2014
 
 
+   users a means by which their communications clients may securely
    create, share, rotate, and store E2E encryption keying material.  It
    does so in a fashion that permits the decoupling of such services
    from the communications media, thereby permitting the former to
@@ -217,7 +218,6 @@ Internet-Draft           key-management-service            November 2014
       Shorthand for end-to-end encryption, as defined in [RFC4949],
       particularly as it applies to the establishment of confidentiality
       and integrity of communications resources.
-
 
 
 
@@ -2566,8 +2566,8 @@ Internet-Draft           key-management-service            November 2014
    If successful, the KMS response to a retrieve bound keys request MUST
    have a status of 200.  In the case of a request failure, the KMS
    response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.  ### Delete
-   Authorization
+   with semantics that correspond to the failure condition.
+
 
 
 
@@ -2577,6 +2577,8 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 46]
 
 Internet-Draft           key-management-service            November 2014
 
+
+4.7.10.  Delete Authorization
 
    To remove an authorization from a KMS resource object, any user
    currently authorized on the same resource object may issue a delete
@@ -2627,8 +2629,6 @@ Internet-Draft           key-management-service            November 2014
 
 
 
-
-
 Biggs & Cooley            Expires May 21, 2015                 [Page 47]
 
 Internet-Draft           key-management-service            November 2014
@@ -2651,7 +2651,7 @@ Internet-Draft           key-management-service            November 2014
    KMS response status SHOULD be that of an [RFC7231] defined status
    code with semantics that correspond to the failure condition.
 
-4.7.10.  Ping
+4.7.11.  Ping
 
    Ping is a simple request intended to provide an efficient means for
    verifying the integrity of the secure channel between client and KMS.

@@ -1484,6 +1484,7 @@ JWE(K_ephemeral, {
 ~~~
 
 If successful, the KMS response to a retrieve bound keys request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
+
 ### Delete Authorization
 
 To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the uri is that of the authorization object to be deleted.
