@@ -1446,7 +1446,7 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/authorizations",
+  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations",
   "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
 })
 ~~~
@@ -1473,12 +1473,12 @@ JWE(K_ephemeral, {
   {
     "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
     "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
   },
   {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
     "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
   }]
 })
 ~~~
