@@ -98,14 +98,14 @@ Table of Contents
        4.7.6.  Update Key (Bind) . . . . . . . . . . . . . . . . . .  37
        4.7.7.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  39
        4.7.8.  Create Authorizations . . . . . . . . . . . . . . . .  43
-       4.7.9.  Delete Authorization  . . . . . . . . . . . . . . . .  45
-       4.7.10. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  46
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  48
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  48
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  48
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  49
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  49
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  49
+       4.7.9.  Retrieve Authorizations . . . . . . . . . . . . . . .  45
+       4.7.10. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  48
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  49
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  50
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  50
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  50
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  50
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  50
 
 
 
@@ -114,8 +114,8 @@ Biggs & Cooley            Expires May 21, 2015                  [Page 2]
 Internet-Draft           key-management-service            November 2014
 
 
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  50
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  51
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  51
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  52
 
 1.  Introduction
 
@@ -2491,13 +2491,13 @@ Internet-Draft           key-management-service            November 2014
    applied to the resource object, the entire create authorizations
    request MUST be failed by the KMS.
 
-4.7.9.  Delete Authorization
+4.7.9.  Retrieve Authorizations
 
-   To remove an authorization from a KMS resource object, any user
-   currently authorized on the same resource object may issue a delete
-   authorization request.  The request message conforms to the basic
-   request message structure, where the method is "delete", and the uri
-   is that of the authorization object to be deleted.
+   A client may explicitly request the set of all authorizations on a
+   given KMS resource object.  The uri of the request is that of the
+   resource concatenated with "/authorizations".  The KMS MUST reject
+   the request if the request originates from a user for which there
+   does not exist a corresponding authorization on the resource.
 
    Request payload definition:
 
@@ -2521,6 +2521,76 @@ Biggs & Cooley            Expires May 21, 2015                 [Page 45]
 
 Internet-Draft           key-management-service            November 2014
 
+
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "retrieve",
+     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+     "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
+   })
+
+   The response message conforms to the basic response message structure
+   and includes an array of KMS authorization object representations.
+
+   Response payload definition:
+
+   root {
+     response,
+     authorizations
+   }
+
+   Response message example:
+
+   JWE(K_ephemeral, {
+   {
+     "status": 200,
+     "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce",
+     "authorizations": [
+     {
+       "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
+       "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
+       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     },
+     {
+       "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
+       "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     }]
+   })
+
+   If successful, the KMS response to a retrieve bound keys request MUST
+   have a status of 200.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.  ### Delete
+   Authorization
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 46]
+
+Internet-Draft           key-management-service            November 2014
+
+
+   To remove an authorization from a KMS resource object, any user
+   currently authorized on the same resource object may issue a delete
+   authorization request.  The request message conforms to the basic
+   request message structure, where the method is "delete", and the uri
+   is that of the authorization object to be deleted.
+
+   Request payload definition:
+
+   root {
+     request
+   }
+
+   Request message example:
 
    JWE(K_ephemeral, {
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
@@ -2547,6 +2617,23 @@ Internet-Draft           key-management-service            November 2014
 
    Response message example:
 
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 47]
+
+Internet-Draft           key-management-service            November 2014
+
+
    JWE(K_ephemeral, {
    {
      "status": 200,
@@ -2570,14 +2657,6 @@ Internet-Draft           key-management-service            November 2014
    verifying the integrity of the secure channel between client and KMS.
    Ping MUST be implemented as a safe and idempotent operation that
    causes the server to do nothing more than return a basic response
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 46]
-
-Internet-Draft           key-management-service            November 2014
-
-
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
 
@@ -2604,6 +2683,13 @@ Internet-Draft           key-management-service            November 2014
    The response message conforms to the basic response message structure
    with no additional data.
 
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 48]
+
+Internet-Draft           key-management-service            November 2014
+
+
    Response payload definition:
 
    root {
@@ -2622,17 +2708,6 @@ Internet-Draft           key-management-service            November 2014
    successfully decrypt the received KMS request message, parse the
    contents, confirm the identity and authorization of the requesting
    client, and return a suitable response.
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 47]
-
-Internet-Draft           key-management-service            November 2014
-
 
 5.  Mandatory-to-Implement
 
@@ -2661,6 +2736,16 @@ Internet-Draft           key-management-service            November 2014
    Management Mode) from [I-D.ietf-jose-json-web-algorithms] for all
    operations other than Section 4.7.1.
 
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 49]
+
+Internet-Draft           key-management-service            November 2014
+
+
    Implementations MUST support "A256GCM" (AES GCM using 256 bit key)
    from [I-D.ietf-jose-json-web-algorithms] for content encryption for
    all operations other than Section 4.7.1.
@@ -2677,18 +2762,6 @@ Internet-Draft           key-management-service            November 2014
    and wording that influenced this specification:
 
    Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 48]
-
-Internet-Draft           key-management-service            November 2014
-
 
 8.  Appendix B.  Document History
 
@@ -2721,6 +2794,14 @@ Internet-Draft           key-management-service            November 2014
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 50]
+
+Internet-Draft           key-management-service            November 2014
+
+
    [RFC2822]  Resnick, P., "Internet Message Format", RFC 2822, April
               2001.
 
@@ -2737,14 +2818,6 @@ Internet-Draft           key-management-service            November 2014
 
    [RFC5869]  Krawczyk, H. and P. Eronen, "HMAC-based Extract-and-Expand
               Key Derivation Function (HKDF)", RFC 5869, May 2010.
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 49]
-
-Internet-Draft           key-management-service            November 2014
-
 
    [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
               Verification of Domain-Based Application Service Identity
@@ -2774,6 +2847,17 @@ Internet-Draft           key-management-service            November 2014
               (POSH)", draft-ietf-xmpp-posh-02 (work in progress),
               October 2014.
 
+
+
+
+
+
+
+Biggs & Cooley            Expires May 21, 2015                 [Page 51]
+
+Internet-Draft           key-management-service            November 2014
+
+
    [I-D.newton-json-content-rules]
               Newton, A., "A Language for Rules Describing JSON
               Content", draft-newton-json-content-rules-02 (work in
@@ -2794,13 +2878,6 @@ Internet-Draft           key-management-service            November 2014
 
    [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
               RFC 5652, September 2009.
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 50]
-
-Internet-Draft           key-management-service            November 2014
-
 
 Authors' Addresses
 
@@ -2832,25 +2909,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley            Expires May 21, 2015                 [Page 51]
+Biggs & Cooley            Expires May 21, 2015                 [Page 52]

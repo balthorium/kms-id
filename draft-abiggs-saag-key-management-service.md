@@ -1422,6 +1422,68 @@ JWE(K_ephemeral, {
 
 If successful, the KMS response to a create authorizations request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.  If for any reason one or more requested authorizations cannot be created or applied to the resource object, the entire create authorizations request MUST be failed by the KMS.
 
+
+### Retrieve Authorizations
+
+A client may explicitly request the set of all authorizations on a given KMS resource object.  The uri of the request is that of the resource concatenated with “/authorizations”.  The KMS MUST reject the request if the request originates from a user for which there does not exist a corresponding authorization on the resource.
+
+Request payload definition:
+
+~~~
+root {
+  request
+}
+~~~
+
+Request message example:
+
+~~~
+JWE(K_ephemeral, {
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "retrieve",
+  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
+})
+~~~
+
+The response message conforms to the basic response message structure and includes an array of KMS authorization object representations.
+
+Response payload definition:
+
+~~~
+root {
+  response,
+  authorizations
+}
+~~~
+
+Response message example:
+
+~~~
+JWE(K_ephemeral, {
+{
+  "status": 200,
+  "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce",
+  "authorizations": [
+  {
+    "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
+    "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  },
+  {
+    "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
+    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  }]
+})
+~~~
+
+If successful, the KMS response to a retrieve bound keys request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
 ### Delete Authorization
 
 To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the uri is that of the authorization object to be deleted.
