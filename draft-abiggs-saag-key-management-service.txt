@@ -1519,10 +1519,10 @@ Internet-Draft           key-management-service            November 2014
    as indicated in the "crv" attribute of the request message JWK.  The
    KMS server returns the public part of this key pair to the resource
    client in the form of a KMS key object within the response payload.
-   The KMS also generates and includes within the response payload a
-   universally unique identifier to be regarded by both client and KMS
-   as the key identifier of the agreed upon ephemeral key.  The response
-   payload is returned to the resource client as the content of a JWS
+   The KMS also generates and includes within the response payload a new
+   key uri to be regarded by both client and KMS as the key identifier
+   of the agreed upon ephemeral key.  The response payload is returned
+   to the resource client as the content of a JWS
    [I-D.ietf-jose-json-web-signature] signed using the static private
    key of the KMS server (K_kms_priv).
 
