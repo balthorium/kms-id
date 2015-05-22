@@ -2614,18 +2614,18 @@ Internet-Draft           key-management-service                 May 2015
    object to be deleted by the KMS resource object to which it belongs
    plus the value of its authId attribute:
 
-JWE(K_ephemeral, {
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }
-  "method": "delete",
-  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-})
-
+ JWE(K_ephemeral, {
+   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+   "client": {
+     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+     "credential": {
+       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+     }
+   }
+   "method": "delete",
+   "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
+           /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+ })
 
 
 
@@ -2633,6 +2633,10 @@ Biggs & Cooley          Expires November 16, 2015              [Page 47]
 
 Internet-Draft           key-management-service                 May 2015
 
+
+   Note, in the example above, the URI attribute value is a continuous
+   string of non-whitespace characters.  Whitespace has been added here
+   for readability.
 
    The response message conforms to the basic response message
    structure, and includes a representation of the authorization object
@@ -2679,16 +2683,14 @@ Internet-Draft           key-management-service                 May 2015
      request
    }
 
-   Request message example:
-
-
-
 
 
 Biggs & Cooley          Expires November 16, 2015              [Page 48]
 
 Internet-Draft           key-management-service                 May 2015
 
+
+   Request message example:
 
    JWE(K_ephemeral, {
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
@@ -2735,9 +2737,7 @@ Internet-Draft           key-management-service                 May 2015
 
    o  "oct" for all symmetric keys
 
-   Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
-   MGF1 with SHA-256) from [I-D.ietf-jose-json-web-algorithms] for
-   signatures using the KMS static public/private key for Section 4.7.1.
+
 
 
 
@@ -2745,6 +2745,10 @@ Biggs & Cooley          Expires November 16, 2015              [Page 49]
 
 Internet-Draft           key-management-service                 May 2015
 
+
+   Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
+   MGF1 with SHA-256) from [I-D.ietf-jose-json-web-algorithms] for
+   signatures using the KMS static public/private key for Section 4.7.1.
 
    Implementations MUST support JWK Elliptic Curve type "P-256" (NIST
    P-256 curve) from [I-D.ietf-jose-json-web-algorithms] for
@@ -2789,10 +2793,6 @@ Internet-Draft           key-management-service                 May 2015
               Jones, M., "JSON Web Algorithms (JWA)", draft-ietf-jose-
               json-web-algorithms-33 (work in progress), September 2014.
 
-   [I-D.ietf-jose-json-web-encryption]
-              Jones, M. and J. Hildebrand, "JSON Web Encryption (JWE)",
-              draft-ietf-jose-json-web-encryption-33 (work in progress),
-              September 2014.
 
 
 
@@ -2801,6 +2801,11 @@ Biggs & Cooley          Expires November 16, 2015              [Page 50]
 
 Internet-Draft           key-management-service                 May 2015
 
+
+   [I-D.ietf-jose-json-web-encryption]
+              Jones, M. and J. Hildebrand, "JSON Web Encryption (JWE)",
+              draft-ietf-jose-json-web-encryption-33 (work in progress),
+              September 2014.
 
    [I-D.ietf-jose-json-web-key]
               Jones, M., "JSON Web Key (JWK)", draft-ietf-jose-json-web-
@@ -2845,11 +2850,6 @@ Internet-Draft           key-management-service                 May 2015
 
    [RFC7231]  Fielding, R. and J. Reschke, "Hypertext Transfer Protocol
               (HTTP/1.1): Semantics and Content", RFC 7231, June 2014.
-
-
-
-
-
 
 
 

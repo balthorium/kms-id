@@ -1525,9 +1525,12 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "delete",
-  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
+          /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
 })
 ~~~
+
+Note, in the example above, the URI attribute value is a continuous string of non-whitespace characters. Whitespace has been added here for readability.
 
 The response message conforms to the basic response message structure, and includes a representation of the authorization object that was deleted.
 
