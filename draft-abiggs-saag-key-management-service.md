@@ -1,8 +1,8 @@
 ---
 title: Key Management Service Architecture
 abbrev: key-management-service
-docname: draft-abiggs-saag-key-management-service-00
-date: 2014-11-17
+docname: draft-abiggs-saag-key-management-service-01
+date: 2015-05-15
 category: std
 ipr: trust200902
 pi: [toc, sortrefs, symrefs]
@@ -1487,7 +1487,7 @@ If successful, the KMS response to a retrieve bound keys request MUST have a sta
 
 ### Delete Authorization
 
-To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the uri is that of the authorization object to be deleted.
+To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the URI is either that of the authorization object to be deleted, or the URI of the collection of authorizations within a particular KMS resource object appended with an authId query parameter whose value matches that of the authorization object to be deleted.
 
 Request payload definition:
 
@@ -1497,7 +1497,7 @@ root {
 }
 ~~~
 
-Request message example:
+Request message example, explicitly identifying the URI of the authorization object to be deleted:
 
 ~~~
 JWE(K_ephemeral, {
@@ -1510,6 +1510,22 @@ JWE(K_ephemeral, {
   }  
   "method": "delete",
   "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b"
+})
+~~~
+
+Request message example, implicitly identifying the authorization object to be deleted by the KMS resource object to which it belongs plus the value of its authId attribute:
+
+~~~
+JWE(K_ephemeral, {
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "delete",
+  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
 })
 ~~~
 
