@@ -1,8 +1,8 @@
 ---
 title: Key Management Service Architecture
 abbrev: key-management-service
-docname: draft-abiggs-saag-key-management-service-01
-date: 2015-05-15
+docname: draft-abiggs-saag-key-management-service-02
+date: 2015-07-03
 category: std
 ipr: trust200902
 pi: [toc, sortrefs, symrefs]
