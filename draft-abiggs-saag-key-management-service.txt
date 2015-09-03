@@ -1079,7 +1079,10 @@ Internet-Draft           key-management-service                July 2015
       is RECOMMENDED that an implementation regard the value of this
       attribute as mapped to either an individual identity or a grouping
       of identities as recognized by the identity provider employed by
-      the KMS.
+      the KMS.  The value of this attribute may also be the URI of a
+      KRO, in which case all authorizations on the indicated KRO will be
+      regarded by the KMS as also applying to the KRO to which this
+      authorization object belongs.
 
    createDate
 
@@ -1100,9 +1103,6 @@ Internet-Draft           key-management-service                July 2015
    The JSON representation for KMS resource objects is defined as
    follows using JSON content rules with references to rules defined in
    previous sections.
-
-
-
 
 
 
@@ -2614,18 +2614,18 @@ Internet-Draft           key-management-service                July 2015
    object to be deleted by the KMS resource object to which it belongs
    plus the value of its authId attribute:
 
- JWE(K_ephemeral, {
-   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-   "client": {
-     "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-     "credential": {
-       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-     }
-   }
-   "method": "delete",
-   "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
+  JWE(K_ephemeral, {
+    "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+    "client": {
+      "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+      "credential": {
+        "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+      }
+    }
+    "method": "delete",
+    "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
            /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
- })
+  })
 
 
 

@@ -538,7 +538,7 @@ uri
 
 authId
 
-> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS. 
+> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS.  The value of this attribute may also be the URI of a KRO, in which case all authorizations on the indicated KRO will be regarded by the KMS as also applying to the KRO to which this authorization object belongs.
 
 createDate
 
@@ -1526,7 +1526,7 @@ JWE(K_ephemeral, {
   }  
   "method": "delete",
   "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
-          /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+         /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
 })
 ~~~
 
