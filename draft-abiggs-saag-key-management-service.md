@@ -37,6 +37,8 @@ normative:
 
   I-D.ietf-jose-json-web-algorithms:
 
+  I-D.abiggs-saag-primitives-for-conf-group-comms:
+
 informative:
 
   OTR:
@@ -74,11 +76,15 @@ Existing E2E strategies such as ECS {{?RFC5652}}, PGP {{?RFC4880}}, and Off-the-
 
 Equally problematic is the paucity of E2E encryption options that satisfy common organizational obligations such as regulatory compliance and legal discovery.  Entities that must operate within such frameworks require mechanisms by which they (and they alone) may recover the keys used to secure their communications.  Existing E2E encryption solutions are not, by themselves, well suited for this purpose.
 
+In the interest of addressing these challenges, this document presents an architecture for the deployment of E2E encryption key management services (KMS) that fulfills the curator role described in {{I-D.abiggs-saag-primitives-for-conf-group-comms}}.
+
 In the interest of addressing these challenges this document presents an architecture for the deployment of E2E encryption key management services (KMS).  In this architecture a KMS service provides to its users a means by which their communications clients may securely create, share, rotate, and store E2E encryption keying material.  It does so in a fashion that permits the decoupling of such services from the communications media, thereby permitting the former to reside under the direct control of the communicating parties or the organizations within which they do business.
 
 ## Terminology {#terminology}
 
 This document uses the terminology from {{I-D.ietf-jose-json-web-signature}}, {{I-D.ietf-jose-json-web-encryption}}, {{I-D.ietf-jose-json-web-key}}, and {{I-D.ietf-jose-json-web-algorithms}} when discussing JOSE technologies.
+
+This document uses the terminology from {{I-D.abiggs-saag-primitives-for-conf-group-comms}} when discussing authentication, group membership, and secure key exchange.
 
 This document makes use of the following terminology, and additionally adopts nomenclature defined in {{I-D.barnes-pervasive-problem}} for the purpose of describing aspects of pervasive attacks.
 
@@ -173,7 +179,7 @@ The architectural reference model for this specification is illustrated in {{ref
 ~~~
 {: #reference-model title="KMS Architecture Reference Model"}
 
-In addition to the familiar elements described above, this model also includes a key management server, or *KMS*, operated by a *KMS provider*. The KMS server exposes an API through which clients may securely establish and share cryptographic keying material used for the E2E encryption of content that is transited through the cloud provider's services.  This API is secured in such a way as to ensure these keys are visible to none but the KMS server itself and the clients authorized to consume the content they protect.  This highlights an important distinction between the KMS provider and the cloud provider: while the KMS provider is necessarily a *trusted party*, the cloud provider need not be.  
+In addition to the familiar elements described above, this model also includes a key management server, or *KMS*, operated by a *KMS provider*. The KMS server exposes an API through which clients may securely post and share cryptographic keying material used for the E2E encryption of content that is transited through the cloud provider's services.  The API exposed by the KMS implements the curator functions described in the Centralized Groups section of {{I-D.abiggs-saag-primitives-for-conf-group-comms}}.  It is important to note that the KMS is a dedicated curator rather than a content producing curator.  This API is secured in such a way as to ensure these keys are visible to none but the KMS server itself and the clients authorized to consume the content they protect.  This highlights an important distinction between the KMS provider and the cloud provider: while the KMS provider is necessarily a *trusted party*, the cloud provider need not be.  
 
 It is an explicit objective of this specification to promote an ecosystem of providers of KMS implementations and KMS services that are distinct and independent of the cloud providers over whose services users communicate.  To that end, this specification seeks to standardize a KMS service protocol though which clients and KMS servers interoperate.  This protocol provides for the establishment of a confidential and authenticated channel between each client and KMS server, and defines an API of request and response messages to be exchanged over this secure channel for the purpose of creating, retrieving, and exchanging keys.  
 
@@ -189,41 +195,60 @@ The use cases described in this section are non-normative examples meant to illu
 Note that all requests to the KMS server are via the KMS transport which, for clarity, has been omitted from the sequence diagrams included in this section.
 
 ~~~
-  Resource          Resource          Resource            KMS
-  Client B          Client A           Server            Server
-     |                 |                 |                 |
-     |                 |                 |       (1)       |
-     |                 |-----------------|---------------->|
-     |                 |       (2)       |                 |
-     |                 |---------------->|                 |
-     |                 |                 |       (3)       |
-     |                 |-----------------|---------------->|
-     |                 |       (4)       |                 |
-     |-----------------|---------------->|                 |
-     |                 |                 |                 |
- (5) |                 |                 |                 |
-     |                 |                 |       (6)       |
-     |-----------------|-----------------|---------------->|
-     |                 |                 |                 |
- (7) |                 |                 |                 |
-     |                 |                 |                 |
-
+   Resource          Resource          Resource            KMS
+   Client B          Client A           Server            Server
+      |                 |                 |       (1)       |
+      |                 |-----------------|---------------->|
+      |                 |                 |                 |
+      |             (2) |                 |                 |
+      |                 |                 |                 |
+      |             (3) |                 |                 |
+      |                 |       (4)       |                 |
+      |                 |---------------->|                 |
+      |                 |                 |                 |
+      |             (5) |                 |                 |
+      |                 |                 |                 |
+      |             (6) |                 |                 |
+      |                 |                 |       (7)       |
+      |                 |-----------------|---------------->|
+      |                 |       (8)       |                 |
+      |-----------------|---------------->|                 |
+      |                 |                 |       (9)       |
+      |-----------------|-----------------|---------------->|
+      |                 |                 |                 |
+ (10) |                 |                 |                 |
+      |                 |                 |      (11)       |
+      |-----------------|-----------------|---------------->|
+      |                 |                 |                 |
+ (12) |                 |                 |                 |
+      |                 |                 |                 |
+ 
 ~~~
 {: #nominal-usecase title="Nominal Use Case"}
 
-1. Client A requests the generation of a new unbound key from the KMS.
+1. Client A reserves a unique GMBC URI from the KMS server.
 
-2. Client A encrypts a communications resource using the unbound KMS key and shares it via a resource server.
+2. Client A generates a symmetric key to be used for resource encryption.
 
-3. Client A requests the creation of a new KMS resource object (KRO) to represent the communications resource.  Client A also instructs the KMS to bind the KMS key used in step (2) to the new KRO and to authorize user B to retrieve keys bound to the KRO.
+3. Client A encrypts a resource using the symmetric key.
 
-4. Client B accesses the communications resource shared by client A and receives the encrypted data.
+4. Client A posts the encrypted resource to the resource server, obtaining a unique resource URI in return.  As metadata associated with that resource, Client A also includes the reserved URI for the GMBC.
 
-5. Client B obtains, through some means not defined by this specification, the URL of the KMS key used to encrypt the communications resource.
+5. Client A generates a new GMBC by creating a genesis block, containing the unique resource URI, two group membership "add" operations (one for itself and one for Client B), and the KMS' URI in the curator field.
 
-6. Client B requests the KMS key from the KMS server.  The KMS server, recognizing user B as authorized on the KRO to which the key is bound, returns the KMS key.
+6. Client A creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-7. Client B decrypts the communications resource using the KMS key.
+7. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 5 and 6, respectively, to the KMS Server.
+
+8. Client B obtains the encrypted resource posted to the resource server along with metadata that points to the GMBC.
+
+9. Client B obtains the GMBC from the KMS.
+
+10. Client B validates the GMBC.
+
+11. Client B requests the GK from the KMS server.  The KMS encrypts the GK using the Client B as the recipient and returns the GK as a JWE JSON serialization.
+
+12. Client B decrypts the resource using the key material in the GK.
 
 ## Securing an HTTP File Sharing Service
 
@@ -241,39 +266,48 @@ For this scenario we also assume that the file sharing service is trusted by use
       |              |              |------------->|             |
       |      (3)     |      (3)     |              |             |
       |<-------------|<-------------|--------------|             |
-      |              |              |              |     (4)     |
-      |              |              |--------------|------------>|
-      |              |              |      (5)     |             |
-      |              |--------------|------------->|             |
+      |              |          (4) |              |             |
+      |              |              |              |             |
+      |              |          (5) |              |             |
+      |              |              |              |             |
       |              |              |              |     (6)     |
+      |              |              |--------------|------------>|
+      |              |              |      (7)     |             |
+      |              |--------------|------------->|             |
+      |              |              |              |     (8)     |
       |              |--------------|--------------|------------>|
       |              |              |              |             |
-      |          (7) |              |              |             |
+      |          (9) |              |              |             |
       |              |              |              |             |
-  (8) |              |              |              |             |
+ (10) |              |              |              |             |
       |              |              |              |             |
 ~~~
 {: #fileshare-usecase title="File Sharing Use Case"}
 
 This sequence begins with the assumption that each client has, at some point, already established a secure channel to the KMS via authenticated key agreement.
 
-1. Client A requests from the KMS some number of unbound KMS keys.
+1. Client A reserves some number of unique GMBC URIs from the KMS server.
 
-2. Client A selects an unbound key from the set of keys obtained step (1), encrypts the file to be shared, and posts the encrypted content to the file sharing service.  The file sharing service responds with a URL that uniquely identifies the shared file.
+2. Client A selects a reserved GMBC URI from the set of URIs obtained in step (1), generates a symmetric key, encrypts the file to be shared, and posts the encrypted content to the file sharing service.  The file sharing service responds with a URL that uniquely identifies the shared file.
 
 3. Clients B and C learn of the newly shared file from the file sharing service (the mechanism by which this occurs is out of scope for this specification).
 
-4. Client A requests the creation of a KMS resource object (KRO) on the KMS to represent the shared file.  In this message the client also requests that the key from step (2) be bound to the newly created KRO and that the users of clients B and C be authorized to retrieve keys bound to the KRO. 
+4. Client A generates a new GMBC by creating a genesis block, containing the unique shared file URL, three group membership "add" operations (one for itself, one for Client B, and one for Client C), and the KMS' URI in the curator field.
 
-5. Client B retrieves the shared file from the file sharing service.
+5. Client A creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-6. Client B requests from the KMS all keys bound to the KRO associated with the shared file's URL.  Recognizing client B as authorized on the KRO, the KMS returns the key bound to the KRO by client A in step (4).
+6. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 4 and 5, respectively, to the KMS Server.
 
-7. Client B decrypts the shared file using the key obtained in step (6).
+7. Client B retrieves the shared file from the file sharing service.
 
-8. Client C performs steps (5) through (7) in the same fashion as client B.
+8. Client B requests from the KMS the GMBC associated with the shared file's URL.  Recognizing Client B as authorized on the GMBC, the KMS returns a copy of the GK encrypted for Client B.
 
-It is worth noting that a race condition does exist where step (6) could occur before step (4) completes.  This will result in a client being temporarily denied access to the key used to encrypt the shared file.
+9. Client B decrypts the shared file using the key obtained in step (8).
+
+10. Client C performs steps (7) through (9) in the same fashion as client B.
+
+
+It is worth noting that a race condition does exist where step (8) could occur before step (6) completes.  This will result in a client being temporarily denied access to the key used to encrypt the shared file.
 
 ## Securing an XMPP Multi-User Chat
 
@@ -285,36 +319,44 @@ Let A, B and C be users that wish to engage in secure chat through an existing X
       |              |              |              |             |
       |              |              |              |     (1)     |
       |              |              |--------------|------------>|
-      |              |              |              |     (2)     |
+      |              |          (2) |              |             |
+      |              |              |              |             |
+      |              |          (3) |              |             |
+      |              |              |              |             |
+      |              |              |              |     (4)     |
       |              |              |--------------|------------>|
-      |              |              |      (3)     |             |
+      |              |              |      (5)     |             |
       |              |              |------------->|             |
-      |      (4)     |      (4)     |              |             |
+      |      (6)     |      (6)     |              |             |
       |<-------------|<-------------|--------------|             |
-      |              |              |              |     (5)     |
+      |              |              |              |     (7)     |
       |              |--------------|--------------|------------>|
       |              |              |              |             |
-      |          (6) |              |              |             |
+      |          (8) |              |              |             |
       |              |              |              |             |
-  (7) |              |              |              |             |
+  (9) |              |              |              |             |
 ~~~
 {: #muc-usecase title="Multi-User Chat Use Case"}
 
 This sequence begins with the assumption that a MUC room already exists on the MUC server and that each client has already established a secure channel to the KMS via authenticated key agreement.  All messages are transmitted over XMPP.
 
-1. Client A requests from the KMS some number of unbound KMS keys.  Client A selects one of these keys for encrypting MUC room messages.
+1. Client A reserves some number of unique GMBC URIs from the KMS server.  Client A selects one of these GMBC URIs for securing MUC room messages.
 
-2. Client A requests the creation of a KMS resource object (KRO) on the KMS to represent the MUC room.  In this message the client also requests that the key selected in step (1) be bound to the newly created KRO and that the users of clients B and C be authorized to retrieve keys bound to the KRO. 
+2. Client A generates a new GMBC by creating a genesis block, containing the unique MUC URI, group membership "add" operations for each member of the MUC, and the KMS' URI in the curator field.
 
-3. Client A encrypts a message with the key selected in step (1) and sends it to the MUC room.
+3. Client A generates a symmetric key to be used in the MUC then creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-4. The MUC service delivers client A's encrypted message to clients B and C.
+4. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 2 and 3, respectively, to the KMS Server.
 
-5. Client B requests from the KMS all keys bound to the KRO associated with the MUC room's URI.  Recognizing client B as authorized on the KRO, the KMS returns the key bound to the KRO by client A in step (2).
+5. Client A encrypts a message with the key generated in step (3) and sends it to the MUC room.
 
-6. Client B decrypts the shared file using the key selected in step (1).
+6. The MUC service delivers client A's encrypted message to clients B and C.
 
-7. Client C performs steps (5) and (6) in the same fashion as client B.
+7. Client B requests from the KMS the GMBC associated with the MUC room's URI.  Recognizing Client B as authorized on the GMBC, the KMS returns a copy of the GK encrypted for Client B.
+
+8. Client B decrypts the messages using the key obtained in step (7).
+
+9. Client C performs steps (7) and (8) in the same fashion as Client B.
 
 ## KMS to KMS Key Federation
 
@@ -331,50 +373,59 @@ Bob@DomainB   Alice@DomainA   Share Server     DomainA       DomainB
      |              |------------->|              |             |
      |      (3)     |              |              |             |
      |<-------------|--------------|              |             |
-     |              |              |      (4)     |             |
+     |          (4) |              |              |             |
+     |              |              |              |             |
+     |          (5) |              |              |             |
+     |              |              |              |             |
+     |              |              |      (6)     |             |
      |              |--------------|------------->|             |
-     |              |      (5)     |              |             |
+     |              |      (7)     |              |             |
      |--------------|------------->|              |             |
-     |              |              |              |     (6)     |
-     |--------------|--------------|--------------|------------>|
-     |              |              |              |     (7)     |
-     |              |              |              |<------------|
      |              |              |              |     (8)     |
+     |--------------|--------------|--------------|------------>|
+     |              |              |              |     (9)     |
      |              |              |              |<------------|
+     |              |              |              |     (10)    |
+     |              |              |              |------------>|
      |              |              |              |             |
-     |              |              |              |             | (9)
+     |              |              |              |             | (11)
      |              |              |              |             |
-(10) |              |              |              |             |
+(12) |              |              |              |             |
      |              |              |              |             |
 ~~~
 {: #fed-usecase title="File Sharing with KMS Federation Use Case"}
 
 This sequence begins with the assumption that each client has, at some point, already established a secure channel to their respective KMS via authenticated key agreement.
 
-1. Alice@DomainA requests from the DomainA KMS some number of unbound KMS keys.  Each KMS key is uniquely identified by a URL.
+1. Alice@DomainA requests from the DomainA KMS some number of unique GMBC URLs.  Each KMS key is uniquely identified by a URL.
 
-2. Alice@DomainA selects a key from the set of KMS keys obtained in step (1), uses that key to encrypt the file to be shared, and posts the encrypted content to the file sharing service.  The file sharing service responds with a URL that uniquely identifies the shared file.
+2. Alice@DomainA selects a reserved GMBC URI from the set of URIs obtained in step (1), generates a symmetric key, encrypts the file to be shared, and posts the encrypted content to the file sharing service.  As metadata to the file posted to the file sharing service, Alice@DomainA includes the GMBC URL.  The file sharing service responds with a URL that uniquely identifies the shared file.
 
-3. Bob@DomainB is notified of the newly shared file URL and corresponding KMS key URL through a notification from the file sharing service (or potentially some other means, such an an email from Alice).
+3. Bob@DomainB is notified of the newly shared file URL through a notification from the file sharing service (or potentially some other means, such an an email from Alice).
 
-4. Alice@DomainA requests the creation of a KMS resource object (KRO) on the DomainA KMS to represent the shared file.  In this message Alice also requests that the KMS key from step (2) be bound to the newly created KRO and that the user Bob@DomainB be authorized to retrieve KMS keys bound to the KRO. 
+4. Alice@DomainA generates a new GMBC by creating a genesis block, containing the unique shared file URL, two group membership "add" operations (one for itself and one for Bob@DomainB), and the KMS' URI in the curator field.
 
-5. Bob@DomainB retrieves the shared file from the file sharing service.
+5. Alice@DomainA creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-6. Using the KMS key URL obtained in step (3), Bob@DomainB requests the KMS key from the DomainB KMS.
+6. Alice@DomainA performs a GMBC Post and GK Post of the GMBC and GK created in steps 4 and 5, respectively, to the KMS Server.
 
-7. The DomainB KMS recognizes the KMS key URL as actually hosted by the DomainA KMS.  The DomainB KMS establishes a secure and mutually authenticated channel with the DomainA KMS via the KMS transport.
+7. Bob@DomainB retrieves the shared file from the file sharing service along with the GMBC URL contained in metadata.
 
-8. The DomainB KMS requests from the DomainA KMS the KRO object to which the KMS key is bound, along with all DomainB user authorizations and other KMS keys that have been bound to that KRO.  The DomainA KMS recognizes that the DomainB KMS is authorized to retrieve all KMS keys for which users in the DomainB domain have been authorized.  It then recognizes that at least one DomainB user (Bob) has been authorized on the KRO created in step (4).  The DomainA KMS therefore decides the DomainB KMS is authorized to make this request and returns the requested information. 
-9. Using the information received from the DomainA KMS, the DomainB KMS verifies that Bob@DomainB is authorized on the KRO, and satisfies the request from step (6) by returning the KMS key to Bob@DomainB. 
+8. Using the GMBC key URL obtained in step (7), Bob@DomainB requests the GMBC from the DomainB KMS.
 
-10. Client Bob@DomainB decrypts the shared file using the key obtained in step (9).
+9. The DomainB KMS recognizes the GMBC URL as actually hosted by the DomainA KMS.  The DomainB KMS establishes a secure and mutually authenticated channel with the DomainA KMS via the KMS transport.
 
-Note that in step (9) the DomainB KMS is enforcing authorization policy for the KRO hosted on the DomainA KMS as it pertains to DomainB users.  This is a necessary consequence of KMS federation, where the act of authorizing access to a KRO by a user residing in a federated domain engenders an implicit trust of the KMS server that controls the federated domain.  For that reason, a KMS provider should restrict federation of its KMS servers to domains that the KMS provider regards as trusted. 
+10. The DomainB KMS requests from the DomainA KMS the GMBC and GK objects, along with all DomainB user authorizations.  The DomainA KMS recognizes that the DomainB KMS is authorized to retrieve all KMS keys for which users in the DomainB domain have been authorized.  It then recognizes that at least one DomainB user (Bob) has been authorized on the GMBC created in step (4).  The DomainA KMS therefore decides the DomainB KMS is authorized to make this request, it adds DomainB KMS to the GMBC and returns the updated GMBC along with the GK encrypted for DomainB KMS.
+ 
+11. Using the information received from the DomainA KMS, the DomainB KMS verifies that Bob@DomainB is authorized on the GMBC, and satisfies the request from step (8) by returning the KMS key to Bob@DomainB. 
+
+12. Bob@DomainB decrypts the shared file using the key obtained in step (11).
+
+Note that in step (11) the DomainB KMS is enforcing authorization policy for the GMBC hosted on the DomainA KMS as it pertains to DomainB users.  This is a necessary consequence of KMS federation, where the act of authorizing access to a GMBC by a user residing in a federated domain engenders an implicit trust of the KMS server that controls the federated domain.  For that reason, a KMS provider should restrict federation of its KMS servers to domains that the KMS provider regards as trusted. 
 
 # KMS Protocol
 
-The KMS protocol is composed of a message oriented request and response API and a secure channel over which those messages are exchanged.  The API provides clients with the ability to generate E2E encryption keys, associate those keys with communications resources, and explicitly manage access authorizations on those keys.  The secure channel provides a mutually authenticated and E2E encrypted channel over which the clients and KMS server may exchange API messages securely.  The API and secure channel are described in detail through the remainder of this section.
+The KMS protocol is composed of a message oriented request and response API and a secure channel over which those messages are exchanged.  The API provides clients with the ability to post and retrieve GMBC and GK objects.  The secure channel provides a mutually authenticated and E2E encrypted channel over which the clients and KMS server may exchange API messages securely.  The API and secure channel are described in detail through the remainder of this section.
 
 ## Secure Channel
 
@@ -404,11 +455,11 @@ On successful mutual authentication and ephemeral key agreement, the resource cl
 
 ## User Identity {#proto-user-identity}
 
-Central to the KMS server's role as a key store is its ability to restrict access to stored keying material to only authorized users.  This requires robust user authentication and a means for the unambiguous and unique identification of each user.
+Central to the KMS server's role as a key store is its ability to both restrict access to stored keying material and to rekey keying material to only authorized users.  This requires robust user authentication and a means for the unambiguous and unique identification of each user.
 
-Conforming KMS architecture deployments MUST rely on an identity provider that supports the generation of OAuth 2.0 {{!RFC6749}} access tokens.  The KMS server MUST rely on same identity provider for the purpose of validating access tokens received from the client.  Access tokens used by clients to demonstrate identity and authorization for access to KMS resources MUST NOT be used for any other service.  Any exposure of a KMS recognized access token to third parties (such as providers of other services) jeopardizes the security of all KMS keys for which the user whose identity is represented by the token is authorized.  
+Conforming KMS architecture deployments MUST rely on an identity provider that supports the generation of OAuth 2.0 {{!RFC6749}} access tokens.  The KMS server MUST rely on same identity provider for the purpose of validating access tokens received from the client.  Access tokens used by clients to demonstrate identity and authorization for access to KMS resources MUST NOT be used for any other service.  Any exposure of a KMS recognized access token to third parties (such as providers of other services or a resource server) jeopardizes the security of all GMBC and GK objectgs for which the user whose identity is represented by the token is authorized.  
 
-The identity provider on which the KMS server relies MAY be the same identity provider as relied upon by the resource server(s) whose communications resources are encrypted with keys managed by the KMS server.  Note, however, the reliable authentication and authorization of clients to the KMS server is critical to the security of the KMS keys it holds.  The identity provider on which the KMS relies must therefore necessarily be regarded as a trusted party within the context of the KMS architecture.
+The identity provider on which the KMS server relies MAY be the same identity provider as relied upon by the resource server(s) whose communications resources are encrypted with GK objects managed by the KMS server.  Note, however, the reliable authentication and authorization of clients to the KMS server is critical to the security of the KMS keys it holds.  The identity provider on which the KMS relies must therefore necessarily be regarded as a trusted party within the context of the KMS architecture.
 
 Access tokens MUST be conveyed to the KMS server as part of the payload of encrypted KMS API requests as described in {{proto-basic-request-payload}} and MUST NOT be conveyed in any other manner.  
 
@@ -417,204 +468,6 @@ Access tokens MUST be conveyed to the KMS server as part of the payload of encry
 Given the untrusted nature of the KMS transport by both the KMS and clients, it is critical for clients to be able to verify the identity of their KMS and ensure that no MITM attacks are carried out on client to KMS or KMS to client communications.  Therefore, the KMS MUST make use of at least one PKIX certificate {{RFC5280}} and clients MUST validate the PKIX certificate presented by the KMS through the comparison of the certificate's common name (CN) or subject alternative name (SAN) {{!RFC6125}} fields to the Internet domain portion of the user's Addr-spec {{!RFC2822}} formatted unique identifier using the procedures defined in section 6 of {{RFC6125}}.  An acceptable alternative to direct CN or SAN validation is defined in {{?I-D.ietf-xmpp-posh}}.
 
 PKIX certificates presented by the KMS can be issued by either a public or private certification authority with the stipulation that clients MUST be able to validate the KMS's entire certificate path through the pre-established trust of the root certificate used to anchor the certificate path.  The mechanism for establishing trust of the root certificate is out of scope for this specification, but it is usually carried out through pre-installed trusted root certificates on various operating systems for public certification authorities or through enterprise endpoint management solutions or manual installation tasks for private certification authorities.
-
-## Object Types
-
-The KMS protocol defines three object types: resources, keys, and authorizations.  It is through the creation and manipulation of instances of these object types that clients interact with the KMS.
-
-Resource
-
-> A resource is an object that represents, within the KMS object model, a communications resource as defined in {{terminology}}.  Keys and user authorizations are associated (bound) to the resource object as a means of representing their logical association with that communications resource.
-
-Key
-
-> A key is an object representing symmetric keying material generated and made available to authorized clients by the KMS.  A key may exist in one of two states: "bound", and "unbound".  An unbound key is not associated with any resource, whereas a bound key is associated with exactly one resource.  
-
-Authorization
-
-> An authorization is the association of a user with a particular resource.  When such an association exists between a user and a resource this implies that the user is entitled to retrieve any key that is bound to that resource, and to add or remove authorizations for other users on the same resource.  
-
-The KMS protocol is composed from representations of these fundamental object types.  These representations are defined in the following sections.
-
-### KMS Key Objects {#proto-kms-key-object}
-
-The JSON representations for KMS key objects is defined as follows using JSON content rules {{I-D.newton-json-content-rules}}.
-
-~~~
-jwk : ; see [JWK]
-
-kmsUri (
-  "uri" : uri relative
-)
-
-keyRep {
-  kmsUri,
-  "jwk" : jwk,
-  "userId" : string,
-  "clientId" : string,
-  "createDate" : date-time,
-  "expirationDate" : date-time,
-  ?"resourceUri" : kmsUri,
-  ?"bindDate" : date-time
-}
-
-key (
-  "key" : keyRep
-)
-
-keys (
-  "keys" : [ *keyRep ]
-)
-
-keyUris (
-  "keyUris" : [ *kmsUri ]
-)
-~~~
-
-The attributes of a KMS key object are defined as follows.
-
-uri
-
-> A standard definition for KMS object identifiers.
-
-jwk
-
-> Symmetric keying material represented as a JWK object (see {{I-D.ietf-jose-json-web-key}}).
-
-userId
-
-> The authenticated unique identifier of the user that created the key.
-
-clientId
-
-> An opaque unique identifier provided by the client that created the key.
-
-createDate
-
-> The point in time when the key was created, in {{!RFC3339}} date-time format.
-
-expirationDate
-
-> The point in time after which the key may no longer be bound (if unbound) or may no longer be used for encrypting data (if bound or an ephemeral key).
-
-resourceUri
-
-> The uri of the KMS resource object to which the key is bound.
-
-bindDate
-
-> The point in time when the key was bound, in {{RFC3339}} date-time format.
-
-### KMS Authorization Objects {#proto-kms-authorization-object}
-
-The JSON representations for KMS authorization objects is defined as follows using JSON content rules with references to rules defined in previous sections.
-
-~~~
-authorizationRep {
-  kmsUri,
-  "authId" : string,
-  "createDate" : date-time,
-  "resourceUri" : kmsUri,
-}
-
-authorization (
-  "authorization" : authorizationRep
-)
-
-authorizations (
-  "authorizations" : [ *authorizationRep ]
-)
-
-authorizationUris (
-  "authorizationUris" : [ *kmsUri ]
-)
-~~~
-
-The attributes of a KMS authorization object are defined as follows.
-
-uri
-
-> A standard definition for KMS object identifiers.
-
-authId
-
-> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS.  The value of this attribute may also be the URI of a KRO, in which case all authorizations on the indicated KRO will be regarded by the KMS as also applying to the KRO to which this authorization object belongs.
-
-createDate
-
-> The point in time when the authorization was created, in {{!RFC3339}} date-time format.
-
-resourceUri
-
-> The object identifier of the resource to which the authorization applies.
-
-Note, with respect to this specification user identifiers are opaque, however they MUST map to unique identifiers provided as part of user authentication.
-
-### KMS Resource Objects (KRO) {#proto-kms-resource-object}
-
-The JSON representation for KMS resource objects is defined as follows using JSON content rules with references to rules defined in previous sections.
-
-~~~
-resourceRep {
-  kmsUri,
-  keys / keyUris,
-  authorizations / authorizationUris
-}
-
-resource (
-  "resource" : resourceRep
-)
-
-resources (
-  "resources" : [ *resourceRep ]
-)
-
-resourceUris (
-  "resourceUris" : [ *kmsUri ]
-)
-~~~
-
-The attributes of a KMS resource object are defined as follows.
-
-uri
-
-> A standard definition for KMS object identifiers.
-
-keys
-
-> An array of key object representations, one for each key bound to the resource.
-
-keyUris
-
-> An array of key object identifiers, one for each key bound to the resource.  Only one of either keys or keyUris may be present in a resource object representation.
-
-authorizations
-
-> An array of authorization object representations, one for each authorization on the resource.
-
-authorizationUris
-
-> An array of authorization object identifiers, one for each authorization on the resource.  Only one of either authorizations or authorizationUris may be present in a resource object representation.
-
-## Request Types
-
-The KMS protocol defines four types of requests: create, retrieve, update, delete, each of which may be applied to one of the three KMS object types.  Note that not all object types support all requests types.  A KMS need only support those combinations of request type and object type explicitly defined in this document.
-
-Create
-
-> A create operation acts upon an object type, creating one or more new instances of that object type.  
-
-Retrieve
-
-> A retrieve operation acts upon an object or object type, returning in the response a representation of one or more object instances.
-
-Update
-
-> An update operation acts upon an object, altering mutable properties of that object.
-
-Delete
-
-> A delete operation acts upon an object, removing that object from the KMS.
 
 ## Message Structure
 
@@ -793,7 +646,7 @@ JWE(K_kms_pub, {
 
 On receiving the ephemeral key creation request, the KMS server MUST verify the credential provided in the request.  If a bearer token is provided, the KMS MUST validate the token in cooperation with the identity provider.  If a jwk is provided, the KMS MUST validate the included PKIX certificate chain against the KMS server's trust root.  In either case, the identity of the requesting client MUST be authenticated and verified to correspond to either an authorized user of the KMS or an authorized trusted service.  If verification fails, the KMS MUST NOT use the server response to continue with key agreement.
 
-Upon successful authentication and authorization of the request, the KMS responds by generating its own EC key pair using the same curve as indicated in the "crv" attribute of the request message JWK.  The KMS server returns the public part of this key pair to the resource client in the form of a KMS key object within the response payload.  The KMS also generates and includes within the response payload a new key uri to be regarded by both client and KMS as the key identifier of the agreed upon ephemeral key.  The response payload is returned to the resource client as the content of a JWS {{I-D.ietf-jose-json-web-signature}} signed using the static private key of the KMS server (K_kms_priv).
+Upon successful authentication and authorization of the request, the KMS responds by generating its own EC key pair using the same curve as indicated in the "crv" attribute of the request message JWK.  The KMS server returns the public part of this key pair to the resource client in the form of an EK object within the response payload.  The KMS also generates and includes within the response payload a new key uri to be regarded by both client and KMS as the key identifier of the agreed upon ephemeral key.  The response payload is returned to the resource client as the content of a JWS {{I-D.ietf-jose-json-web-signature}} signed using the static private key of the KMS server (K_kms_priv).
 
 Response payload definition:
 
@@ -809,8 +662,8 @@ Response message example:
 ~~~
 JWS(K_kms_priv, {
   "status": 201,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "key": {
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",  
+  "ephemeral-key": {
     "uri": "/ecdhe/ea9f3858-1240-4328-ae22-a15f6072306f",
     "jwk" : {
       "kty": "EC",
@@ -889,28 +742,11 @@ If successful, the KMS response to a delete ephemeral key request MUST have a st
 
 On successful deletion of an ephemeral key, the KMS MUST NOT, from that time forward, accept any requests encrypted with that ephemeral key.
 
-### Create Resource
+### Create GMBC
 
-When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a KMS resource object.  This resource object logically represents the communications resource within the KMS data model.  
+When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GMBC URL.  This resource serves as a placeholder for the GMBC until the orignating client can post the contents of the GMBC.
 
-As part of a create resource request, a KMS server MUST create at least one authorization object on the newly created resource object to explicitly authorize the user making the request.  A client MAY request the immediate creation of one or more additional authorizations such that corresponding users may be immediately authorized to access and operate on the new resource object.  If for any reason one or more requested authorizations cannot be applied to the new resource object, the entire create resource request MUST be failed by the KMS.
-
-As part of a create resource request, a client MAY request the immediate binding of one or more unbound KMS keys to the new resource object.  If any key indicated in the request is already bound, or is otherwise invalid (e.g. expired), the entire create resource request MUST be failed by the KMS.
-
-The request message conforms to the basic request message structure, where the method is "create", the uri is "/resources", and additional user identifiers and/or key URIs are provided in a manner consistent with the following.
-
-Request payload definition:
-
-~~~
-authIds (
-  "authIds" : [ *string ]
-)
-
-root {
-  request,
-  ?authIds,
-  ?keyUris
-}
+The request message conforms to the basic request message structure, where the method is "create", the uri is "/gmbc".
 ~~~
 
 Request message example:
@@ -924,16 +760,8 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "create",
-  "uri": "/resources",
+  "uri": "/gmbc",
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "authIds": [
-    "b46e8124-b6e8-47e0-af0d-e7f1a2072dac",
-    "39d56a84-c6f9-459e-9fd1-40ab4ad3e89a"
-  ],
-  "keyUris": [
-    "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
-    "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-  ]
 })
 ~~~
 
@@ -944,7 +772,7 @@ Response payload definition:
 ~~~
 root {
   response,
-  resource
+  resource-uris
 }
 ~~~
 
@@ -954,27 +782,24 @@ Response message example:
 JWE(K_ephemeral, {
   "status": 201,
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "resource": {
-      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-      "authorizationUris": [
-        "/authorizations/50e9056d-0700-4919-b55f-84cd78a2a65e",
-        "/authorizations/db4c95ab-3fbf-42a8-989f-f53c1f13cc9a"
-      ],
-      "keyUris": [
-        "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
-        "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-      ]
-  }
+  "resource-uris": [
+      "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+
+  ]
 })
 ~~~
 
 If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Retrieve Resource
+### Post GMBC
 
-A client that is authorized on a given KMS resource object may retrieve the current state of that object as well as that of current set of KMS authorization objects and bound KMS keys.
+TODO
 
-The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the KMS resource object as returned by the create operation from which it originated.
+### Retrieve GMBC
+
+A client that is authorized on a given GMBC may retrieve the current state of that object as well as that of current set of associated GK objects.
+
+The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the GMBC as returned by the create operation from which it originated.
 
 Request payload definition:
 
@@ -995,7 +820,7 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "uri": "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
   "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
 })
 ~~~
