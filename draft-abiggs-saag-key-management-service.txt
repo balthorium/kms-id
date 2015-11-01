@@ -460,8 +460,8 @@ Internet-Draft           key-management-service                July 2015
    5.  Client A generates a new GMBC by creating a genesis block using
        the reserved GMBC URI.  The genesis block references the resource
        URI obtained in (4) and includes two group membership "add"
-       operations (one for itself and one for Client B).  The URI of the
-       KMS server is used in the curator field.
+       operations (one for Client A and one for Client B).  The URI of
+       the KMS server is used in the curator field.
 
    6.  Client A posts the GK and GMBC created in steps (2) and (5) to
        the KMS server.
@@ -485,12 +485,12 @@ Internet-Draft           key-management-service                July 2015
    clients.
 
    For this scenario we also assume that the file sharing service is
-   trusted by user A with the role of providing a file sharing service
+   trusted by user A with the role of providing a file sharing mechanism
    but is not necessarily trusted to adequately protect the
    confidentiality of the file contents.  User A's concerns may then be
    addressed through the introduction of an HTTP based KMS transport
-   (not shown) and KMS server deployed by an entity that A regards as a
-   trusted party.
+   (not shown) and a KMS server deployed by an entity that A regards as
+   a trusted party.
 
 
 
@@ -515,20 +515,18 @@ Internet-Draft           key-management-service                July 2015
          |              |              |------------->|             |
          |      (3)     |      (3)     |              |             |
          |<-------------|<-------------|--------------|             |
+         |              |              |              |             |
          |              |          (4) |              |             |
-         |              |              |              |             |
-         |              |          (5) |              |             |
-         |              |              |              |             |
-         |              |              |              |     (6)     |
+         |              |              |              |     (5)     |
          |              |              |--------------|------------>|
-         |              |              |      (7)     |             |
+         |              |              |      (6)     |             |
          |              |--------------|------------->|             |
-         |              |              |              |     (8)     |
+         |              |              |              |     (7)     |
          |              |--------------|--------------|------------>|
          |              |              |              |             |
-         |          (9) |              |              |             |
+         |          (8) |              |              |             |
          |              |              |              |             |
-    (10) |              |              |              |             |
+     (9) |              |              |              |             |
          |              |              |              |             |
 
                       Figure 3: File Sharing Use Case
@@ -537,23 +535,25 @@ Internet-Draft           key-management-service                July 2015
    some point, already established a secure channel to the KMS via
    authenticated key agreement.
 
-   1.   Client A reserves some number of unique GMBC URIs from the KMS
-        server.
+   1.  Client A reserves a unique GMBC URL and a unique GK URL from the
+       KMS server.
 
-   2.   Client A selects a reserved GMBC URI from the set of URIs
-        obtained in step (1), generates a symmetric key, encrypts the
-        file to be shared, and posts the encrypted content to the file
-        sharing service.  The file sharing service responds with a URL
-        that uniquely identifies the shared file.
+   2.  Client A generates a GK using the reserved GK URI and containing
+       a reference to the reserved GMBC URI.  Client A encrypts a file
+       using the key material protected by the GK, and posts the file to
+       the file sharing service, including the GK URL as metadata.  A
+       file URL is returned in the response.
 
-   3.   Clients B and C learn of the newly shared file from the file
-        sharing service (the mechanism by which this occurs is out of
-        scope for this specification).
+   3.  Clients B and C learn of the newly shared file from the file
+       sharing service (the mechanism by which this occurs is out of
+       scope for this specification).
 
-   4.   Client A generates a new GMBC by creating a genesis block,
-        containing the unique shared file URL, three group membership
-        "add" operations (one for itself, one for Client B, and one for
-        Client C), and the URI of the KMS server in the curator field.
+   4.  Client A generates a new GMBC by creating a genesis block using
+       the reserved GMBC URI.  The genesis block references the resource
+       URI obtained in (3) and includes group membership "add"
+       operations for each of Clients A, B, and C.  The URI of the KMS
+       server is used in the curator field.
+
 
 
 
@@ -562,30 +562,24 @@ Biggs & Cooley           Expires January 4, 2016               [Page 10]
 Internet-Draft           key-management-service                July 2015
 
 
-   5.   Client A creates a GK that includes a hash of the GMBC genesis
-        block, and encrypts the key material portion of the GK using a
-        JWE JSON serialization that indicates the KMS server is the
-        recipient.
+   5.  Client A posts the GK and GMBC created in steps (2) and (4) to
+       the KMS server.
 
-   6.   Client A performs a GMBC Post and GK Post of the GMBC and GK
-        created in steps 4 and 5, respectively, to the KMS server.
+   6.  Client B obtains the encrypted file from the file sharing
+       service, including the GK URL as metadata.
 
-   7.   Client B retrieves the shared file from the file sharing
-        service.
+   7.  Client B performs a get on the GK URL to obtain the GK from the
+       KMS server.  The KMS server generates a new GK based on the
+       original GK created in (2), but with Client B as the recipient.
 
-   8.   Client B performs a GMBC Get to obtain, from the KMS server, the
-        GMBC associated with the shared file's URL.  Recognizing Client
-        B as authorized on the GMBC, the KMS server returns a copy of
-        the GK encrypted for Client B.
+   8.  Client B decrypts the encrypted file using the key material
+       protected by the GK.
 
-   9.   Client B decrypts the shared file using the key obtained in step
-        (8).
+   9.  Client C performs steps (6) through (8) in the same fashion as
+       client B.
 
-   10.  Client C performs steps (7) through (9) in the same fashion as
-        client B.
-
-   It is worth noting that a race condition does exist where step (8)
-   could occur before step (6) completes.  This will result in a client
+   It is worth noting that a race condition does exist where step (7)
+   could occur before step (5) completes.  This will result in a client
    being temporarily denied access to the key used to encrypt the shared
    file.
 
@@ -596,6 +590,12 @@ Internet-Draft           key-management-service                July 2015
    architecture we may regard the XMPP MUC service as the resource
    server, the users' XMPP clients as the resource clients, and the XMPP
    service itself (not shown) as the KMS transport.
+
+
+
+
+
+
 
 
 
