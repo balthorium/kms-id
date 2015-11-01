@@ -61,7 +61,7 @@ informative:
   I-D.barnes-pervasive-problem:
 
   I-D.newton-json-content-rules:
-
+ 
 --- abstract
 
 In the interest of addressing pervasive threats to the confidentiality and integrity of online communications identified by the Internet community {{I-D.barnes-pervasive-problem}} this specification introduces an open architecture for the establishment, management, and secure distribution of cryptographic keys for use in the end-to-end (E2E) encryption of online communications and shared content.  This architecture allows for the independent deployment of dedicated key management services in a manner that supports the adoption of third-party communications and data sharing services by individuals and organizations that require full and exclusive discretion over the confidentiality of their data.  
@@ -493,7 +493,7 @@ The basic JSON representations for the request and response payloads are defined
 
 ### Basic Request Payload {#proto-basic-request-payload}
 
-The basic JSON representation for KMS request message payloads is defined as follows using JSON content rules with references to rules defined in previous sections.
+The basic JSON representation for KMS request message payloads is defined as follows using JSON content rules {{I-D.newton-json-content-rules}} with references to rules defined in previous sections.
 
 ~~~
 requestId (
@@ -1353,7 +1353,7 @@ JWE(K_ephemeral, {
   }  
   "method": "delete",
   "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
-         /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+        /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
 })
 ~~~
 
