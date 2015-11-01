@@ -209,48 +209,36 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
       |                 |---------------->|                 |
       |                 |                 |                 |
       |             (5) |                 |                 |
-      |                 |                 |                 |
-      |             (6) |                 |                 |
-      |                 |                 |       (7)       |
+      |                 |                 |       (6)       |
       |                 |-----------------|---------------->|
-      |                 |       (8)       |                 |
+      |                 |       (7)       |                 |
       |-----------------|---------------->|                 |
-      |                 |                 |       (9)       |
+      |                 |                 |       (8)       |
       |-----------------|-----------------|---------------->|
       |                 |                 |                 |
- (10) |                 |                 |                 |
-      |                 |                 |      (11)       |
-      |-----------------|-----------------|---------------->|
+  (9) |                 |                 |                 |
       |                 |                 |                 |
- (12) |                 |                 |                 |
-      |                 |                 |                 |
- 
+
 ~~~
 {: #nominal-usecase title="Nominal Use Case"}
 
-1. Client A reserves a unique GMBC URI from the KMS server.
+1. Client A reserves a unique GMBC URI and a unique GK URI from the KMS server.
 
-2. Client A generates a symmetric key to be used for resource encryption.
+2. Client A generates a GK using the reserved GK URI and containing a reference to the reserved GMBC URI.  Client A assigns only the KMS itself as a recipient of the GK.
 
-3. Client A encrypts a resource using the symmetric key.
+3. Client A encrypts a resource using the key material protected by the GK.
 
-4. Client A posts the encrypted resource to the resource server, obtaining a unique resource URI in return.  As metadata associated with that resource, Client A also includes the reserved URI for the GMBC.
+4. Client A posts the encrypted resource to the resource server, including the GK URI as metadata.  A resource URI is returned in the response.
 
-5. Client A generates a new GMBC by creating a genesis block, containing the unique resource URI, two group membership "add" operations (one for itself and one for Client B), and the URI of the KMS server in the curator field.
+5. Client A generates a new GMBC by creating a genesis block using the reserved GMBC URI.  The genesis block references the resource URI obtained in (4) and includes two group membership "add" operations (one for itself and one for Client B).  The URI of the KMS server is used in the curator field.
 
-6. Client A creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
+6. Client A posts the GK and GMBC created in steps (2) and (5) to the KMS server.
 
-7. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 5 and 6, respectively, to the KMS server.
+7. Client B obtains the encrypted resource from the resource server, including the GK URI as metadata.
 
-8. Client B obtains the encrypted resource posted to the resource server along with metadata that points to the GMBC.
+8. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS server generates a new GK based on the original GK created in (2), but with Client B as the recipient.
 
-9. Client B performs a GMBC Get to obtain the GMBC from the KMS server.
-
-10. Client B validates the GMBC.
-
-11. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS server encrypts the GK using Client B as the recipient and returns the GK as a JWE JSON serialization.
-
-12. Client B decrypts the resource using the key material in the GK.
+9. Client B decrypts the resource using the key material protected by the GK.
 
 ## Securing an HTTP File Sharing Service
 
