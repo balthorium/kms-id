@@ -28,6 +28,8 @@ normative:
   RFC5869:
 
   RFC7159:
+  
+  RFC3339:
 
   I-D.ietf-jose-json-web-encryption:
 
@@ -234,19 +236,19 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 4. Client A posts the encrypted resource to the resource server, obtaining a unique resource URI in return.  As metadata associated with that resource, Client A also includes the reserved URI for the GMBC.
 
-5. Client A generates a new GMBC by creating a genesis block, containing the unique resource URI, two group membership "add" operations (one for itself and one for Client B), and the KMS' URI in the curator field.
+5. Client A generates a new GMBC by creating a genesis block, containing the unique resource URI, two group membership "add" operations (one for itself and one for Client B), and the URI of the KMS server in the curator field.
 
 6. Client A creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-7. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 5 and 6, respectively, to the KMS Server.
+7. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 5 and 6, respectively, to the KMS server.
 
 8. Client B obtains the encrypted resource posted to the resource server along with metadata that points to the GMBC.
 
-9. Client B obtains the GMBC from the KMS.
+9. Client B performs a GMBC Get to obtain the GMBC from the KMS server.
 
 10. Client B validates the GMBC.
 
-11. Client B requests the GK from the KMS server.  The KMS encrypts the GK using the Client B as the recipient and returns the GK as a JWE JSON serialization.
+11. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS server encrypts the GK using Client B as the recipient and returns the GK as a JWE JSON serialization.
 
 12. Client B decrypts the resource using the key material in the GK.
 
@@ -292,15 +294,15 @@ This sequence begins with the assumption that each client has, at some point, al
 
 3. Clients B and C learn of the newly shared file from the file sharing service (the mechanism by which this occurs is out of scope for this specification).
 
-4. Client A generates a new GMBC by creating a genesis block, containing the unique shared file URL, three group membership "add" operations (one for itself, one for Client B, and one for Client C), and the KMS' URI in the curator field.
+4. Client A generates a new GMBC by creating a genesis block, containing the unique shared file URL, three group membership "add" operations (one for itself, one for Client B, and one for Client C), and the URI of the KMS server in the curator field.
 
 5. Client A creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
 
-6. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 4 and 5, respectively, to the KMS Server.
+6. Client A performs a GMBC Post and GK Post of the GMBC and GK created in steps 4 and 5, respectively, to the KMS server.
 
 7. Client B retrieves the shared file from the file sharing service.
 
-8. Client B requests from the KMS the GMBC associated with the shared file's URL.  Recognizing Client B as authorized on the GMBC, the KMS returns a copy of the GK encrypted for Client B.
+8. Client B performs a GMBC Get to obtain, from the KMS server, the GMBC associated with the shared file's URL.  Recognizing Client B as authorized on the GMBC, the KMS server returns a copy of the GK encrypted for Client B.
 
 9. Client B decrypts the shared file using the key obtained in step (8).
 
@@ -365,33 +367,33 @@ This use case illustrates two KMS instances federating keys associated with a re
 Let Alice@DomainA and Bob@DomainB be users of a common file sharing service and who happen to use different KMS servers to secure their communications.  Assume then that Alice wishes to share a file with Bob and therefore relies on KMS server federation to facilitate the key exchange.
 
 ~~~
-HTTP Client    HTTP Client     HTTP File      KMS Server   KMS Server
-Bob@DomainB   Alice@DomainA   Share Server     DomainA       DomainB
-     |              |              |      (1)     |             |
-     |              |--------------|------------->|             |
-     |              |      (2)     |              |             |
-     |              |------------->|              |             |
-     |      (3)     |              |              |             |
-     |<-------------|--------------|              |             |
-     |          (4) |              |              |             |
-     |              |              |              |             |
-     |          (5) |              |              |             |
-     |              |              |              |             |
-     |              |              |      (6)     |             |
-     |              |--------------|------------->|             |
-     |              |      (7)     |              |             |
-     |--------------|------------->|              |             |
-     |              |              |              |     (8)     |
-     |--------------|--------------|--------------|------------>|
-     |              |              |              |     (9)     |
-     |              |              |              |<------------|
-     |              |              |              |     (10)    |
-     |              |              |              |------------>|
-     |              |              |              |             |
-     |              |              |              |             | (11)
-     |              |              |              |             |
-(12) |              |              |              |             |
-     |              |              |              |             |
+HTTP Client   HTTP Client     HTTP File      KMS Server   KMS Server
+Bob@DomainB  Alice@DomainA   Share Server     DomainA       DomainB
+     |             |              |      (1)     |             |
+     |             |--------------|------------->|             |
+     |             |      (2)     |              |             |
+     |             |------------->|              |             |
+     |     (3)     |              |              |             |
+     |<------------|--------------|              |             |
+     |         (4) |              |              |             |
+     |             |              |              |             |
+     |         (5) |              |              |             |
+     |             |              |              |             |
+     |             |              |      (6)     |             |
+     |             |--------------|------------->|             |
+     |             |      (7)     |              |             |
+     |-------------|------------->|              |             |
+     |             |              |              |     (8)     |
+     |-------------|--------------|--------------|------------>|
+     |             |              |              |     (9)     |
+     |             |              |              |<------------|
+     |             |              |              |     (10)    |
+     |             |              |              |------------>|
+     |             |              |              |             |
+     |             |              |              |             | (11)
+     |             |              |              |             |
+(12) |             |              |              |             |
+     |             |              |              |             |
 ~~~
 {: #fed-usecase title="File Sharing with KMS Federation Use Case"}
 
@@ -1102,7 +1104,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-The response message conforms to the basic response message structure and includes a representation of the key or keys selected by the request.  When responding to a request for a specific key, the KMS will return a response that includes a KMS key object representation as described in {{proto-kms-key-object}}.  When responding to a request for multiple keys, the KMS will return a response that includes an array of KMS key object representations.
+The response message conforms to the basic response message structure and includes a representation of the key or keys selected by the request.  When responding to a request for a specific key, the KMS will return a response that includes a KMS key object representation.  When responding to a request for multiple keys, the KMS will return a response that includes an array of KMS key object representations.
 
 Response payload definition:
 
