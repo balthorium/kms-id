@@ -459,7 +459,9 @@ PKIX certificates presented by the KMS can be issued by either a public or priva
 The KMS protocol is based on operations on GMBC and GK objects.  Specifically, these include the following JSON object types defined using using JSON content rules {{I-D.newton-json-content-rules}} in {{I-D.abiggs-saag-primitives-for-conf-group-comms}}:
 
 > gmbc-genesis-block
+
 > gmbc-appended-block
+
 > group-key
 
 It is through the creation and retrieval of instances of these object types that clients interact with the KMS.
@@ -737,11 +739,19 @@ If successful, the KMS response to a delete ephemeral key request MUST have a st
 
 On successful deletion of an ephemeral key, the KMS MUST NOT, from that time forward, accept any requests encrypted with that ephemeral key.
 
-### Create GMBC
+### Post GMBC Genesis Block
 
-When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GMBC URL.  This resource serves as a placeholder for the GMBC until the orignating client can post the contents of the GMBC.
+When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GMBC genesis block.  In this request, the client provides basic GMBC block information which the KMS uses in generating the genesis block.  The KMS will assign a unique GMBC URI to the genesis block and indicate itself as the GMBC curator.
 
-The request message conforms to the basic request message structure, where the method is "create", the uri is "/gmbc".
+The request message conforms to the basic request message structure, where the method is "post", and the path of the URI is "/blocks".
+
+Request payload definition:
+
+~~~
+root {
+    request,
+    "blockPayload": gmbc-block
+}
 ~~~
 
 Request message example:
@@ -754,20 +764,36 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "create",
-  "uri": "/gmbc",
+  "method": "post",
+  "uri": "kms://kms.example.com/blocks",
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "blockPayload": {
+      "creator": "bob@example.com",
+      "created": "2015-11-02T19:02:15Z",
+      "operations": [
+          {
+              "entity": "bob@example.com",
+              "optype": "add"
+          },
+          {
+              "entity": "alice@example.com",
+              "optype": "add"
+          }
+      ]
+  }
 })
 ~~~
 
-The response message conforms to the basic response message structure, and includes a representation of the created GMBC.
+The response message conforms to the basic response message structure, and includes a representation of the created GMBC genesis block in the form of a compact-serialized JWS signed with the KMS server's private static key.
 
 Response payload definition:
 
 ~~~
+signed-gmbc-genesis-block: JWS(K_kms_priv, gmbc-genesis-block)
+
 root {
   response,
-  resource-uris
+  "block": signed-gmbc-genesis-block
 }
 ~~~
 
@@ -777,20 +803,53 @@ Response message example:
 JWE(K_ephemeral, {
   "status": 201,
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "resource-uris": [
-      "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "block": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjogImttczovL..."
+}
+~~~
+  
+Deserialized payload of the block attribute:
 
-  ]
+~~~
+JWS(K_kms_priv, {
+      "uri": "kms://kms.example.com/blocks/7f35c3eb",
+      "nonce": "32088b07-1a19-466b-a779-ef8dc8c61be9",
+      "curator": "kms://kms.example.com",
+      "creator": "kms://kms.example.com",
+      "created": "2015-11-02T19:02:15Z",
+      "operations": [
+          {
+              "entity": "bob@example.com",
+              "optype": "add"
+          },
+          {
+              "entity": "alice@example.com",
+              "optype": "add"
+          }
+      ]
+  }
 })
 ~~~
 
 If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Post GMBC
+### Post GMBC Block
 
-Once a client has created the genesis block of a GMBC or when a client is adding or removing members from the GMBC, it must post the GMBC to the KMS.
+Once a GMBC genesis block has been created, any member may append new blocks in order to modify the group membership.  This is done by submitting a post GMBC block request to the KMS.  In this request, the client provides a signed gmbc-appended-block and the URI of the genesis block of the GMBC to which it is to be appended.
 
-The request message conforms to the basic request message structure, where the method is "update", the uri is "/gmbc".
+The client may submit one or more blocks to be appended, the order of which they appear in the request representing the order in which they should be appended.  The KMS will validate that the antecedent hash of the first block matches the hash of the last block of the current chain, and that the antecedent of each subsequent block matches the hash of the previous block.  The KMS will also validate that each block is signed by an entity that qualifies as a member of the chain.  If any of these checks fails, the KMS will fail the request in its entirety.
+
+The request message conforms to the basic request message structure, where the method is "post", and the uri is that of the GMBC.
+
+Request payload definition:
+
+~~~
+signed-gmbc-appended-block: JWS(K_user_priv, gmbc-appended-block)
+
+root {
+    request,
+    "blocks" [ *: signed-gmbc-appended-block ]
+}
+~~~
 
 Request message example:
 
@@ -802,11 +861,32 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "update",
-  "uri": "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "method": "post",
+  "uri": "kms://kms.example.com/blocks/7f35c3eb",
   "requestId": "6205452b-c555-484f-8445-bb94c8044882",
-  "resource": {
-     TODO: GMBC example
+  "blocks": [ 
+       "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVud..."
+  ]
+})
+~~~
+
+Deserialized payload of the block attribute:
+
+~~~
+JWS(K_alice_priv, {
+      "antecedent": "3a2371f8fb6bb0f96e65dc535010b4004afc...",
+      "creator": "alice@example.com",
+      "created": "2015-11-02T19:13:15Z",
+      "operations": [
+          {
+              "entity": "charlie@example.com",
+              "optype": "add"
+          },
+          {
+              "entity": "bob@example.com",
+              "optype": "remove"
+          }
+      ]
   }
 })
 ~~~
@@ -832,17 +912,18 @@ JWE(K_ephemeral, {
 
 If successful, the KMS response to a create resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Retrieve GMBC
+### Get GMBC
 
-A client that is authorized on a given GMBC may retrieve the current state of that object as well as that of current set of associated GK objects.
+A client may retrieve GMBC blocks from the KMS using the get GMBC operation.  The KMS may validate that the requesting client represents an entity that is a current member of the GMBC.
 
-The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the GMBC as returned by the create operation from which it originated.
+The request message conforms to the basic request message structure, where the method is "get" and the uri is that of the GMBC's genesis block.  The client may also optionally request that only recently appended blocks be returned, by providing in an "antecedent" attribute the hash of a GMBC block the client already has.  The KMS will return any and all blocks which were appended after the block indicated by this hash value.
 
 Request payload definition:
 
 ~~~
 root {
   request
+  ?"antecedent": string
 }
 ~~~
 
@@ -856,20 +937,23 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "retrieve",
-  "uri": "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
+  "method": "get",
+  "uri": "kms://kms.example.com/blocks/7f35c3eb",
+  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f"
 })
 ~~~
 
-The response message conforms to the basic response message structure, and includes a representation of the retrieved GMBC.
+The response message conforms to the basic response message structure, and includes an array containing the JWS compact-serialization of GMBC blocks in chronological order.
 
 Response payload definition:
 
 ~~~
+signed-gmbc-block: 
+        signed-gmbc-genesis-block / signed-gmbc-appended-block
+
 root {
   response,
-  resource
+  "blocks" [ *: signed-gmbc-block ]
 }
 ~~~
 
@@ -877,11 +961,12 @@ Response message example:
 
 ~~~
 JWE(K_ephemeral, {
-  "status": 200,
-  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
-  "resource": {
-      TODO: GMBC example
-  }
+  "status": 201,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "blocks": [
+    "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjogImttczovL...",
+    "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVudCI6I..."
+  ]
 })
 ~~~
 
