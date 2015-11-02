@@ -415,14 +415,14 @@ Internet-Draft           key-management-service                July 2015
       Client B          Client A           Server            Server
          |                 |                 |       (1)       |
          |                 |-----------------|---------------->|
-         |                 |                 |                 |
-         |             (2) |                 |                 |
+         |                 |                 |       (2)       |
+         |                 |-----------------|---------------->|
          |                 |                 |                 |
          |             (3) |                 |                 |
          |                 |       (4)       |                 |
          |                 |---------------->|                 |
-         |                 |                 |                 |
-         |             (5) |                 |                 |
+         |                 |                 |       (5)       |
+         |                 |-----------------|---------------->|
          |                 |                 |       (6)       |
          |                 |-----------------|---------------->|
          |                 |       (7)       |                 |
@@ -436,12 +436,12 @@ Internet-Draft           key-management-service                July 2015
 
                         Figure 2: Nominal Use Case
 
-   1.  Client A reserves a unique GMBC URI and a unique GK URI from the
-       KMS server.
+   1.  Client A requests a new GMBC from the KMS server.  The KMS
+       creates and returns a new genesis block with the KMS as curator
+       and client A as a member.
 
-   2.  Client A generates a GK using the reserved GK URI and containing
-       a reference to the reserved GMBC URI.  Client A assigns only the
-       KMS as a recipient of the GK.
+   2.  Client A requests that the KMS generate a new GK with a null hash
+       attribute.  The KMS generates the GK and returns it to the client
 
 
 
@@ -450,28 +450,34 @@ Biggs & Cooley           Expires January 4, 2016                [Page 8]
 Internet-Draft           key-management-service                July 2015
 
 
+       with client A as the only recipient of the embedded JWE used to
+       wrap the included key material.
+
    3.  Client A encrypts a resource using the key material protected by
        the GK.
 
    4.  Client A posts the encrypted resource to the resource server,
-       including the GK URI as metadata.  A resource URI is returned in
-       the response.
+       including the URI of the GK as metadata.
 
-   5.  Client A generates a new GMBC by creating a genesis block using
-       the reserved GMBC URI.  The genesis block references the resource
-       URI obtained in (4) and includes two group membership "add"
-       operations (one for Client A and one for Client B).  The URI of
-       the KMS server is used in the curator field.
+   5.  Client A creates and signs a new GMBC block containing an
+       operation to add client B and using the hash of the genesis block
+       from step 1 as the antecedent.  Client A posts this block to the
+       KMS for appending to the GMBC.
 
-   6.  Client A posts the GK and GMBC created in steps (2) and (5) to
-       the KMS server.
+   6.  Client A posts a request to the KMS to alter the hash attribute
+       of the GK from 2 to now be the hash of the GMBC block posted in 5
+       (this has the effect of linking authorization for retrieval of
+       the GK to the membership of the GMBC at that particular block).
 
    7.  Client B obtains the encrypted resource from the resource server,
        including the GK URI as metadata.
 
    8.  Client B performs a GK Get to obtain the GK from the KMS server.
-       The KMS server generates a new GK based on the original GK
-       created in (2), but with Client B as the recipient.
+       The KMS checks the hash on the requested GK and examines the GMBC
+       block to which it refers.  The membership of the GMBC at that
+       block includes client B, so the server returns the GK to the
+       client with client B as the only recipient of the JWE used to
+       wrap the included key material.
 
    9.  Client B decrypts the resource using the key material protected
        by the GK.
@@ -491,12 +497,6 @@ Internet-Draft           key-management-service                July 2015
    addressed through the introduction of an HTTP based KMS transport
    (not shown) and a KMS server deployed by an entity that A regards as
    a trusted party.
-
-
-
-
-
-
 
 
 
@@ -1523,11 +1523,11 @@ Internet-Draft           key-management-service                July 2015
 
    Response message example:
 
-  JWE(K_ephemeral, {
-    "status": 201,
-    "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-    "block": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjogImttczovL..."
-  }
+   JWE(K_ephemeral, {
+     "status": 201,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "block": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+   }
 
    Deserialized payload of the block attribute:
 
@@ -1667,13 +1667,13 @@ Internet-Draft           key-management-service                July 2015
 4.6.5.  Get GMBC
 
    A client may retrieve GMBC blocks from the KMS using the get GMBC
-   operation.  The KMS may validate that the requesting client
+   operation.  The KMS MAY validate that the requesting client
    represents an entity that is a current member of the GMBC.
+   Alternatively, a KMS MAY validate that the requesting client
+   represents an entity that has been a member of the GMBC at some point
+   in time.
 
-   The request message conforms to the basic request message structure,
-   where the method is "get" and the uri is that of the GMBC's genesis
-   block.  The client may also optionally request that only recently
-   appended blocks be returned, by providing in an "antecedent"
+
 
 
 
@@ -1682,6 +1682,10 @@ Biggs & Cooley           Expires January 4, 2016               [Page 30]
 Internet-Draft           key-management-service                July 2015
 
 
+   The request message conforms to the basic request message structure,
+   where the method is "get" and the uri is that of the GMBC's genesis
+   block.  The client may also optionally request that only recently
+   appended blocks be returned, by providing in an "antecedent"
    attribute the hash of a GMBC block the client already has.  The KMS
    will return any and all blocks which were appended after the block
    indicated by this hash value.
@@ -1722,10 +1726,6 @@ Internet-Draft           key-management-service                July 2015
    }
 
    Response message example:
-
-
-
-
 
 
 
