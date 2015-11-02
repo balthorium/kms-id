@@ -224,19 +224,19 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 1. Client A requests a new GMBC from the KMS server.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
 
-2. Client A requests that the KMS generate a new GK with a null hash attribute.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
+2. Client A requests that the KMS generate a new GK with a null "block" attribute.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
 3. Client A encrypts a resource using the key material protected by the GK.
 
 4. Client A posts the encrypted resource to the resource server, including the URI of the GK as metadata.
 
-5. Client A creates and signs a new GMBC block containing an operation to add client B and using the hash of the genesis block from step 1 as the antecedent.  Client A posts this block to the KMS for appending to the GMBC.
+5. Client A creates and signs a new GMBC block containing an operation to add client B and using the hash of the genesis block from step 1 as the "antecedent".  Client A posts this block to the KMS for appending to the GMBC.
 
-6. Client A posts a request to the KMS to alter the hash attribute of the GK from 2 to now be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
+6. Client A posts a request to the KMS to alter the "block" attribute of the GK from 2 to now be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
 
 7. Client B obtains the encrypted resource from the resource server, including the GK URI as metadata.
 
-8. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS checks the hash on the requested GK and examines the GMBC block to which it refers.  The membership of the GMBC at that block includes client B, so the server returns the GK to the client with client B as the only recipient of the JWE used to wrap the included key material.
+8. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS checks the "block" attribute on the requested GK and examines the GMBC block to which it refers.  The membership of the GMBC at that block includes client B, so the server returns the GK to the client with client B as the only recipient of the JWE used to wrap the included key material.
 
 9. Client B decrypts the resource using the key material protected by the GK.
 
