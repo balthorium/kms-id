@@ -224,7 +224,7 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 1. Client A reserves a unique GMBC URI and a unique GK URI from the KMS server.
 
-2. Client A generates a GK using the reserved GK URI and containing a reference to the reserved GMBC URI.  Client A assigns only the KMS itself as a recipient of the GK.
+2. Client A generates a GK using the reserved GK URI and containing a reference to the reserved GMBC URI.  Client A assigns only the KMS as a recipient of the GK.
 
 3. Client A encrypts a resource using the key material protected by the GK.
 
@@ -325,7 +325,7 @@ Let A, B and C be users that wish to engage in secure chat through an existing X
 
 This sequence begins with the assumption that a MUC room already exists on the MUC server and that each client has already established a secure channel to the KMS via authenticated key agreement.  All messages are transmitted over XMPP.
 
-1. Client A reserves a unique GMBC URI from the KMS server.
+1. Client A reserves a unique GMBC URL and a unique GK URL from the KMS server.
 
 2. Client A generates a new GMBC by creating a genesis block using the reserved GMBC URI.  The genesis block references the MUC room JID as the resource URI, and includes group membership "add" operations for each member of the MUC room.  The JID of the KMS server is used in the curator field.
 
@@ -750,7 +750,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-The response message conforms to the basic response message structure, and includes a representation of the created KMS resource object.
+The response message conforms to the basic response message structure, and includes a representation of the created GMBC.
 
 Response payload definition:
 
@@ -778,7 +778,50 @@ If successful, the KMS response to a create resource request MUST have a status 
 
 ### Post GMBC
 
-TODO
+Once a client has created the genesis block of a GMBC or when a client is adding or removing members from the GMBC, it must post the GMBC to the KMS.
+
+The request message conforms to the basic request message structure, where the method is "update", the uri is "/gmbc".
+~~~
+
+Request message example:
+
+~~~
+JWE(K_ephemeral, {
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "update",
+  "uri": "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+  "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+  "resource": {
+     TODO: GMBC example
+  }
+})
+~~~
+
+The response message conforms to the basic response message structure.
+
+Response payload definition:
+
+~~~
+root {
+  response
+}
+~~~
+
+Response message example:
+
+~~~
+JWE(K_ephemeral, {
+  "status": 200,
+  "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+})
+~~~
+
+If successful, the KMS response to a create resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 ### Retrieve GMBC
 
@@ -810,7 +853,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-The response message conforms to the basic response message structure, and includes a representation of the retrieved KMS resource object.
+The response message conforms to the basic response message structure, and includes a representation of the retrieved GMBC.
 
 Response payload definition:
 
@@ -828,34 +871,18 @@ JWE(K_ephemeral, {
   "status": 200,
   "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
   "resource": {
-      "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-      "authorizationUris": [
-        "/authorizations/50e9056d-0700-4919-b55f-84cd78a2a65e",
-        "/authorizations/db4c95ab-3fbf-42a8-989f-f53c1f13cc9a"
-      ],
-      "keyUris": [
-        "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
-        "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-      ]
+      TODO: GMBC example
   }
 })
 ~~~
 
 If successful, the KMS response to a retrieve resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Create Keys
+### Create GK
 
-When a client requires a symmetric key for use in the E2E encryption of a communications resource, it begins by requesting the creation of one or more keys from the KMS.  The initial state of a newly created key is "unbound" in the sense that it does not yet belong to a particular resource.  A client may submit this request at any time, even before the communications resource exists.  The keys returned by this request are unbound, which is to say not yet associated with any KMS resource object.
+When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GK URL.  This resource serves as a placeholder for the GK until the orignating client can post the contents of the GK.
 
-The request message conforms to the basic request message structure, where the method is "create", the uri is "/keys", and an additional count attribute is introduced to indicate the number of keys to be created.
-
-Request payload definition:
-
-~~~
-root {
-  request,
-  "count": integer
-}
+The request message conforms to the basic request message structure, where the method is "create", the uri is "/gk".
 ~~~
 
 Request message example:
@@ -869,20 +896,19 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "create",
-  "uri": "/keys",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "count": 2  
+  "uri": "/gk",
+  "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
 })
 ~~~
 
-The response message conforms to the basic response message structure with the addition of an array of key object representations, one for each unbound key created.
+The response message conforms to the basic response message structure, and includes a representation of the created GK.
 
 Response payload definition:
 
 ~~~
 root {
   response,
-  keys / keyUris
+  resource-uris
 }
 ~~~
 
@@ -891,56 +917,21 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 201,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "keys": [
-    {
-      "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-      "jwk": {
-        "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-        "kty": "oct",
-        "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-      }
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-      "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-      "createDate": "2014-10-09T15:54:48Z",
-      "expirationDate": "2014-10-09T16:04:48Z"
-    },
-    {
-      "uri": "/keys/fed33890-f9fa-43ad-a9f8-ab55a983a543",
-      "jwk": {
-        "kid": "fed33890-f9fa-43ad-a9f8-ab55a983a543",
-        "kty": "oct",
-        "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
-      }
-      "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-      "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-      "createDate": "2014-10-09T15:54:48Z",
-      "expirationDate": "2014-10-09T16:04:48Z"
-    }
+  "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
+  "resource-uris": [
+      "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+
   ]
 })
 ~~~
-Each key object in the response to a create unbound keys request includes a single JWK {{I-D.ietf-jose-json-web-key}} representing a new symmetric key of 256 bits generated by a cryptographically secure PRNG.  Note that, as unbound keys, the resourceUri attribute of each key is either undefined or null.  All keys SHOULD have the createDate assigned as the current time and an expirationDate assigned as the latest point in time before which the key may be bound to a resource (both in {{RFC3339}} date-time format).
 
-The clientId attribute of each created key MUST be the clientId provided by the client in the client.clientId attribute of the request.
+If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-As shown in the response payload definition, the KMS MUST return either an array of key object representations or an array of key object uris.  It is at the KMS server's discretion which of these is returned.
+### Post GK
 
-If successful, the KMS response to a create unbound keys request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+Once a client has generated the GK, or when a client is modifying the GK, it must post the GK to the KMS.
 
-### Update Key (Bind)
-
-To initiate the use of an unbound KMS key in securing a communications resource, a client will create a corresponding KMS resource object and subsequently bind the unbound key to that resource.  A client MAY begin using an unbound KMS key to encrypt a communications resource prior to the binding of that key.
-
-The request message conforms to the basic request message structure, where the method is "update", the uri is that of the key to be bound, and an additional resourceUri attribute is introduced to indicate the KMS resource object to which the key is to be bound.  If the user making a bind unbound key request does not have an authorization on the resource indicated by the resourceUri, or is not the user for whom the unbound key was originally created, the KMS MUST fail the request.  The KMS SHOULD fail the request if the clientId of the request does not match that of the unbound key.
-
-Request payload definition:
-
-~~~
-root {
-  request,
-  "resourceUri" : kmsUri
-}
+The request message conforms to the basic request message structure, where the method is "update", the uri is "/gk".
 ~~~
 
 Request message example:
@@ -954,20 +945,21 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "update",
-  "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  "uri": "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+  "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+  "resource": {
+     TODO: GK example
+  }
 })
 ~~~
 
-The response message conforms to the basic response message structure, and includes a representation of the full state of the newly bound key.
+The response message conforms to the basic response message structure
 
 Response payload definition:
 
 ~~~
 root {
-  response,
-  key
+  response
 }
 ~~~
 
@@ -975,267 +967,18 @@ Response message example:
 
 ~~~
 JWE(K_ephemeral, {
-{
   "status": 200,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "key": {
-    "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "jwk": {
-      "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-      "kty": "oct",
-      "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-    }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "createDate": "2014-10-09T15:54:48Z",
-    "bindDate": "2014-10-09T15:55:34Z",
-    "expirationDate": "2014-10-10T15:55:34Z",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  }
+  "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
 })
 ~~~
 
-On successfully binding a formerly unbound KMS key to a resource object, the state of the KMS key object MUST reflect the updated resourceUri attribute,  MUST reflect a bindDate as the current time, and MUST reflect an expirationDate as the time after which clients MUST NOT use this key for encryption as provided by KMS policy.  Subsequently, the KMS MUST regard the key as bound to the KMS resource object identified by the resourceUri and MUST reject subsequent requests to bind the same key to any other resource object.
+If successful, the KMS response to a create resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-If successful, the KMS response to a bind unbound key request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
+### Retrieve GK
 
-### Retrieve Keys
+A client that is authorized on a given GMBC may retrieve the current set of associated GK objects.
 
-Clients engaging in E2E encryption require a means for retrieving keys from the KMS.  A key request may take one of three forms, it may be a request for
-
-  * a specific key,
-  * all keys bound to a particular resource, 
-  * a subset of keys bound to a particular resource.
-
-In all cases, the request message conforms to the basic request message structure with "retrieve" as the value for the method attribute.  
-
-To retrieve an individual key, the uri of the request is that of the key object to be retrieved.  If the key is unbound, the KMS MUST reject the request unless it originates from the user that requested the key's creation, and SHOULD reject the request unless it originates from the same client that requested the key's creation (as determined by clientId).  If the key is bound, the KMS MUST reject the request if the request originates from a user for which there does not exist a corresponding authorization on the resource to which the requested key is bound.
-
-To retrieve all keys bound to a resource, the uri of the request is that of the resource concatenated with “/keys”.  The KMS MUST reject the request if the request originates from a user for which there does not exist a corresponding authorization on the resource.
-
-To retrieve a subset of keys bound to a resource, the client submits a request in the same fashion as for requesting all keys but also includes one or more additional attributes indicating selection criteria.  These additional attributes include the following:
-
-  * boundAfter
-  * boundBefore
-
-Each of these parameters is optional and clients MAY employ them in any combination.
-
-If the request includes a "boundAfter" attribute, the value MUST conform to the {{RFC3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that chronologically precedes it.  Similarly, if the request includes a "boundBefore" attribute, the value MUST conform to the {{RFC3339}} date-time format and the KMS response MUST NOT include any key with a "bindDate" that is either equal to or chronologically subsequent to it.  
-
-To limit the number of keys returned in a KMS response, a client MAY include a "count" attribute.  If the request includes a "count" attribute, it must be of JSON type integer and the cardinality of the set of keys returned in the KMS response MUST NOT exceed its value.  In the event it becomes necessary for the KMS to truncate the set of keys included in the KMS response, due to the limitations imposed by the "count" attribute, the truncated subset MUST be composed of those keys which satisfy the request's other selection criteria (if any) and also constitute a subset of that selection for which the elements possess the chronologically largest "bindDate" values.
-
-Request payload definition:
-
-~~~
-root {
-  request,
-  ?"boundAfter" : date-time,
-  ?"boundBefore" : date-time,
-  ?"count" : integer
-}
-~~~
-
-Request message example (individual key):
-
-~~~
-JWE(K_ephemeral, {
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "retrieve",
-  "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
-})
-~~~
-
-Request message example (10 most recently bound keys):
-
-~~~
-JWE(K_ephemeral, {
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "count": 10
-})
-~~~
-
-Request message example (keys bound after a given time, 25 max):
-
-~~~
-JWE(K_ephemeral, {
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "boundAfter": "2015-01-11T18:23:21Z",
-  "count": 25
-})
-~~~
-
-The response message conforms to the basic response message structure and includes a representation of the key or keys selected by the request.  When responding to a request for a specific key, the KMS will return a response that includes a KMS key object representation.  When responding to a request for multiple keys, the KMS will return a response that includes an array of KMS key object representations.
-
-Response payload definition:
-
-~~~
-root {
-  response,
-  key / keys
-}
-~~~
-
-Response message example (for specific key):
-
-~~~
-JWE(K_ephemeral, {
-{
-  "status": 200,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "key": {
-    "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-    "jwk": {
-      "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-      "kty": "oct",
-      "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-    }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "createDate": "2014-10-09T15:54:48Z",
-    "bindDate": "2014-10-09T15:55:34Z",
-    "expirationDate": "2014-10-10T15:55:34Z",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  }
-})
-~~~
-
-Response message example (for keys bound to a specific resource):
-
-~~~
-JWE(K_ephemeral, {
-{
-  "status": 200,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "keys": [
-  {
-    "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-    "jwk": {
-      "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-      "kty": "oct",
-      "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-    }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "createDate": "2014-10-09T15:54:48Z",
-    "bindDate": "2014-10-09T15:55:34Z",
-    "expirationDate": "2014-10-10T15:55:34Z",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  },
-  {
-    "uri": "/keys/fed33890-f9fa-43ad-a9f8-ab55a983a543",
-    "jwk": {
-      "kid": "fed33890-f9fa-43ad-a9f8-ab55a983a543",
-      "kty": "oct",
-      "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
-    }
-    "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "createDate": "2014-10-09T15:54:48Z",
-    "bindDate": "2014-10-09T15:56:43Z",
-    "expirationDate": "2014-10-10T15:56:43Z",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  }]
-})
-~~~
-
-If successful, the KMS response to a retrieve bound keys request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
-
-### Create Authorizations
-
-An authorization establishes a relationship between a resource and a user that entitles the user to retrieve bound keys from, and bind new keys to, that resource.  The KMS resource authorization model is viral in the sense that, once a user has been authorized on a resource, that user is also entitled to authorize other users on that resource.  These authorizations are created through create authorization requests.
-
-The request message conforms to the basic request message structure, where the method is "create", and the uri is "/authorizations".  Additional attributes are required to indicate the resource on which authorizations are to be added, as well as the set of users for whom these new authorizations are to be created.
-
-~~~
-root {
-  request,
-  "resourceUri" : kmsUri,
-  "authIds" : [ *string ]
-}
-~~~
-
-Request message example:
-
-~~~
-JWE(K_ephemeral, {
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "create",
-  "uri": "/authorizations",
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-  "authIds": [
-    "119a0582-2e2b-4c0c-ba6a-753d05171803",
-    "557ac05d-5751-43b4-a04b-e7eb1499ee0a"
-  ]
-})
-~~~
-
-The response message conforms to the basic response message structure, and includes a representation of the set of KMS authorization objects created by the request.
-
-Response payload definition:
-
-~~~
-root {
-  response,
-  authorizations
-}
-~~~
-
-Response message example:
-
-~~~
-JWE(K_ephemeral, {
-{
-  "status": 201,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "authorizations": [
-  {
-    "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
-    "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  },
-  {
-    "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-  }]
-})
-~~~
-
-If successful, the KMS response to a create authorizations request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.  If for any reason one or more requested authorizations cannot be created or applied to the resource object, the entire create authorizations request MUST be failed by the KMS.
-
-
-### Retrieve Authorizations
-
-A client may explicitly request the set of all authorizations on a given KMS resource object.  The uri of the request is that of the resource concatenated with “/authorizations”.  The KMS MUST reject the request if the request originates from a user for which there does not exist a corresponding authorization on the resource.
+The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the GK as returned by the create operation from which it originated.
 
 Request payload definition:
 
@@ -1256,19 +999,19 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations",
-  "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
+  "uri": "/GK/ee5f8984-2300-45af-872c-46aa874e0a8e",
+  "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
 })
 ~~~
 
-The response message conforms to the basic response message structure and includes an array of KMS authorization object representations.
+The response message conforms to the basic response message structure, and includes a representation of the retrieved GK.
 
 Response payload definition:
 
 ~~~
 root {
   response,
-  authorizations
+  resource
 }
 ~~~
 
@@ -1276,99 +1019,15 @@ Response message example:
 
 ~~~
 JWE(K_ephemeral, {
-{
   "status": 200,
-  "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce",
-  "authorizations": [
-  {
-    "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
-    "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
-  },
-  {
-    "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
-  }]
-})
-~~~
-
-If successful, the KMS response to a retrieve bound keys request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
-
-### Delete Authorization
-
-To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the URI is either that of the authorization object to be deleted, or the URI of the collection of authorizations within a particular KMS resource object appended with an authId query parameter whose value matches that of the authorization object to be deleted.
-
-Request payload definition:
-
-~~~
-root {
-  request
-}
-~~~
-
-Request message example, explicitly identifying the URI of the authorization object to be deleted:
-
-~~~
-JWE(K_ephemeral, {
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "delete",
-  "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b"
-})
-~~~
-
-Request message example, implicitly identifying the authorization object to be deleted by the KMS resource object to which it belongs plus the value of its authId attribute:
-
-~~~
-JWE(K_ephemeral, {
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "client": {
-    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-    "credential": {
-      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-    }
-  }  
-  "method": "delete",
-  "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
-        /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-})
-~~~
-
-Note, in the example above, the URI attribute value is a continuous string of non-whitespace characters. Whitespace has been added here for readability.
-
-The response message conforms to the basic response message structure, and includes a representation of the authorization object that was deleted.
-
-Response payload definition:
-
-~~~
-root {
-  response,
-  ?authorization
-}
-~~~
-
-Response message example:
-
-~~~
-JWE(K_ephemeral, {
-{
-  "status": 200,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "authorization": {
-    "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-    "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
+  "resource": {
+      TODO: GK example
   }
 })
 ~~~
 
-If successful, the KMS response to a delete authorization request MUST have a status of 200 if the authorization object representation is included, and 204 if not.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition. 
+If successful, the KMS response to a retrieve resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 ### Ping
 
