@@ -89,22 +89,22 @@ Table of Contents
        4.5.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  25
        4.5.3.  Create GMBC . . . . . . . . . . . . . . . . . . . . .  26
        4.5.4.  Post GMBC . . . . . . . . . . . . . . . . . . . . . .  27
-       4.5.5.  Retrieve GMBC . . . . . . . . . . . . . . . . . . . .  27
-       4.5.6.  Create Keys . . . . . . . . . . . . . . . . . . . . .  29
-       4.5.7.  Update Key (Bind) . . . . . . . . . . . . . . . . . .  31
-       4.5.8.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  33
-       4.5.9.  Create Authorizations . . . . . . . . . . . . . . . .  37
-       4.5.10. Retrieve Authorizations . . . . . . . . . . . . . . .  39
-       4.5.11. Delete Authorization  . . . . . . . . . . . . . . . .  41
-       4.5.12. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  42
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  43
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  44
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  44
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  44
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  44
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  44
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  46
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
+       4.5.5.  Retrieve GMBC . . . . . . . . . . . . . . . . . . . .  28
+       4.5.6.  Create GK . . . . . . . . . . . . . . . . . . . . . .  29
+       4.5.7.  Post GK . . . . . . . . . . . . . . . . . . . . . . .  30
+       4.5.8.  Retrieve GK . . . . . . . . . . . . . . . . . . . . .  31
+       4.5.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  32
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  34
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  34
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  34
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  35
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  35
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  35
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  36
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  37
+
+
+
 
 
 
@@ -441,7 +441,7 @@ Internet-Draft           key-management-service                July 2015
 
    2.  Client A generates a GK using the reserved GK URI and containing
        a reference to the reserved GMBC URI.  Client A assigns only the
-       KMS itself as a recipient of the GK.
+       KMS as a recipient of the GK.
 
 
 
@@ -647,7 +647,8 @@ Internet-Draft           key-management-service                July 2015
    a secure channel to the KMS via authenticated key agreement.  All
    messages are transmitted over XMPP.
 
-   1.  Client A reserves a unique GMBC URI from the KMS server.
+   1.  Client A reserves a unique GMBC URL and a unique GK URL from the
+       KMS server.
 
    2.  Client A generates a new GMBC by creating a genesis block using
        the reserved GMBC URI.  The genesis block references the MUC room
@@ -664,8 +665,7 @@ Internet-Draft           key-management-service                July 2015
 
    5.  Client A encrypts the content of an XMPP message using the key
        material from the GK created in step (3), and sends the encrypted
-       message to the MUC room.  The GK URI is included within the XMPP
-       message as metadata.
+
 
 
 
@@ -673,6 +673,9 @@ Biggs & Cooley           Expires January 4, 2016               [Page 12]
 
 Internet-Draft           key-management-service                July 2015
 
+
+       message to the MUC room.  The GK URI is included within the XMPP
+       message as metadata.
 
    6.  The MUC service delivers client A's encrypted message to clients
        B and C.
@@ -710,9 +713,6 @@ Internet-Draft           key-management-service                July 2015
    communications.  Assume then that Alice wishes to share a file with
    Bob and therefore relies on KMS server federation to facilitate the
    key exchange.
-
-
-
 
 
 
@@ -1447,9 +1447,9 @@ Internet-Draft           key-management-service                July 2015
    })
 
    The response message conforms to the basic response message
-   structure, and includes a representation of the created KMS resource
-   object.
+   structure, and includes a representation of the created GMBC.
 
+   Response payload definition:
 
 
 
@@ -1457,8 +1457,6 @@ Biggs & Cooley           Expires January 4, 2016               [Page 26]
 
 Internet-Draft           key-management-service                July 2015
 
-
-   Response payload definition:
 
    root {
      response,
@@ -1483,7 +1481,59 @@ Internet-Draft           key-management-service                July 2015
 
 4.5.4.  Post GMBC
 
-   TODO
+   Once a client has created the genesis block of a GMBC or when a
+   client is adding or removing members from the GMBC, it must post the
+   GMBC to the KMS.
+
+   The request message conforms to the basic request message structure,
+   where the method is "update", the uri is "/gmbc".  ~~~
+
+   Request message example:
+
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "update",
+     "uri": "/gmbc/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
+     "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+     "resource": {
+        TODO: GMBC example
+     }
+   })
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 27]
+
+Internet-Draft           key-management-service                July 2015
+
+
+   The response message conforms to the basic response message
+   structure.
+
+   Response payload definition:
+
+   root {
+     response
+   }
+
+   Response message example:
+
+   JWE(K_ephemeral, {
+     "status": 200,
+     "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+   })
+
+   If successful, the KMS response to a create resource request MUST
+   have a status of 200.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
 
 4.5.5.  Retrieve GMBC
 
@@ -1509,7 +1559,13 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 27]
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 28]
 
 Internet-Draft           key-management-service                July 2015
 
@@ -1527,8 +1583,7 @@ Internet-Draft           key-management-service                July 2015
    })
 
    The response message conforms to the basic response message
-   structure, and includes a representation of the retrieved KMS
-   resource object.
+   structure, and includes a representation of the retrieved GMBC.
 
    Response payload definition:
 
@@ -1543,15 +1598,7 @@ Internet-Draft           key-management-service                July 2015
      "status": 200,
      "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
      "resource": {
-         "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-         "authorizationUris": [
-           "/authorizations/50e9056d-0700-4919-b55f-84cd78a2a65e",
-           "/authorizations/db4c95ab-3fbf-42a8-989f-f53c1f13cc9a"
-         ],
-         "keyUris": [
-           "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
-           "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-         ]
+         TODO: GMBC example
      }
    })
 
@@ -1560,40 +1607,24 @@ Internet-Draft           key-management-service                July 2015
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
+4.5.6.  Create GK
+
+   When a client intends to initiate E2E encryption of a communications
+   resource, it begins by requesting the creation of a GK URL.  This
+   resource serves as a placeholder for the GK until the orignating
+   client can post the contents of the GK.
+
+   The request message conforms to the basic request message structure,
+   where the method is "create", the uri is "/gk".  ~~~
+
+   Request message example:
 
 
 
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 28]
+Biggs & Cooley           Expires January 4, 2016               [Page 29]
 
 Internet-Draft           key-management-service                July 2015
 
-
-4.5.6.  Create Keys
-
-   When a client requires a symmetric key for use in the E2E encryption
-   of a communications resource, it begins by requesting the creation of
-   one or more keys from the KMS.  The initial state of a newly created
-   key is "unbound" in the sense that it does not yet belong to a
-   particular resource.  A client may submit this request at any time,
-   even before the communications resource exists.  The keys returned by
-   this request are unbound, which is to say not yet associated with any
-   KMS resource object.
-
-   The request message conforms to the basic request message structure,
-   where the method is "create", the uri is "/keys", and an additional
-   count attribute is introduced to indicate the number of keys to be
-   created.
-
-   Request payload definition:
-
-   root {
-     request,
-     "count": integer
-   }
-
-   Request message example:
 
    JWE(K_ephemeral, {
      "client": {
@@ -1603,77 +1634,46 @@ Internet-Draft           key-management-service                July 2015
        }
      }
      "method": "create",
-     "uri": "/keys",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "count": 2
+     "uri": "/gk",
+     "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
    })
 
-   The response message conforms to the basic response message structure
-   with the addition of an array of key object representations, one for
-   each unbound key created.
+   The response message conforms to the basic response message
+   structure, and includes a representation of the created GK.
 
    Response payload definition:
 
    root {
      response,
-     keys / keyUris
+     resource-uris
    }
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 29]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Response message example:
 
    JWE(K_ephemeral, {
      "status": 201,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "keys": [
-       {
-         "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-         "jwk": {
-           "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-           "kty": "oct",
-           "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-         }
-         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-         "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-         "createDate": "2014-10-09T15:54:48Z",
-         "expirationDate": "2014-10-09T16:04:48Z"
-       },
-       {
-         "uri": "/keys/fed33890-f9fa-43ad-a9f8-ab55a983a543",
-         "jwk": {
-           "kid": "fed33890-f9fa-43ad-a9f8-ab55a983a543",
-           "kty": "oct",
-           "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
-         }
-         "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-         "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-         "createDate": "2014-10-09T15:54:48Z",
-         "expirationDate": "2014-10-09T16:04:48Z"
-       }
+     "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
+     "resource-uris": [
+         "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+
      ]
    })
 
-   Each key object in the response to a create unbound keys request
-   includes a single JWK [I-D.ietf-jose-json-web-key] representing a new
-   symmetric key of 256 bits generated by a cryptographically secure
-   PRNG.  Note that, as unbound keys, the resourceUri attribute of each
-   key is either undefined or null.  All keys SHOULD have the createDate
-   assigned as the current time and an expirationDate assigned as the
-   latest point in time before which the key may be bound to a resource
-   (both in [RFC3339] date-time format).
+   If successful, the KMS response to a create resource request MUST
+   have a status of 201.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
 
-   The clientId attribute of each created key MUST be the clientId
-   provided by the client in the client.clientId attribute of the
-   request.
+4.5.7.  Post GK
 
-   As shown in the response payload definition, the KMS MUST return
-   either an array of key object representations or an array of key
+   Once a client has generated the GK, or when a client is modifying the
+   GK, it must post the GK to the KMS.
+
+   The request message conforms to the basic request message structure,
+   where the method is "update", the uri is "/gk".  ~~~
+
+   Request message example:
+
 
 
 
@@ -1681,41 +1681,6 @@ Biggs & Cooley           Expires January 4, 2016               [Page 30]
 
 Internet-Draft           key-management-service                July 2015
 
-
-   object uris.  It is at the KMS server's discretion which of these is
-   returned.
-
-   If successful, the KMS response to a create unbound keys request MUST
-   have a status of 201.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
-
-4.5.7.  Update Key (Bind)
-
-   To initiate the use of an unbound KMS key in securing a
-   communications resource, a client will create a corresponding KMS
-   resource object and subsequently bind the unbound key to that
-   resource.  A client MAY begin using an unbound KMS key to encrypt a
-   communications resource prior to the binding of that key.
-
-   The request message conforms to the basic request message structure,
-   where the method is "update", the uri is that of the key to be bound,
-   and an additional resourceUri attribute is introduced to indicate the
-   KMS resource object to which the key is to be bound.  If the user
-   making a bind unbound key request does not have an authorization on
-   the resource indicated by the resourceUri, or is not the user for
-   whom the unbound key was originally created, the KMS MUST fail the
-   request.  The KMS SHOULD fail the request if the clientId of the
-   request does not match that of the unbound key.
-
-   Request payload definition:
-
-   root {
-     request,
-     "resourceUri" : kmsUri
-   }
-
-   Request message example:
 
    JWE(K_ephemeral, {
      "client": {
@@ -1725,10 +1690,45 @@ Internet-Draft           key-management-service                July 2015
        }
      }
      "method": "update",
-     "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     "uri": "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+     "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+     "resource": {
+        TODO: GK example
+     }
    })
+
+   The response message conforms to the basic response message structure
+
+   Response payload definition:
+
+   root {
+     response
+   }
+
+   Response message example:
+
+   JWE(K_ephemeral, {
+     "status": 200,
+     "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+   })
+
+   If successful, the KMS response to a create resource request MUST
+   have a status of 200.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
+
+4.5.8.  Retrieve GK
+
+   A client that is authorized on a given GMBC may retrieve the current
+   set of associated GK objects.
+
+   The request message conforms to the basic request message structure,
+   where the method is "retrieve", and the uri is that of the GK as
+   returned by the create operation from which it originated.
+
+   Request payload definition:
+
+
 
 
 
@@ -1738,54 +1738,54 @@ Biggs & Cooley           Expires January 4, 2016               [Page 31]
 Internet-Draft           key-management-service                July 2015
 
 
+   root {
+     request
+   }
+
+   Request message example:
+
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "retrieve",
+     "uri": "/GK/ee5f8984-2300-45af-872c-46aa874e0a8e",
+     "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
+   })
+
    The response message conforms to the basic response message
-   structure, and includes a representation of the full state of the
-   newly bound key.
+   structure, and includes a representation of the retrieved GK.
 
    Response payload definition:
 
    root {
      response,
-     key
+     resource
    }
 
    Response message example:
 
    JWE(K_ephemeral, {
-   {
      "status": 200,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "key": {
-       "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "jwk": {
-         "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-         "kty": "oct",
-         "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-       }
-       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "createDate": "2014-10-09T15:54:48Z",
-       "bindDate": "2014-10-09T15:55:34Z",
-       "expirationDate": "2014-10-10T15:55:34Z",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
+     "resource": {
+         TODO: GK example
      }
    })
 
-   On successfully binding a formerly unbound KMS key to a resource
-   object, the state of the KMS key object MUST reflect the updated
-   resourceUri attribute, MUST reflect a bindDate as the current time,
-   and MUST reflect an expirationDate as the time after which clients
-   MUST NOT use this key for encryption as provided by KMS policy.
-   Subsequently, the KMS MUST regard the key as bound to the KMS
-   resource object identified by the resourceUri and MUST reject
-   subsequent requests to bind the same key to any other resource
-   object.
-
-   If successful, the KMS response to a bind unbound key request MUST
+   If successful, the KMS response to a retrieve resource request MUST
    have a status of 200.  In the case of a request failure, the KMS
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
+
+4.5.9.  Ping
+
+   Ping is a simple request intended to provide an efficient means for
+   verifying the integrity of the secure channel between client and KMS.
+   Ping MUST be implemented as a safe and idempotent operation that
 
 
 
@@ -1794,549 +1794,6 @@ Biggs & Cooley           Expires January 4, 2016               [Page 32]
 Internet-Draft           key-management-service                July 2015
 
 
-4.5.8.  Retrieve Keys
-
-   Clients engaging in E2E encryption require a means for retrieving
-   keys from the KMS.  A key request may take one of three forms, it may
-   be a request for
-
-   o  a specific key,
-
-   o  all keys bound to a particular resource,
-
-   o  a subset of keys bound to a particular resource.
-
-   In all cases, the request message conforms to the basic request
-   message structure with "retrieve" as the value for the method
-   attribute.
-
-   To retrieve an individual key, the uri of the request is that of the
-   key object to be retrieved.  If the key is unbound, the KMS MUST
-   reject the request unless it originates from the user that requested
-   the key's creation, and SHOULD reject the request unless it
-   originates from the same client that requested the key's creation (as
-   determined by clientId).  If the key is bound, the KMS MUST reject
-   the request if the request originates from a user for which there
-   does not exist a corresponding authorization on the resource to which
-   the requested key is bound.
-
-   To retrieve all keys bound to a resource, the uri of the request is
-   that of the resource concatenated with "/keys".  The KMS MUST reject
-   the request if the request originates from a user for which there
-   does not exist a corresponding authorization on the resource.
-
-   To retrieve a subset of keys bound to a resource, the client submits
-   a request in the same fashion as for requesting all keys but also
-   includes one or more additional attributes indicating selection
-   criteria.  These additional attributes include the following:
-
-   o  boundAfter
-
-   o  boundBefore
-
-   Each of these parameters is optional and clients MAY employ them in
-   any combination.
-
-   If the request includes a "boundAfter" attribute, the value MUST
-   conform to the [RFC3339] date-time format and the KMS response MUST
-   NOT include any key with a "bindDate" that chronologically precedes
-   it.  Similarly, if the request includes a "boundBefore" attribute,
-   the value MUST conform to the [RFC3339] date-time format and the KMS
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 33]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   response MUST NOT include any key with a "bindDate" that is either
-   equal to or chronologically subsequent to it.
-
-   To limit the number of keys returned in a KMS response, a client MAY
-   include a "count" attribute.  If the request includes a "count"
-   attribute, it must be of JSON type integer and the cardinality of the
-   set of keys returned in the KMS response MUST NOT exceed its value.
-   In the event it becomes necessary for the KMS to truncate the set of
-   keys included in the KMS response, due to the limitations imposed by
-   the "count" attribute, the truncated subset MUST be composed of those
-   keys which satisfy the request's other selection criteria (if any)
-   and also constitute a subset of that selection for which the elements
-   possess the chronologically largest "bindDate" values.
-
-   Request payload definition:
-
-   root {
-     request,
-     ?"boundAfter" : date-time,
-     ?"boundBefore" : date-time,
-     ?"count" : integer
-   }
-
-   Request message example (individual key):
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "retrieve",
-     "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
-   })
-
-   Request message example (10 most recently bound keys):
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 34]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "retrieve",
-     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "count": 10
-   })
-
-   Request message example (keys bound after a given time, 25 max):
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "retrieve",
-     "uri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094/keys",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "boundAfter": "2015-01-11T18:23:21Z",
-     "count": 25
-   })
-
-   The response message conforms to the basic response message structure
-   and includes a representation of the key or keys selected by the
-   request.  When responding to a request for a specific key, the KMS
-   will return a response that includes a KMS key object representation.
-   When responding to a request for multiple keys, the KMS will return a
-   response that includes an array of KMS key object representations.
-
-   Response payload definition:
-
-   root {
-     response,
-     key / keys
-   }
-
-   Response message example (for specific key):
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 35]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   JWE(K_ephemeral, {
-   {
-     "status": 200,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "key": {
-       "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-       "jwk": {
-         "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-         "kty": "oct",
-         "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-       }
-       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "createDate": "2014-10-09T15:54:48Z",
-       "bindDate": "2014-10-09T15:55:34Z",
-       "expirationDate": "2014-10-10T15:55:34Z",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     }
-   })
-
-   Response message example (for keys bound to a specific resource):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 36]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   JWE(K_ephemeral, {
-   {
-     "status": 200,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "keys": [
-     {
-       "uri": "/keys/52100fa4-c222-46d0-994d-1ca885e4a3a2",
-       "jwk": {
-         "kid": "52100fa4-c222-46d0-994d-1ca885e4a3a2",
-         "kty": "oct",
-         "k": "ZMpktzGq1g6_r4fKVdnx9OaYr4HjxPjIs7l7SwAsgsg"
-       }
-       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "createDate": "2014-10-09T15:54:48Z",
-       "bindDate": "2014-10-09T15:55:34Z",
-       "expirationDate": "2014-10-10T15:55:34Z",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     },
-     {
-       "uri": "/keys/fed33890-f9fa-43ad-a9f8-ab55a983a543",
-       "jwk": {
-         "kid": "fed33890-f9fa-43ad-a9f8-ab55a983a543",
-         "kty": "oct",
-         "k": "q2znCXQpbBPSZBUddZvchRSH5pSSKPEHlgb3CSGIdpL"
-       }
-       "userId": "842e2d82-7e71-4040-8eb9-d977fe888807",
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "createDate": "2014-10-09T15:54:48Z",
-       "bindDate": "2014-10-09T15:56:43Z",
-       "expirationDate": "2014-10-10T15:56:43Z",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     }]
-   })
-
-   If successful, the KMS response to a retrieve bound keys request MUST
-   have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
-
-4.5.9.  Create Authorizations
-
-   An authorization establishes a relationship between a resource and a
-   user that entitles the user to retrieve bound keys from, and bind new
-   keys to, that resource.  The KMS resource authorization model is
-   viral in the sense that, once a user has been authorized on a
-   resource, that user is also entitled to authorize other users on that
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 37]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   resource.  These authorizations are created through create
-   authorization requests.
-
-   The request message conforms to the basic request message structure,
-   where the method is "create", and the uri is "/authorizations".
-   Additional attributes are required to indicate the resource on which
-   authorizations are to be added, as well as the set of users for whom
-   these new authorizations are to be created.
-
-   root {
-     request,
-     "resourceUri" : kmsUri,
-     "authIds" : [ *string ]
-   }
-
-   Request message example:
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "create",
-     "uri": "/authorizations",
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094",
-     "authIds": [
-       "119a0582-2e2b-4c0c-ba6a-753d05171803",
-       "557ac05d-5751-43b4-a04b-e7eb1499ee0a"
-     ]
-   })
-
-   The response message conforms to the basic response message
-   structure, and includes a representation of the set of KMS
-   authorization objects created by the request.
-
-   Response payload definition:
-
-   root {
-     response,
-     authorizations
-   }
-
-   Response message example:
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 38]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   JWE(K_ephemeral, {
-   {
-     "status": 201,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "authorizations": [
-     {
-       "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
-       "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     },
-     {
-       "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-       "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     }]
-   })
-
-   If successful, the KMS response to a create authorizations request
-   MUST have a status of 201.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.  If for any
-   reason one or more requested authorizations cannot be created or
-   applied to the resource object, the entire create authorizations
-   request MUST be failed by the KMS.
-
-4.5.10.  Retrieve Authorizations
-
-   A client may explicitly request the set of all authorizations on a
-   given KMS resource object.  The uri of the request is that of the
-   resource concatenated with "/authorizations".  The KMS MUST reject
-   the request if the request originates from a user for which there
-   does not exist a corresponding authorization on the resource.
-
-   Request payload definition:
-
-   root {
-     request
-   }
-
-   Request message example:
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 39]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "retrieve",
-     "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094/authorizations",
-     "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce"
-   })
-
-   The response message conforms to the basic response message structure
-   and includes an array of KMS authorization object representations.
-
-   Response payload definition:
-
-   root {
-     response,
-     authorizations
-   }
-
-   Response message example:
-
-   JWE(K_ephemeral, {
-   {
-     "status": 200,
-     "requestId": "913d7ae3-8945-46ca-8ed1-2b287c1370ce",
-     "authorizations": [
-     {
-       "uri": "/authorizations/79a39ed9-a8e5-4d1f-9ae2-e27857fc5901",
-       "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
-     },
-     {
-       "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-       "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-1942e5f03094"
-     }]
-   })
-
-   If successful, the KMS response to a retrieve bound keys request MUST
-   have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 40]
-
-Internet-Draft           key-management-service                July 2015
-
-
-4.5.11.  Delete Authorization
-
-   To remove an authorization from a KMS resource object, any user
-   currently authorized on the same resource object may issue a delete
-   authorization request.  The request message conforms to the basic
-   request message structure, where the method is "delete", and the URI
-   is either that of the authorization object to be deleted, or the URI
-   of the collection of authorizations within a particular KMS resource
-   object appended with an authId query parameter whose value matches
-   that of the authorization object to be deleted.
-
-   Request payload definition:
-
-   root {
-     request
-   }
-
-   Request message example, explicitly identifying the URI of the
-   authorization object to be deleted:
-
-   JWE(K_ephemeral, {
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "delete",
-     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b"
-   })
-
-   Request message example, implicitly identifying the authorization
-   object to be deleted by the KMS resource object to which it belongs
-   plus the value of its authId attribute:
-
-   JWE(K_ephemeral, {
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "delete",
-     "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
-           /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-   })
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 41]
-
-Internet-Draft           key-management-service                July 2015
-
-
-   Note, in the example above, the URI attribute value is a continuous
-   string of non-whitespace characters.  Whitespace has been added here
-   for readability.
-
-   The response message conforms to the basic response message
-   structure, and includes a representation of the authorization object
-   that was deleted.
-
-   Response payload definition:
-
-   root {
-     response,
-     ?authorization
-   }
-
-   Response message example:
-
-   JWE(K_ephemeral, {
-   {
-     "status": 200,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-     "authorization": {
-       "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
-       "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
-       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
-     }
-   })
-
-   If successful, the KMS response to a delete authorization request
-   MUST have a status of 200 if the authorization object representation
-   is included, and 204 if not.  In the case of a request failure, the
-   KMS response status SHOULD be that of an [RFC7231] defined status
-   code with semantics that correspond to the failure condition.
-
-4.5.12.  Ping
-
-   Ping is a simple request intended to provide an efficient means for
-   verifying the integrity of the secure channel between client and KMS.
-   Ping MUST be implemented as a safe and idempotent operation that
    causes the server to do nothing more than return a basic response
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
@@ -2346,13 +1803,6 @@ Internet-Draft           key-management-service                July 2015
    root {
      request
    }
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 42]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Request message example:
 
@@ -2390,6 +1840,16 @@ Internet-Draft           key-management-service                July 2015
    contents, confirm the identity and authorization of the requesting
    client, and return a suitable response.
 
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 33]
+
+Internet-Draft           key-management-service                July 2015
+
+
 5.  Mandatory-to-Implement
 
    Implementations MUST support the following JWK key types from
@@ -2400,15 +1860,6 @@ Internet-Draft           key-management-service                July 2015
    o  "EC" for the Ephemeral Diffie Hellman exchange
 
    o  "oct" for all symmetric keys
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 43]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
    MGF1 with SHA-256) from [I-D.ietf-jose-json-web-algorithms] for
@@ -2443,6 +1894,18 @@ Internet-Draft           key-management-service                July 2015
 
    Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
 
+
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 34]
+
+Internet-Draft           key-management-service                July 2015
+
+
 8.  Appendix B.  Document History
 
    -00
@@ -2457,14 +1920,6 @@ Internet-Draft           key-management-service                July 2015
               Biggs, A. and S. Cooley, "Primitives for Confidential
               Group Communications", draft-abiggs-saag-primitives-for-
               conf-group-comms-00 (work in progress), September 2015.
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 44]
-
-Internet-Draft           key-management-service                July 2015
-
 
    [I-D.ietf-jose-json-web-algorithms]
               Jones, M., "JSON Web Algorithms (JWA)", draft-ietf-jose-
@@ -2496,6 +1951,17 @@ Internet-Draft           key-management-service                July 2015
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2", RFC
               4949, August 2007.
 
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 35]
+
+Internet-Draft           key-management-service                July 2015
+
+
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
               Housley, R., and W. Polk, "Internet X.509 Public Key
               Infrastructure Certificate and Certificate Revocation List
@@ -2512,15 +1978,6 @@ Internet-Draft           key-management-service                July 2015
 
    [RFC6749]  Hardt, D., "The OAuth 2.0 Authorization Framework", RFC
               6749, October 2012.
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 45]
-
-Internet-Draft           key-management-service                July 2015
-
 
    [RFC7159]  Bray, T., "The JavaScript Object Notation (JSON) Data
               Interchange Format", RFC 7159, March 2014.
@@ -2553,6 +2010,14 @@ Internet-Draft           key-management-service                July 2015
    [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
               Internet Protocol", RFC 4301, December 2005.
 
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 36]
+
+Internet-Draft           key-management-service                July 2015
+
+
    [RFC4880]  Callas, J., Donnerhacke, L., Finney, H., Shaw, D., and R.
               Thayer, "OpenPGP Message Format", RFC 4880, November 2007.
 
@@ -2568,14 +2033,6 @@ Authors' Addresses
    Cisco Systems
 
    Email: adb@cisco.com
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 46]
-
-Internet-Draft           key-management-service                July 2015
 
 
    Shaun Cooley
@@ -2612,21 +2069,4 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 47]
+Biggs & Cooley           Expires January 4, 2016               [Page 37]
