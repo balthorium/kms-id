@@ -80,29 +80,29 @@ Table of Contents
      4.1.  Secure Channel  . . . . . . . . . . . . . . . . . . . . .  16
      4.2.  User Identity . . . . . . . . . . . . . . . . . . . . . .  17
      4.3.  KMS Identity  . . . . . . . . . . . . . . . . . . . . . .  17
-     4.4.  Message Structure . . . . . . . . . . . . . . . . . . . .  18
-       4.4.1.  Basic Request Payload . . . . . . . . . . . . . . . .  19
-       4.4.2.  Basic Response Payload  . . . . . . . . . . . . . . .  20
-       4.4.3.  Error Response Payload  . . . . . . . . . . . . . . .  21
-     4.5.  Requests  . . . . . . . . . . . . . . . . . . . . . . . .  22
-       4.5.1.  Create Ephemeral Key  . . . . . . . . . . . . . . . .  22
-       4.5.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  25
-       4.5.3.  Create GMBC . . . . . . . . . . . . . . . . . . . . .  26
-       4.5.4.  Post GMBC . . . . . . . . . . . . . . . . . . . . . .  27
-       4.5.5.  Retrieve GMBC . . . . . . . . . . . . . . . . . . . .  28
-       4.5.6.  Create GK . . . . . . . . . . . . . . . . . . . . . .  29
-       4.5.7.  Post GK . . . . . . . . . . . . . . . . . . . . . . .  30
-       4.5.8.  Retrieve GK . . . . . . . . . . . . . . . . . . . . .  31
-       4.5.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  32
+     4.4.  Object Types  . . . . . . . . . . . . . . . . . . . . . .  18
+     4.5.  Message Structure . . . . . . . . . . . . . . . . . . . .  18
+       4.5.1.  Basic Request Payload . . . . . . . . . . . . . . . .  19
+       4.5.2.  Basic Response Payload  . . . . . . . . . . . . . . .  21
+       4.5.3.  Error Response Payload  . . . . . . . . . . . . . . .  22
+     4.6.  Requests  . . . . . . . . . . . . . . . . . . . . . . . .  22
+       4.6.1.  Create Ephemeral Key  . . . . . . . . . . . . . . . .  22
+       4.6.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  25
+       4.6.3.  Create GMBC . . . . . . . . . . . . . . . . . . . . .  26
+       4.6.4.  Post GMBC . . . . . . . . . . . . . . . . . . . . . .  27
+       4.6.5.  Retrieve GMBC . . . . . . . . . . . . . . . . . . . .  28
+       4.6.6.  Create GK . . . . . . . . . . . . . . . . . . . . . .  30
+       4.6.7.  Post GK . . . . . . . . . . . . . . . . . . . . . . .  31
+       4.6.8.  Retrieve GK . . . . . . . . . . . . . . . . . . . . .  32
+       4.6.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  33
    5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  34
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  34
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  34
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  35
    8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  35
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  35
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .  35
      9.2.  Informative References  . . . . . . . . . . . . . . . . .  36
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  37
-
 
 
 
@@ -901,7 +901,7 @@ Internet-Draft           key-management-service                July 2015
    3.  Through an elliptic curve Diffie-Helman key exchange, augmented
        by server and client authentication, the resource client and KMS
        establish a shared secret and derived ephemeral key.  This is
-       discussed in greater detail in Section 4.5.1.
+       discussed in greater detail in Section 4.6.1.
 
    On successful mutual authentication and ephemeral key agreement, the
    resource client and KMS communicate through the exchange of sequenced
@@ -936,7 +936,7 @@ Internet-Draft           key-management-service                July 2015
    party within the context of the KMS architecture.
 
    Access tokens MUST be conveyed to the KMS server as part of the
-   payload of encrypted KMS API requests as described in Section 4.4.1
+   payload of encrypted KMS API requests as described in Section 4.5.1
    and MUST NOT be conveyed in any other manner.
 
 4.3.  KMS Identity
@@ -973,7 +973,19 @@ Internet-Draft           key-management-service                July 2015
    authorities or through enterprise endpoint management solutions or
    manual installation tasks for private certification authorities.
 
-4.4.  Message Structure
+4.4.  Object Types
+
+   The KMS protocol is based on operations on GMBC and GK objects.
+   Specifically, these include the following JSON object types defined
+   using using JSON content rules [I-D.newton-json-content-rules] in
+   [I-D.abiggs-saag-primitives-for-conf-group-comms]:
+
+      gmbc-genesis-block gmbc-appended-block group-key
+
+   It is through the creation and retrieval of instances of these object
+   types that clients interact with the KMS.
+
+4.5.  Message Structure
 
    Every KMS request and response message is composed of a JSON
    [RFC7159] formatted payload encapsulated within either a JWE
@@ -987,21 +999,9 @@ Internet-Draft           key-management-service                July 2015
       of either key agreement message or error message.  Common messages
       are encrypted as JWE objects using the shared ephemeral key
       established during initial key agreement between the client and
-      KMS (see Section 4.5.1).  The value of the JWE header "kid"
+      KMS (see Section 4.6.1).  The value of the JWE header "kid"
       attribute of a common message MUST match that of the KMS ephemeral
       key object URI attribute established during initial key agreement.
-
-   Ephemeral Key Agreement Messages
-
-      Ephemeral key agreement messages are those exchanged between the
-      client and KMS for the purpose of establishing a new shared
-      ephemeral key (see Section 4.5.1).  Key agreement request payloads
-      are encrypted as JWE objects using the authenticated and validated
-      static public key of the KMS.  Key agreement response payloads are
-      signed as JWS objects using the static private key of the KMS.
-      The value of the JWE or JWS header "kid" attribute of an ephemeral
-      key agreement message MUST be a well known key identifier for the
-      KMS static public key.
 
 
 
@@ -1009,6 +1009,18 @@ Biggs & Cooley           Expires January 4, 2016               [Page 18]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   Ephemeral Key Agreement Messages
+
+      Ephemeral key agreement messages are those exchanged between the
+      client and KMS for the purpose of establishing a new shared
+      ephemeral key (see Section 4.6.1).  Key agreement request payloads
+      are encrypted as JWE objects using the authenticated and validated
+      static public key of the KMS.  Key agreement response payloads are
+      signed as JWS objects using the static private key of the KMS.
+      The value of the JWE or JWS header "kid" attribute of an ephemeral
+      key agreement message MUST be a well known key identifier for the
+      KMS static public key.
 
    Error Messages
 
@@ -1018,18 +1030,41 @@ Internet-Draft           key-management-service                July 2015
       recognize the ephemeral key used in the request, or that key is
       determined to have expired, the KMS MUST respond with an
       unencrypted message composed as a JWS, with a payload as described
-      in Section 4.4.3, and signed using the KMS server's static public
+      in Section 4.5.3, and signed using the KMS server's static public
       key.
 
    The basic JSON representations for the request and response payloads
    are defined in the following sections.
 
-4.4.1.  Basic Request Payload
+4.5.1.  Basic Request Payload
 
    The basic JSON representation for KMS request message payloads is
    defined as follows using JSON content rules
    [I-D.newton-json-content-rules] with references to rules defined in
    previous sections.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 19]
+
+Internet-Draft           key-management-service                July 2015
+
 
    requestId (
      "requestId" : integer
@@ -1050,7 +1085,7 @@ Internet-Draft           key-management-service                July 2015
    request (
      "client" : client,
      "method" : method,
-     kmsUri,
+     "uri" : uri,
      requestId
    )
 
@@ -1058,13 +1093,6 @@ Internet-Draft           key-management-service                July 2015
    follows.
 
    requestId
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 19]
-
-Internet-Draft           key-management-service                July 2015
-
 
       A string selected by the client and provided in each request to
       uniquely identify the request.  The string is treated opaquely by
@@ -1085,6 +1113,15 @@ Internet-Draft           key-management-service                July 2015
 
    jwk
 
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 20]
+
+Internet-Draft           key-management-service                July 2015
+
+
       A JWK object, in JSON format as defined in
       [I-D.ietf-jose-json-web-key], containing the public key of the
       client (presumably a server).  This JWK MUST contain an x5c header
@@ -1103,24 +1140,18 @@ Internet-Draft           key-management-service                July 2015
 
    uri
 
-      The KMS object or object type to which the request applies.
+      A URI identifying a KMS object or object type (e.g.  GMBC or GK)
+      to which the request applies.
 
    The JSON content rules above are used in conjunction with additional
    request type specific rules, defined later in this document, to
    produce the full request payload definition for each KMS operation.
 
-4.4.2.  Basic Response Payload
+4.5.2.  Basic Response Payload
 
    The basic JSON representation for KMS request message payloads is
    defined as follows using JSON content rules with references to rules
    defined in previous sections.
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 20]
-
-Internet-Draft           key-management-service                July 2015
-
 
    response (
      "status" : integer,
@@ -1140,6 +1171,13 @@ Internet-Draft           key-management-service                July 2015
 
    reason
 
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 21]
+
+Internet-Draft           key-management-service                July 2015
+
+
       An optional natural language string to describe the response
       status in terms that are useful for tracing and troubleshooting
       the API.
@@ -1152,7 +1190,7 @@ Internet-Draft           key-management-service                July 2015
    response type specific rules, defined later in this document, to
    produce the full response payload definition for each KMS operation.
 
-4.4.3.  Error Response Payload
+4.5.3.  Error Response Payload
 
    The JSON representation for KMS error response message payloads is
    defined as follows using JSON content rules with references to rules
@@ -1166,31 +1204,19 @@ Internet-Draft           key-management-service                July 2015
 
    Error response message example:
 
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 21]
-
-Internet-Draft           key-management-service                July 2015
-
-
    JWS(K_kms_priv, {
      "status": 403,
      "reason": "The ephemeral key used in the request has expired.",
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
    })
 
-4.5.  Requests
+4.6.  Requests
 
    The following sections provide detailed descriptions for each of the
    request and response operations that may occur between a resource
    client and the KMS.
 
-4.5.1.  Create Ephemeral Key
+4.6.1.  Create Ephemeral Key
 
    The first operation between a client and KMS MUST be the
    establishment of a shared secret and derived ephemeral key.  This is
@@ -1200,6 +1226,14 @@ Internet-Draft           key-management-service                July 2015
    The client request for creating an ephemeral key conforms to the
    basic request message payload, where the method is "create" and the
    uri is "/ecdhe".  In addition to the basic payload, the client
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 22]
+
+Internet-Draft           key-management-service                July 2015
+
+
    provides a jwk attribute for which the value is a JWK object
    [I-D.ietf-jose-json-web-key] containing the public part of an EC key
    pair generated by the client.  Unlike a basic request message,
@@ -1219,20 +1253,6 @@ Internet-Draft           key-management-service                July 2015
    }
 
    Request message example:
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 22]
-
-Internet-Draft           key-management-service                July 2015
-
 
    JWE(K_kms_pub, {
      "client": {
@@ -1263,6 +1283,13 @@ Internet-Draft           key-management-service                July 2015
    the KMS MUST NOT use the server response to continue with key
    agreement.
 
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 23]
+
+Internet-Draft           key-management-service                July 2015
+
+
    Upon successful authentication and authorization of the request, the
    KMS responds by generating its own EC key pair using the same curve
    as indicated in the "crv" attribute of the request message JWK.  The
@@ -1281,14 +1308,6 @@ Internet-Draft           key-management-service                July 2015
      response,
      key
    }
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 23]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Response message example:
 
@@ -1319,6 +1338,14 @@ Internet-Draft           key-management-service                July 2015
    in time before which the key may be used for encrypting messages
    (both in [RFC3339] date-time format).
 
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 24]
+
+Internet-Draft           key-management-service                July 2015
+
+
    On receiving the ephemeral key creation response, the resource client
    MUST verify the received JWS against the KMS server's validated
    static public key.  If verification fails, the client MUST NOT use
@@ -1337,15 +1364,6 @@ Internet-Draft           key-management-service                July 2015
    assign a value to the kid attribute of the header of the resulting
    JWE object, and this value MUST match the URL of the key as provided
    to the client in the KMS response message described above.  This
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 24]
-
-Internet-Draft           key-management-service                July 2015
-
-
    provides the recipient with a means for identifying the key necessary
    to decrypt the message.
 
@@ -1356,7 +1374,7 @@ Internet-Draft           key-management-service                July 2015
    wishing to submit further requests to the KMS MUST re-establish the
    secure channel by requesting the creation of a new ephemeral key.
 
-4.5.2.  Delete Ephemeral Key
+4.6.2.  Delete Ephemeral Key
 
    In the event that a resource client's ephemeral key has become
    compromised, a client SHOULD submit a request to the KMS to delete
@@ -1373,6 +1391,16 @@ Internet-Draft           key-management-service                July 2015
    }
 
    Request message example:
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 25]
+
+Internet-Draft           key-management-service                July 2015
+
 
    JWE(K_ephemeral, {
      "client": {
@@ -1391,16 +1419,6 @@ Internet-Draft           key-management-service                July 2015
    ephemeral key.
 
    Response payload definition:
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 25]
-
-Internet-Draft           key-management-service                July 2015
-
 
    root {
      response
@@ -1422,7 +1440,7 @@ Internet-Draft           key-management-service                July 2015
    that time forward, accept any requests encrypted with that ephemeral
    key.
 
-4.5.3.  Create GMBC
+4.6.3.  Create GMBC
 
    When a client intends to initiate E2E encryption of a communications
    resource, it begins by requesting the creation of a GMBC URL.  This
@@ -1431,6 +1449,14 @@ Internet-Draft           key-management-service                July 2015
 
    The request message conforms to the basic request message structure,
    where the method is "create", the uri is "/gmbc".  ~~~
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 26]
+
+Internet-Draft           key-management-service                July 2015
+
 
    Request message example:
 
@@ -1450,13 +1476,6 @@ Internet-Draft           key-management-service                July 2015
    structure, and includes a representation of the created GMBC.
 
    Response payload definition:
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 26]
-
-Internet-Draft           key-management-service                July 2015
-
 
    root {
      response,
@@ -1479,14 +1498,21 @@ Internet-Draft           key-management-service                July 2015
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.5.4.  Post GMBC
+4.6.4.  Post GMBC
 
    Once a client has created the genesis block of a GMBC or when a
    client is adding or removing members from the GMBC, it must post the
    GMBC to the KMS.
 
    The request message conforms to the basic request message structure,
-   where the method is "update", the uri is "/gmbc".  ~~~
+   where the method is "update", the uri is "/gmbc".
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 27]
+
+Internet-Draft           key-management-service                July 2015
+
 
    Request message example:
 
@@ -1504,15 +1530,6 @@ Internet-Draft           key-management-service                July 2015
         TODO: GMBC example
      }
    })
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 27]
-
-Internet-Draft           key-management-service                July 2015
-
 
    The response message conforms to the basic response message
    structure.
@@ -1535,7 +1552,7 @@ Internet-Draft           key-management-service                July 2015
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.5.5.  Retrieve GMBC
+4.6.5.  Retrieve GMBC
 
    A client that is authorized on a given GMBC may retrieve the current
    state of that object as well as that of current set of associated GK
@@ -1545,23 +1562,6 @@ Internet-Draft           key-management-service                July 2015
    where the method is "retrieve", and the uri is that of the GMBC as
    returned by the create operation from which it originated.
 
-   Request payload definition:
-
-   root {
-     request
-   }
-
-   Request message example:
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1569,6 +1569,14 @@ Biggs & Cooley           Expires January 4, 2016               [Page 28]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   Request payload definition:
+
+   root {
+     request
+   }
+
+   Request message example:
 
    JWE(K_ephemeral, {
      "client": {
@@ -1607,17 +1615,9 @@ Internet-Draft           key-management-service                July 2015
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.5.6.  Create GK
 
-   When a client intends to initiate E2E encryption of a communications
-   resource, it begins by requesting the creation of a GK URL.  This
-   resource serves as a placeholder for the GK until the orignating
-   client can post the contents of the GK.
 
-   The request message conforms to the basic request message structure,
-   where the method is "create", the uri is "/gk".  ~~~
 
-   Request message example:
 
 
 
@@ -1625,6 +1625,18 @@ Biggs & Cooley           Expires January 4, 2016               [Page 29]
 
 Internet-Draft           key-management-service                July 2015
 
+
+4.6.6.  Create GK
+
+   When a client intends to initiate E2E encryption of a communications
+   resource, it begins by requesting the creation of a GK URL.  This
+   resource serves as a placeholder for the GK until the orignating
+   client can post the contents of the GK.
+
+   The request message conforms to the basic request message structure,
+   where the method is "create", the uri is "/gk".
+
+   Request message example:
 
    JWE(K_ephemeral, {
      "client": {
@@ -1661,18 +1673,6 @@ Internet-Draft           key-management-service                July 2015
 
    If successful, the KMS response to a create resource request MUST
    have a status of 201.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
-
-4.5.7.  Post GK
-
-   Once a client has generated the GK, or when a client is modifying the
-   GK, it must post the GK to the KMS.
-
-   The request message conforms to the basic request message structure,
-   where the method is "update", the uri is "/gk".  ~~~
-
-   Request message example:
 
 
 
@@ -1681,6 +1681,19 @@ Biggs & Cooley           Expires January 4, 2016               [Page 30]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
+
+4.6.7.  Post GK
+
+   Once a client has generated the GK, or when a client is modifying the
+   GK, it must post the GK to the KMS.
+
+   The request message conforms to the basic request message structure,
+   where the method is "update", the uri is "/gk".
+
+   Request message example:
 
    JWE(K_ephemeral, {
      "client": {
@@ -1717,7 +1730,15 @@ Internet-Draft           key-management-service                July 2015
    response status SHOULD be that of an [RFC7231] defined status code
    with semantics that correspond to the failure condition.
 
-4.5.8.  Retrieve GK
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 31]
+
+Internet-Draft           key-management-service                July 2015
+
+
+4.6.8.  Retrieve GK
 
    A client that is authorized on a given GMBC may retrieve the current
    set of associated GK objects.
@@ -1727,16 +1748,6 @@ Internet-Draft           key-management-service                July 2015
    returned by the create operation from which it originated.
 
    Request payload definition:
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 31]
-
-Internet-Draft           key-management-service                July 2015
-
 
    root {
      request
@@ -1776,17 +1787,6 @@ Internet-Draft           key-management-service                July 2015
      }
    })
 
-   If successful, the KMS response to a retrieve resource request MUST
-   have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
-
-4.5.9.  Ping
-
-   Ping is a simple request intended to provide an efficient means for
-   verifying the integrity of the secure channel between client and KMS.
-   Ping MUST be implemented as a safe and idempotent operation that
-
 
 
 Biggs & Cooley           Expires January 4, 2016               [Page 32]
@@ -1794,6 +1794,16 @@ Biggs & Cooley           Expires January 4, 2016               [Page 32]
 Internet-Draft           key-management-service                July 2015
 
 
+   If successful, the KMS response to a retrieve resource request MUST
+   have a status of 200.  In the case of a request failure, the KMS
+   response status SHOULD be that of an [RFC7231] defined status code
+   with semantics that correspond to the failure condition.
+
+4.6.9.  Ping
+
+   Ping is a simple request intended to provide an efficient means for
+   verifying the integrity of the secure channel between client and KMS.
+   Ping MUST be implemented as a safe and idempotent operation that
    causes the server to do nothing more than return a basic response
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
@@ -1829,16 +1839,6 @@ Internet-Draft           key-management-service                July 2015
 
    Response message example:
 
-   JWE(K_ephemeral, {
-   {
-     "status": 200,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
-   })
-
-   If successful, the client may deduce that the KMS was able to
-   successfully decrypt the received KMS request message, parse the
-   contents, confirm the identity and authorization of the requesting
-   client, and return a suitable response.
 
 
 
@@ -1849,6 +1849,17 @@ Biggs & Cooley           Expires January 4, 2016               [Page 33]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   JWE(K_ephemeral, {
+   {
+     "status": 200,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5"
+   })
+
+   If successful, the client may deduce that the KMS was able to
+   successfully decrypt the received KMS request message, parse the
+   contents, confirm the identity and authorization of the requesting
+   client, and return a suitable response.
 
 5.  Mandatory-to-Implement
 
@@ -1863,39 +1874,28 @@ Internet-Draft           key-management-service                July 2015
 
    Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
    MGF1 with SHA-256) from [I-D.ietf-jose-json-web-algorithms] for
-   signatures using the KMS static public/private key for Section 4.5.1.
+   signatures using the KMS static public/private key for Section 4.6.1.
 
    Implementations MUST support JWK Elliptic Curve type "P-256" (NIST
    P-256 curve) from [I-D.ietf-jose-json-web-algorithms] for
-   Section 4.5.1.
+   Section 4.6.1.
 
    Implementations MUST support "RSA-OAEP" (RSAES OAEP using default
    parameters) from [I-D.ietf-jose-json-web-algorithms] for key
-   encryption using the KMS static public/private key for Section 4.5.1.
+   encryption using the KMS static public/private key for Section 4.6.1.
 
    Implementations MUST support "dir" (Direct Key Agreement Key
    Management Mode) from [I-D.ietf-jose-json-web-algorithms] for all
-   operations other than Section 4.5.1.
+   operations other than Section 4.6.1.
 
    Implementations MUST support "A256GCM" (AES GCM using 256 bit key)
    from [I-D.ietf-jose-json-web-algorithms] for content encryption for
-   all operations other than Section 4.5.1.
+   all operations other than Section 4.6.1.
 
 6.  Security Considerations
 
    Security considerations are discussed throughout this document.
    Additional considerations may be added here as needed.
-
-7.  Appendix A.  Acknowledgments
-
-   This specification is the work of several contributors.  In
-   particular, the following individuals contributed ideas, feedback,
-   and wording that influenced this specification:
-
-   Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
-
-
-
 
 
 
@@ -1905,6 +1905,14 @@ Biggs & Cooley           Expires January 4, 2016               [Page 34]
 
 Internet-Draft           key-management-service                July 2015
 
+
+7.  Appendix A.  Acknowledgments
+
+   This specification is the work of several contributors.  In
+   particular, the following individuals contributed ideas, feedback,
+   and wording that influenced this specification:
+
+   Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
 
 8.  Appendix B.  Document History
 
@@ -1945,14 +1953,6 @@ Internet-Draft           key-management-service                July 2015
    [RFC2822]  Resnick, P., "Internet Message Format", RFC 2822, April
               2001.
 
-   [RFC3339]  Klyne, G., Ed. and C. Newman, "Date and Time on the
-              Internet: Timestamps", RFC 3339, July 2002.
-
-   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2", RFC
-              4949, August 2007.
-
-
-
 
 
 
@@ -1961,6 +1961,12 @@ Biggs & Cooley           Expires January 4, 2016               [Page 35]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   [RFC3339]  Klyne, G., Ed. and C. Newman, "Date and Time on the
+              Internet: Timestamps", RFC 3339, July 2002.
+
+   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2", RFC
+              4949, August 2007.
 
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
               Housley, R., and W. Polk, "Internet X.509 Public Key
@@ -2003,12 +2009,6 @@ Internet-Draft           key-management-service                July 2015
               Content", draft-newton-json-content-rules-02 (work in
               progress), August 2014.
 
-   [OTR]      Borisov, N., Goldberg, I., and E. Brewer, "Off-the-Record
-              Communication, or, Why Not To Use PGP", 2012,
-              <https://otr.cypherpunks.ca/otr-wpes.pdf>.
-
-   [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
-              Internet Protocol", RFC 4301, December 2005.
 
 
 
@@ -2017,6 +2017,13 @@ Biggs & Cooley           Expires January 4, 2016               [Page 36]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   [OTR]      Borisov, N., Goldberg, I., and E. Brewer, "Off-the-Record
+              Communication, or, Why Not To Use PGP", 2012,
+              <https://otr.cypherpunks.ca/otr-wpes.pdf>.
+
+   [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
+              Internet Protocol", RFC 4301, December 2005.
 
    [RFC4880]  Callas, J., Donnerhacke, L., Finney, H., Shaw, D., and R.
               Thayer, "OpenPGP Message Format", RFC 4880, November 2007.
@@ -2039,13 +2046,6 @@ Authors' Addresses
    Cisco Systems
 
    Email: shcooley@cisco.com
-
-
-
-
-
-
-
 
 
 

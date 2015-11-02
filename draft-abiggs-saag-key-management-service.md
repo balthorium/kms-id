@@ -454,6 +454,16 @@ Given the untrusted nature of the KMS transport by both the KMS and clients, it 
 
 PKIX certificates presented by the KMS can be issued by either a public or private certification authority with the stipulation that clients MUST be able to validate the KMS's entire certificate path through the pre-established trust of the root certificate used to anchor the certificate path.  The mechanism for establishing trust of the root certificate is out of scope for this specification, but it is usually carried out through pre-installed trusted root certificates on various operating systems for public certification authorities or through enterprise endpoint management solutions or manual installation tasks for private certification authorities.
 
+## Object Types
+
+The KMS protocol is based on operations on GMBC and GK objects.  Specifically, these include the following JSON object types defined using using JSON content rules {{I-D.newton-json-content-rules}} in {{I-D.abiggs-saag-primitives-for-conf-group-comms}}:
+
+> gmbc-genesis-block
+> gmbc-appended-block
+> group-key
+
+It is through the creation and retrieval of instances of these object types that clients interact with the KMS.
+
 ## Message Structure
 
 Every KMS request and response message is composed of a JSON {{RFC7159}} formatted payload encapsulated within either a JWE {{I-D.ietf-jose-json-web-encryption}} or JWS {{I-D.ietf-jose-json-web-signature}} object.  These messages may be divided into three types.
@@ -498,7 +508,7 @@ method: string /create|retrieve|update|delete/
 request (
   "client" : client,
   "method" : method,
-  kmsUri,
+  "uri" : uri,
   requestId
 )
 ~~~
@@ -531,7 +541,7 @@ method
 
 uri
 
-> The KMS object or object type to which the request applies.
+> A URI identifying a KMS object or object type (e.g. GMBC or GK) to which the request applies.
 
 The JSON content rules above are used in conjunction with additional request type specific rules, defined later in this document, to produce the full request payload definition for each KMS operation.
 
@@ -781,7 +791,6 @@ If successful, the KMS response to a create resource request MUST have a status 
 Once a client has created the genesis block of a GMBC or when a client is adding or removing members from the GMBC, it must post the GMBC to the KMS.
 
 The request message conforms to the basic request message structure, where the method is "update", the uri is "/gmbc".
-~~~
 
 Request message example:
 
@@ -883,7 +892,6 @@ If successful, the KMS response to a retrieve resource request MUST have a statu
 When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GK URL.  This resource serves as a placeholder for the GK until the orignating client can post the contents of the GK.
 
 The request message conforms to the basic request message structure, where the method is "create", the uri is "/gk".
-~~~
 
 Request message example:
 
@@ -932,7 +940,6 @@ If successful, the KMS response to a create resource request MUST have a status 
 Once a client has generated the GK, or when a client is modifying the GK, it must post the GK to the KMS.
 
 The request message conforms to the basic request message structure, where the method is "update", the uri is "/gk".
-~~~
 
 Request message example:
 
