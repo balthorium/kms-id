@@ -230,9 +230,9 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 4. Client A posts the encrypted resource to the resource server, including the URI of the GK as metadata.
 
-5. Client A creates and signs a new GMBC block containing an operation to add client B and using the hash of the genesis block from step 1 as the "antecedent".  Client A posts this block to the KMS for appending to the GMBC.
+5. Client A creates and signs a new GMBC block containing an operation to add client B and with the hash of the genesis block from step 1 as the "antecedent".  Client A posts this block to the KMS for appending to the GMBC.
 
-6. Client A posts a request to the KMS to alter the "block" attribute of the GK from 2 to now be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
+6. Client A posts a request to the KMS to bind the GK to the GMBC by setting the "block" attribute of the GK to be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
 
 7. Client B obtains the encrypted resource from the resource server, including the GK URI as metadata.
 
