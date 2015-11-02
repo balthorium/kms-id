@@ -623,10 +623,10 @@ Internet-Draft           key-management-service                July 2015
          |              |              |              |             |
          |              |              |              |     (1)     |
          |              |              |--------------|------------>|
+         |              |              |              |             |
          |              |          (2) |              |             |
          |              |              |              |             |
          |              |          (3) |              |             |
-         |              |              |              |             |
          |              |              |              |     (4)     |
          |              |              |--------------|------------>|
          |              |              |      (5)     |             |
@@ -647,25 +647,25 @@ Internet-Draft           key-management-service                July 2015
    a secure channel to the KMS via authenticated key agreement.  All
    messages are transmitted over XMPP.
 
-   1.  Client A reserves some number of unique GMBC URIs from the KMS
-       server.  Client A selects one of these GMBC URIs for securing MUC
-       room messages.
+   1.  Client A reserves a unique GMBC URI from the KMS server.
 
-   2.  Client A generates a new GMBC by creating a genesis block,
-       containing the unique MUC URI, group membership "add" operations
-       for each member of the MUC, and the KMS' URI in the curator
-       field.
+   2.  Client A generates a new GMBC by creating a genesis block using
+       the reserved GMBC URI.  The genesis block references the MUC room
+       JID as the resource URI, and includes group membership "add"
+       operations for each member of the MUC room.  The JID of the KMS
+       server is used in the curator field.
 
-   3.  Client A generates a symmetric key to be used in the MUC then
-       creates a GK that includes a hash of the GMBC genesis block, and
-       encrypts the key material portion of the GK using a JWE JSON
-       serialization that indicates the KMS server is the recipient.
+   3.  Client A generates a GK using the reserved GK URI and containing
+       a reference to the GMBC URI.
 
-   4.  Client A performs a GMBC Post and GK Post of the GMBC and GK
-       created in steps 2 and 3, respectively, to the KMS Server.
+   4.  Via an XMPP protocol binding, client A performs GMBC Post and GK
+       Post operations to upload the GMBC and GK objects created in
+       steps (2) and (3) to the KMS server.
 
-   5.  Client A encrypts a message with the key generated in step (3)
-       and sends it to the MUC room.
+   5.  Client A encrypts the content of an XMPP message using the key
+       material from the GK created in step (3), and sends the encrypted
+       message to the MUC room.  The GK URI is included within the XMPP
+       message as metadata.
 
 
 
@@ -677,12 +677,12 @@ Internet-Draft           key-management-service                July 2015
    6.  The MUC service delivers client A's encrypted message to clients
        B and C.
 
-   7.  Client B requests from the KMS the GMBC associated with the MUC
-       room's URI.  Recognizing Client B as authorized on the GMBC, the
-       KMS returns a copy of the GK encrypted for Client B.
+   7.  Via an XMPP protocol binding, client B performs a GK Get
+       operation to retrieve the GK from the KMS server using the GK URI
+       included in the encrypted message's metadata.
 
-   8.  Client B decrypts the messages using the key obtained in step
-       (7).
+   8.  Client B decrypts the messages using the key material protected
+       by the GK.
 
    9.  Client C performs steps (7) and (8) in the same fashion as Client
        B.
