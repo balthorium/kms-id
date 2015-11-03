@@ -354,59 +354,52 @@ HTTP Client   HTTP Client     HTTP File      KMS Server   KMS Server
 Bob@DomainB  Alice@DomainA   Share Server     DomainA       DomainB
      |             |              |      (1)     |             |
      |             |--------------|------------->|             |
-     |             |      (2)     |              |             |
-     |             |------------->|              |             |
-     |     (3)     |              |              |             |
-     |<------------|--------------|              |             |
-     |         (4) |              |              |             |
-     |             |              |              |             |
-     |         (5) |              |              |             |
-     |             |              |              |             |
-     |             |              |      (6)     |             |
+     |             |              |      (2)     |             |
      |             |--------------|------------->|             |
-     |             |      (7)     |              |             |
+     |             |      (3)     |              |             |
+     |             |------------->|              |             |
+     |     (4)     |              |              |             |
+     |<------------|--------------|              |             |
+     |             |      (5)     |              |             |
      |-------------|------------->|              |             |
-     |             |              |              |     (8)     |
+     |             |              |              |     (6)     |
      |-------------|--------------|--------------|------------>|
-     |             |              |              |     (9)     |
+     |             |              |              |     (7)     |
      |             |              |              |<------------|
-     |             |              |              |     (10)    |
+     |             |              |              |     (8)     |
      |             |              |              |------------>|
+     |     (9)     |              |              |             |
+     |<------------|--------------|--------------|-------------|
      |             |              |              |             |
-     |             |              |              |             | (11)
-     |             |              |              |             |
-(12) |             |              |              |             |
+(10) |             |              |              |             |
      |             |              |              |             |
 ~~~
 {: #fed-usecase title="File Sharing with KMS Federation Use Case"}
 
-This sequence begins with the assumption that each client has, at some point, already established a secure channel to their respective KMS via authenticated key agreement.
+This sequence begins with the assumption that each client has, at some point, already established a secure channel to their respective KMS via authenticated key agreement. 
+---------------------
 
-1. Alice@DomainA requests from the DomainA KMS some number of unique GMBC URLs.  Each KMS key is uniquely identified by a URL.
+1. Alice@DomainA requests a new GMBC from the KMS server, providing initial operations to add Alice@DomainA and Bob@DomainB as members.  The KMS creates and returns a new genesis block with the KMS as curator.
 
-2. Alice@DomainA selects a reserved GMBC URI from the set of URIs obtained in step (1), generates a symmetric key, encrypts the file to be shared, and posts the encrypted content to the file sharing service.  As metadata to the file posted to the file sharing service, Alice@DomainA includes the GMBC URL.  The file sharing service responds with a URL that uniquely identifies the shared file.
+2. Alice@DomainA requests that the KMS generate a new GK, and to have it immediately bound to the genesis block created in step 1.  The KMS generates the GK and returns it to the client with Alice@DomainA as the only recipient of the embedded JWE used to wrap the included key material.
 
-3. Bob@DomainB is notified of the newly shared file URL through a notification from the file sharing service (or potentially some other means, such an an email from Alice).
+3. Client A encrypts a file using the key material from the GK created in step 2, and sends the encrypted message to the file sharing service.  The GK URI is included as metadata.
 
-4. Alice@DomainA generates a new GMBC by creating a genesis block, containing the unique shared file URL, two group membership "add" operations (one for itself and one for Bob@DomainB), and the KMS' URI in the curator field.
+4. Bob@DomainB learns of the newly shared file from the file sharing service (the mechanism by which this occurs is out of scope for this specification).
 
-5. Alice@DomainA creates a GK that includes a hash of the GMBC genesis block, and encrypts the key material portion of the GK using a JWE JSON serialization that indicates the KMS server is the recipient.
+5. Bob@DomainB retrieves the shared file from the file sharing service along with the GK URI contained in metadata.
 
-6. Alice@DomainA performs a GMBC Post and GK Post of the GMBC and GK created in steps 4 and 5, respectively, to the KMS Server.
+6. Using the GK key URI obtained in step 7, Bob@DomainB requests the GK from his own KMS at DomainB.
 
-7. Bob@DomainB retrieves the shared file from the file sharing service along with the GMBC URL contained in metadata.
-
-8. Using the GMBC key URL obtained in step (7), Bob@DomainB requests the GMBC from the DomainB KMS.
-
-9. The DomainB KMS recognizes the GMBC URL as actually hosted by the DomainA KMS.  The DomainB KMS establishes a secure and mutually authenticated channel with the DomainA KMS via the KMS transport.
-
-10. The DomainB KMS requests from the DomainA KMS the GMBC and GK objects, along with all DomainB user authorizations.  The DomainA KMS recognizes that the DomainB KMS is authorized to retrieve all KMS keys for which users in the DomainB domain have been authorized.  It then recognizes that at least one DomainB user (Bob) has been authorized on the GMBC created in step (4).  The DomainA KMS therefore decides the DomainB KMS is authorized to make this request, it adds DomainB KMS to the GMBC and returns the updated GMBC along with the GK encrypted for DomainB KMS.
+7. The DomainB KMS recognizes the GK URI as actually hosted by the DomainA KMS.  The DomainB KMS establishes a secure and mutually authenticated channel with the DomainA KMS via the KMS transport (if not previously established) and requests the GK from the DomainA KMS on behalf of Bob@DomainB.
  
-11. Using the information received from the DomainA KMS, the DomainB KMS verifies that Bob@DomainB is authorized on the GMBC, and satisfies the request from step (8) by returning the KMS key to Bob@DomainB. 
+8. The DomainA KMS first checks to see if Bob@DomainB is entitled to retrieve the GK.  If so, it then consults the WebFinger resource of Bob@DomainB to determine whether DomainB is entitled to request GKs on behalf of Bob@DomainB.  If so, DomainA KMS will respond by returning the GK to DomainB in such a way as the JWE used to wrap the key material is encrypted with the public key of the DomainB KMS server.  
 
-12. Bob@DomainB decrypts the shared file using the key obtained in step (11).
+9. DomainB KMS returns the GK to Bob@DomainB in such a way as the JWE used to wrap the key material is encrypted with Bob@DomainB's public key, and the GK itself is signed with the DomainB KMS private key.
 
-Note that in step (11) the DomainB KMS is enforcing authorization policy for the GMBC hosted on the DomainA KMS as it pertains to DomainB users.  This is a necessary consequence of KMS federation, where the act of authorizing access to a GMBC by a user residing in a federated domain engenders an implicit trust of the KMS server that controls the federated domain.  For that reason, a KMS provider should restrict federation of its KMS servers to domains that the KMS provider regards as trusted. 
+10. Bob@DomainB decrypts the shared file using the key obtained in step (11).
+
+Note that in step 8 the DomainB KMS is being trusted by DomainA KMS to not share the GK key material with anyone other than those users on whose behalf it has acted and successfully retrieved the GK.  This is a necessary consequence of KMS federation, where the act of authorizing access to a GK by a user residing in a federated domain engenders an implicit trust of the KMS server that controls the federated domain.  For that reason, a KMS provider should restrict federation of its KMS servers to domains that the KMS provider regards as trusted.
 
 # KMS Protocol
 
