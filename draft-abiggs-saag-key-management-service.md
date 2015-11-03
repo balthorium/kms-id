@@ -189,7 +189,6 @@ While the KMS service protocol constitutes a central focus of this specification
 
 An important non-goal of this specification is the standardization of any aspect of the cloud provider's services or the means by which clients utilize shared keys for the E2E encryption of data transiting those services.  By avoiding the application of constraints on the communications services and protocols we enable the use of this specification in the context of existing service deployments, both standards-based and proprietary.  It is similarly a non-goal of this specification to enable federation of secure communications between vendors of different cloud services, as that is the realm of standardized application protocols.  The scope of this specification is intended to be narrowly focused on the task of separating E2E encryption key management from the communications services they secure, thereby facilitating the broadest possible adoption of secure communications though existing services.
 
-
 # Use Cases
 
 The use cases described in this section are non-normative examples meant to illustrate how the KMS architecture may be deployed to provide E2E encryption of different types of communications resources.  These use cases differ in detail, but generally follow a common logical sequence as given below.
@@ -224,7 +223,7 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 1. Client A requests a new GMBC from the KMS server.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
 
-2. Client A requests that the KMS generate a new GK with a null "block" attribute.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
+2. Client A requests that the KMS generate a new GK.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
 3. Client A encrypts a resource using the key material protected by the GK.
 
@@ -232,7 +231,7 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 
 5. Client A creates and signs a new GMBC block containing an operation to add client B and with the hash of the genesis block from step 1 as the "antecedent".  Client A posts this block to the KMS for appending to the GMBC.
 
-6. Client A posts a request to the KMS to bind the GK to the GMBC by setting the "block" attribute of the GK to be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
+6. Client A posts a request to the KMS to update the GK and bind it to the GMBC by setting the "block" attribute of the GK to be the hash of the GMBC block posted in 5 (this has the effect of linking authorization for retrieval of the GK to the membership of the GMBC at that particular block).
 
 7. Client B obtains the encrypted resource from the resource server, including the GK URI as metadata.
 
@@ -252,47 +251,55 @@ For this scenario we also assume that the file sharing service is trusted by use
       |              |              |              |             |
       |              |              |              |     (1)     |
       |              |              |--------------|------------>|
-      |              |              |      (2)     |             |
-      |              |              |------------->|             |
-      |      (3)     |      (3)     |              |             |
-      |<-------------|<-------------|--------------|             |
+      |              |              |              |     (2)     |
+      |              |              |--------------|------------>|
       |              |              |              |             |
-      |              |          (4) |              |             |
+      |              |          (3) |              |             |
+      |              |              |      (4)     |             |
+      |              |              |------------->|             |
       |              |              |              |     (5)     |
       |              |              |--------------|------------>|
-      |              |              |      (6)     |             |
+      |              |              |              |     (6)     |
+      |              |              |--------------|------------>|
+      |      (7)     |      (7)     |              |             |
+      |<-------------|<-------------|--------------|             |
+      |              |              |      (8)     |             |
       |              |--------------|------------->|             |
-      |              |              |              |     (7)     |
+      |              |              |              |     (9)     |
       |              |--------------|--------------|------------>|
       |              |              |              |             |
-      |          (8) |              |              |             |
+      |         (10) |              |              |             |
       |              |              |              |             |
-  (9) |              |              |              |             |
+ (11) |              |              |              |             |
       |              |              |              |             |
 ~~~
 {: #fileshare-usecase title="File Sharing Use Case"}
 
 This sequence begins with the assumption that each client has, at some point, already established a secure channel to the KMS via authenticated key agreement.
 
-1. Client A reserves a unique GMBC URL and a unique GK URL from the KMS server.
+1. Client A requests a new GMBC from the KMS server.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
 
-2. Client A generates a GK using the reserved GK URI and containing a reference to the reserved GMBC URI.  Client A encrypts a file using the key material protected by the GK, and posts the file to the file sharing service, including the GK URL as metadata.  A file URL is returned in the response.
+2. Client A requests that the KMS generate a new GK.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
-3. Clients B and C learn of the newly shared file from the file sharing service (the mechanism by which this occurs is out of scope for this specification).
+3. Client A encrypts a file using the key material protected by the GK.
 
-4. Client A generates a new GMBC by creating a genesis block using the reserved GMBC URI.  The genesis block references the resource URI obtained in (3) and includes group membership "add" operations for each of Clients A, B, and C.  The URI of the KMS server is used in the curator field.
+4. Client A posts the encrypted file to the file sharing service, including the URI of the GK as metadata.
 
-5. Client A posts the GK and GMBC created in steps (2) and (4) to the KMS server.
+5. Client A creates and signs a new GMBC block containing an operation to add clients B and C, and with the hash of the genesis block from step 1 as the "antecedent".  Client A posts this block to the KMS for appending to the GMBC.
 
-6. Client B obtains the encrypted file from the file sharing service, including the GK URL as metadata.
+6. Client A posts a request to the KMS to bind the GK to the GMBC by setting the "block" attribute of the GK to be the hash of the GMBC block posted in 5.
 
-7. Client B performs a get on the GK URL to obtain the GK from the KMS server.  The KMS server generates a new GK based on the original GK created in (2), but with Client B as the recipient.
+7. Clients B and C learn of the newly shared file from the file sharing service (the mechanism by which this occurs is out of scope for this specification).
 
-8. Client B decrypts the encrypted file using the key material protected by the GK.
+8. Client B retrieves the encrypted file from the file sharing service, including the GK URI as metadata.
 
-9. Client C performs steps (6) through (8) in the same fashion as client B.
+9. Client B performs a GK Get to obtain the GK from the KMS server.  The KMS checks the "block" attribute on the requested GK and examines the GMBC block to which it refers.  The membership of the GMBC at that block includes client B, so the server returns the GK to the client with client B as the only recipient of the JWE used to wrap the included key material.
 
-It is worth noting that a race condition does exist where step (7) could occur before step (5) completes.  This will result in a client being temporarily denied access to the key used to encrypt the shared file.
+10. Client B decrypts the file using the key material protected by the GK.
+
+11. Client C performs steps 8 through 10 in the same fashion as client B.
+
+It is worth noting that a race condition does exist where step 9 could occur before steps 5 and 6 complete.  This will result in a client being temporarily denied access to the GK used to encrypt the shared file.
 
 ## Securing an XMPP Multi-User Chat
 
