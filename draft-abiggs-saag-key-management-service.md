@@ -221,7 +221,7 @@ Note that all requests to the KMS server are via the KMS transport which, for cl
 ~~~
 {: #nominal-usecase title="Nominal Use Case"}
 
-1. Client A requests a new GMBC from the KMS server.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
+1. Client A requests a new GMBC from the KMS server, including an initial operation to add itself as a member.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
 
 2. Client A requests that the KMS generate a new GK.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
@@ -277,7 +277,7 @@ For this scenario we also assume that the file sharing service is trusted by use
 
 This sequence begins with the assumption that each client has, at some point, already established a secure channel to the KMS via authenticated key agreement.
 
-1. Client A requests a new GMBC from the KMS server.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
+1. Client A requests a new GMBC from the KMS server, including an initial operation to add itself as a member.  The KMS creates and returns a new genesis block with the KMS as curator and client A as a member.
 
 2. Client A requests that the KMS generate a new GK.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
@@ -311,44 +311,37 @@ Let A, B and C be users that wish to engage in secure chat through an existing X
       |              |              |              |             |
       |              |              |              |     (1)     |
       |              |              |--------------|------------>|
-      |              |              |              |             |
-      |              |          (2) |              |             |
-      |              |              |              |             |
-      |              |          (3) |              |             |
-      |              |              |              |     (4)     |
+      |              |              |              |     (2)     |
       |              |              |--------------|------------>|
-      |              |              |      (5)     |             |
+      |              |              |      (3)     |             |
       |              |              |------------->|             |
-      |      (6)     |      (6)     |              |             |
+      |      (4)     |      (4)     |              |             |
       |<-------------|<-------------|--------------|             |
-      |              |              |              |     (7)     |
+      |              |              |              |     (5)     |
       |              |--------------|--------------|------------>|
       |              |              |              |             |
-      |          (8) |              |              |             |
+      |          (6) |              |              |             |
       |              |              |              |             |
-  (9) |              |              |              |             |
+  (7) |              |              |              |             |
+      |              |              |              |             |
 ~~~
 {: #muc-usecase title="Multi-User Chat Use Case"}
 
-This sequence begins with the assumption that a MUC room already exists on the MUC server and that each client has already established a secure channel to the KMS via authenticated key agreement.  All messages are transmitted over XMPP.
+This sequence begins with the assumption that a MUC room already exists on the MUC server and that each client has already established a secure channel to the KMS via authenticated key agreement.  All messages are transmitted over XMPP, with the presumption that appropriate XMPP extensions are developed to provide bindings for KMS operations.
 
-1. Client A reserves a unique GMBC URL and a unique GK URL from the KMS server.
+1. Client A requests a new GMBC from the KMS server, providing initial operations to add clients A, B, and C.  The KMS creates and returns a new genesis block with the KMS as curator and clients A, B, and C as members.
 
-2. Client A generates a new GMBC by creating a genesis block using the reserved GMBC URI.  The genesis block references the MUC room JID as the resource URI, and includes group membership "add" operations for each member of the MUC room.  The JID of the KMS server is used in the curator field.
+2. Client A requests that the KMS generate a new GK, and to have it immediately bound to the genesis block created in step 1.  The KMS generates the GK and returns it to the client with client A as the only recipient of the embedded JWE used to wrap the included key material.
 
-3. Client A generates a GK using the reserved GK URI and containing a reference to the GMBC URI.
+3. Client A encrypts the content of an XMPP message using the key material from the GK created in step 2, and sends the encrypted message to the MUC room.  The GK URI is included within the XMPP message as metadata.
 
-4. Via an XMPP protocol binding, client A performs GMBC Post and GK Post operations to upload the GMBC and GK objects created in steps (2) and (3) to the KMS server.
+4. The MUC service delivers client A's encrypted message to clients B and C.
 
-5. Client A encrypts the content of an XMPP message using the key material from the GK created in step (3), and sends the encrypted message to the MUC room.  The GK URI is included within the XMPP message as metadata.
+5. Client B performs a GK get operation to retrieve the GK from the KMS server using the GK URI included in the encrypted message's metadata.
 
-6. The MUC service delivers client A's encrypted message to clients B and C.
+6. Client B decrypts the messages using the key material protected by the GK.
 
-7. Via an XMPP protocol binding, client B performs a GK Get operation to retrieve the GK from the KMS server using the GK URI included in the encrypted message's metadata.
-
-8. Client B decrypts the messages using the key material protected by the GK.
-
-9. Client C performs steps (7) and (8) in the same fashion as Client B.
+7. Client C performs steps 5 and 6 in the same fashion as Client B.
 
 ## KMS to KMS Key Federation
 
