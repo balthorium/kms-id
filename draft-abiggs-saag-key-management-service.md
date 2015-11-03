@@ -1,7 +1,7 @@
 ---
 title: Key Management Service Architecture
 abbrev: key-management-service
-docname: draft-abiggs-saag-key-management-service-02
+docname: draft-abiggs-saag-key-management-service-03
 date: 2015-07-03
 category: std
 ipr: trust200902
@@ -1110,17 +1110,34 @@ JWS(K_kms_priv, {
 
 If successful, the KMS response to a create resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Retrieve GK
+### Get GK
 
-A client that is authorized on a given GMBC may retrieve the current set of associated GK objects.
+Recipients of a communications resource secured by a GK require some means by which they can retrieve the GK and subsequently decrypt the resource.  Such a recipient will typically receive the URI of the GK as metadata of the encrypted resource itself and submit a get request on that URI to the KMS.
 
-The request message conforms to the basic request message structure, where the method is "retrieve", and the uri is that of the GK as returned by the create operation from which it originated.
+The KMS, as a curator of the GMBC to which the GK is bound, is responsible for ensuring that the keying material contained within the GK is not accessible to entities outside of the group.  It does so by testing that the entity whose URI is provided in the request is a member of the GMBC and, if so, returns the GK with the keying material wrapped in a JWE encrypted with the public key of that entity.
+
+The test for membership may be performed based on any one of a variety of policies, some examples of which are given below.  Which policy is applied is left to the discretion of the KMS implementation.
+
+> Policy 1: An entity is considered a member for purposes of GK retrieval if and only if the entity was a member of the GMBC at the time the block to which the GK is bound was appended to the GMBC.
+
+> Policy 2: An entity is considered a member for purposes of GK retrieval if and only if the entity is a member of the GMBC as of the most recently appended block.
+
+> Policy 3: An entity is considered a member for purposes of GK retrieval if and only if the entity is a member of the GMBC as of the most recently appended block, and was a member at the time the block to which the GK is bound was appended to the GMBC.
+
+Policy 1 represents a persistent right for current and former group members to retrieve GKs that were available to them at some point in the past.  This policy does not extend the right to retrieve a GK to members added subsequently.
+
+Policy 2 determines privilege to retrieve GKs based entirely on the current membership of the GMBC.  Former members cannot retrieve and GKs, and current members can retrieve all GKs for the entire history of the GMBC.
+
+Policy 3 allows only a current member to retrieve GKs and then only as far back as the block that introduced that member to the group.
+
+The request message conforms to the basic request message structure, where the method is "get", and the uri is that of the GK to be retrieved.
 
 Request payload definition:
 
 ~~~
 root {
-  request
+  request,
+  entity: uri
 }
 ~~~
 
@@ -1134,9 +1151,10 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "retrieve",
-  "uri": "/GK/ee5f8984-2300-45af-872c-46aa874e0a8e",
+  "method": "get",
+  "uri": "kms://kms.example.com/gks/8ed72cd2",
   "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
+  "entity": "bob@example.com"
 })
 ~~~
 
@@ -1145,9 +1163,11 @@ The response message conforms to the basic response message structure, and inclu
 Response payload definition:
 
 ~~~
+signed-group-key: JWS(K_kms_priv, group-key)
+
 root {
   response,
-  resource
+  "gk": signed-group-key
 }
 ~~~
 
@@ -1156,10 +1176,20 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 200,
-  "requestId": "d83afbf1-523a-453a-8114-48c7df03ac7c",
-  "resource": {
-      TODO: GK example
-  }
+  "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+  "gk": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+}
+~~~
+
+Deserialized payload of the gk attribute:
+
+~~~
+JWS(K_kms_priv, {
+  "uri": "kms://kms.example.com/gks/8ed72cd2",
+  "creator": "kms://kms.example.com",
+  "created": "2015-11-02T19:19:15Z",
+  "key": "eyJraWQiOiJmZjNjNWM5Ni0zOTJlLTQ2ZWYtYTg...",
+  "block": "14b6290c88a9b40ee519832b878ccc1896bef8900d0f9d2..."
 })
 ~~~
 
@@ -1215,26 +1245,6 @@ JWE(K_ephemeral, {
 
 If successful, the client may deduce that the KMS was able to successfully decrypt the received KMS request message, parse the contents, confirm the identity and authorization of the requesting client, and return a suitable response.  
 
-# Mandatory-to-Implement
-
-Implementations MUST support the following JWK key types from {{I-D.ietf-jose-json-web-algorithms}}:
-
-* "RSA" for the KMS static public/private key
-
-* "EC" for the Ephemeral Diffie Hellman exchange
-
-* "oct" for all symmetric keys
-
-Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and MGF1 with SHA-256) from {{I-D.ietf-jose-json-web-algorithms}} for signatures using the KMS static public/private key for {{proto-ecdhe}}.
-
-Implementations MUST support JWK Elliptic Curve type "P-256" (NIST P-256 curve) from {{I-D.ietf-jose-json-web-algorithms}} for {{proto-ecdhe}}.
-
-Implementations MUST support "RSA-OAEP" (RSAES OAEP using default parameters) from {{I-D.ietf-jose-json-web-algorithms}} for key encryption using the KMS static public/private key for {{proto-ecdhe}}.
-
-Implementations MUST support "dir" (Direct Key Agreement Key Management Mode) from {{I-D.ietf-jose-json-web-algorithms}} for all operations other than {{proto-ecdhe}}.
-
-Implementations MUST support "A256GCM" (AES GCM using 256 bit key) from {{I-D.ietf-jose-json-web-algorithms}} for content encryption for all operations other than {{proto-ecdhe}}.
-
 # Security Considerations
 
 Security considerations are discussed throughout this document.  Additional considerations may be added here as needed.
@@ -1250,3 +1260,15 @@ Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
 \-00
 
   * Initial draft.
+
+\-01
+
+  * Editorial revisions and addition of ping operation.
+  
+\-02
+
+  * Addition of new key retrieval options.
+
+\-03
+
+  * Substantial rewrite based on  {{I-D.abiggs-saag-primitives-for-conf-group-comms}}.
