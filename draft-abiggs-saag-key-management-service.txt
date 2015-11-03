@@ -91,18 +91,18 @@ Table of Contents
        4.6.3.  Post GMBC Genesis Block . . . . . . . . . . . . . . .  26
        4.6.4.  Post GMBC Block . . . . . . . . . . . . . . . . . . .  28
        4.6.5.  Get GMBC  . . . . . . . . . . . . . . . . . . . . . .  30
-       4.6.6.  Create GK . . . . . . . . . . . . . . . . . . . . . .  32
-       4.6.7.  Post GK . . . . . . . . . . . . . . . . . . . . . . .  33
-       4.6.8.  Retrieve GK . . . . . . . . . . . . . . . . . . . . .  34
-       4.6.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  35
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  36
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  37
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  37
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  37
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  37
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  37
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  38
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  39
+       4.6.6.  Post GK (create)  . . . . . . . . . . . . . . . . . .  32
+       4.6.7.  Post GK (update)  . . . . . . . . . . . . . . . . . .  34
+       4.6.8.  Retrieve GK . . . . . . . . . . . . . . . . . . . . .  35
+       4.6.9.  Ping  . . . . . . . . . . . . . . . . . . . . . . . .  36
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  37
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  38
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  38
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  38
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  38
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  38
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  40
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  40
 
 
 
@@ -1464,8 +1464,8 @@ Internet-Draft           key-management-service                July 2015
    Request payload definition:
 
    root {
-       request,
-       "blockPayload": gmbc-block
+     request,
+     "blockPayload": gmbc-block
    }
 
    Request message example:
@@ -1481,18 +1481,18 @@ Internet-Draft           key-management-service                July 2015
      "uri": "kms://kms.example.com/blocks",
      "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
      "blockPayload": {
-         "creator": "bob@example.com",
-         "created": "2015-11-02T19:02:15Z",
-         "operations": [
-             {
-                 "entity": "bob@example.com",
-                 "optype": "add"
-             },
-             {
-                 "entity": "alice@example.com",
-                 "optype": "add"
-             }
-         ]
+       "creator": "bob@example.com",
+       "created": "2015-11-02T19:02:15Z",
+       "operations": [
+         {
+           "entity": "bob@example.com",
+           "optype": "add"
+         },
+         {
+           "entity": "alice@example.com",
+           "optype": "add"
+         }
+       ]
      }
    })
 
@@ -1532,28 +1532,27 @@ Internet-Draft           key-management-service                July 2015
    Deserialized payload of the block attribute:
 
    JWS(K_kms_priv, {
-         "uri": "kms://kms.example.com/blocks/7f35c3eb",
-         "nonce": "32088b07-1a19-466b-a779-ef8dc8c61be9",
-         "curator": "kms://kms.example.com",
-         "creator": "kms://kms.example.com",
-         "created": "2015-11-02T19:02:15Z",
-         "operations": [
-             {
-                 "entity": "bob@example.com",
-                 "optype": "add"
-             },
-             {
-                 "entity": "alice@example.com",
-                 "optype": "add"
-             }
-         ]
-     }
+     "uri": "kms://kms.example.com/blocks/7f35c3eb",
+     "nonce": "32088b07-1a19-466b-a779-ef8dc8c61be9",
+     "curator": "kms://kms.example.com",
+     "creator": "kms://kms.example.com",
+     "created": "2015-11-02T19:02:15Z",
+     "operations": [
+       {
+         "entity": "bob@example.com",
+         "optype": "add"
+       },
+       {
+         "entity": "alice@example.com",
+         "optype": "add"
+       }
+     ]
    })
 
-   If successful, the KMS response to a create resource request MUST
-   have a status of 201.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
+   If successful, the KMS response to a this request MUST have a status
+   of 201.  In the case of a request failure, the KMS response status
+   SHOULD be that of an [RFC7231] defined status code with semantics
+   that correspond to the failure condition.
 
 4.6.4.  Post GMBC Block
 
@@ -1562,6 +1561,7 @@ Internet-Draft           key-management-service                July 2015
    submitting a post GMBC block request to the KMS.  In this request,
    the client provides a signed gmbc-appended-block and the URI of the
    genesis block of the GMBC to which it is to be appended.
+
 
 
 
@@ -1581,15 +1581,16 @@ Internet-Draft           key-management-service                July 2015
    entirety.
 
    The request message conforms to the basic request message structure,
-   where the method is "post", and the uri is that of the GMBC.
+   where the method is "post", and the uri is that of the genesis block
+   of the GMBC to which the provided block should be appended.
 
    Request payload definition:
 
    signed-gmbc-appended-block: JWS(K_user_priv, gmbc-appended-block)
 
    root {
-       request,
-       "blocks" [ *: signed-gmbc-appended-block ]
+     request,
+     "blocks" [ *: signed-gmbc-appended-block ]
    }
 
    Request message example:
@@ -1605,12 +1606,11 @@ Internet-Draft           key-management-service                July 2015
      "uri": "kms://kms.example.com/blocks/7f35c3eb",
      "requestId": "6205452b-c555-484f-8445-bb94c8044882",
      "blocks": [
-          "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVud..."
+       "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVud..."
      ]
    })
 
    Deserialized payload of the block attribute:
-
 
 
 
@@ -1627,20 +1627,19 @@ Internet-Draft           key-management-service                July 2015
 
 
    JWS(K_alice_priv, {
-         "antecedent": "3a2371f8fb6bb0f96e65dc535010b4004afc...",
-         "creator": "alice@example.com",
-         "created": "2015-11-02T19:13:15Z",
-         "operations": [
-             {
-                 "entity": "charlie@example.com",
-                 "optype": "add"
-             },
-             {
-                 "entity": "bob@example.com",
-                 "optype": "remove"
-             }
-         ]
-     }
+     "antecedent": "3a2371f8fb6bb0f96e65dc535010b4004afc...",
+     "creator": "alice@example.com",
+     "created": "2015-11-02T19:13:15Z",
+     "operations": [
+       {
+         "entity": "charlie@example.com",
+         "optype": "add"
+       },
+       {
+          "entity": "bob@example.com",
+          "optype": "remove"
+       }
+     ]
    })
 
    The response message conforms to the basic response message
@@ -1656,13 +1655,13 @@ Internet-Draft           key-management-service                July 2015
 
    JWE(K_ephemeral, {
      "status": 200,
-     "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+     "requestId": "6205452b-c555-484f-8445-bb94c8044882"
    })
 
-   If successful, the KMS response to a create resource request MUST
-   have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
+   If successful, the KMS response to this request MUST have a status of
+   200.  In the case of a request failure, the KMS response status
+   SHOULD be that of an [RFC7231] defined status code with semantics
+   that correspond to the failure condition.
 
 4.6.5.  Get GMBC
 
@@ -1673,7 +1672,8 @@ Internet-Draft           key-management-service                July 2015
    represents an entity that has been a member of the GMBC at some point
    in time.
 
-
+   The request message conforms to the basic request message structure,
+   where the method is "get" and the uri is that of the GMBC's genesis
 
 
 
@@ -1682,8 +1682,6 @@ Biggs & Cooley           Expires January 4, 2016               [Page 30]
 Internet-Draft           key-management-service                July 2015
 
 
-   The request message conforms to the basic request message structure,
-   where the method is "get" and the uri is that of the GMBC's genesis
    block.  The client may also optionally request that only recently
    appended blocks be returned, by providing in an "antecedent"
    attribute the hash of a GMBC block the client already has.  The KMS
@@ -1733,6 +1731,8 @@ Internet-Draft           key-management-service                July 2015
 
 
 
+
+
 Biggs & Cooley           Expires January 4, 2016               [Page 31]
 
 Internet-Draft           key-management-service                July 2015
@@ -1740,51 +1740,51 @@ Internet-Draft           key-management-service                July 2015
 
    JWE(K_ephemeral, {
      "status": 201,
-     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
      "blocks": [
        "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjogImttczovL...",
        "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVudCI6I..."
      ]
    })
 
-   If successful, the KMS response to a retrieve resource request MUST
-   have a status of 200.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
+   If successful, the KMS response to this request MUST have a status of
+   200.  In the case of a request failure, the KMS response status
+   SHOULD be that of an [RFC7231] defined status code with semantics
+   that correspond to the failure condition.
 
-4.6.6.  Create GK
+4.6.6.  Post GK (create)
 
    When a client intends to initiate E2E encryption of a communications
-   resource, it begins by requesting the creation of a GK URL.  This
-   resource serves as a placeholder for the GK until the orignating
-   client can post the contents of the GK.
+   resource, it obtains the necessary keying material by requesting a
+   new GK from the KMS.  The KMS generates the GK as specified in
+   [I-D.abiggs-saag-primitives-for-conf-group-comms].
+
+   In the request, the client has the option to include a block
+   attribute representing the hash of a GMBC block to which the GK
+   should be immediately associated, or "bound".  This is appropriate in
+   cases where the block to which the GK is to be bound already exists
+   and is known by the client.  When this is not the case, a client may
+   omit the block attribute from the request and receive back a GK that
+   has its block attribute similarly omitted.  Such a block-less GK is
+   referred to as "unbound" because it is not yet associated with any
+   GMBC block.
 
    The request message conforms to the basic request message structure,
-   where the method is "create", the uri is "/gk".
+   where the method is "post", the path part of the URI is "/gks".
+
+   Request payload definition:
+
+   root {
+     request,
+     "block": string
+   }
 
    Request message example:
 
-   JWE(K_ephemeral, {
-     "client": {
-       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
-       "credential": {
-         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
-       }
-     }
-     "method": "create",
-     "uri": "/gk",
-     "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
-   })
 
-   The response message conforms to the basic response message
-   structure, and includes a representation of the created GK.
 
-   Response payload definition:
 
-   root {
-     response,
-     resource-uris
-   }
+
 
 
 
@@ -1794,29 +1794,89 @@ Biggs & Cooley           Expires January 4, 2016               [Page 32]
 Internet-Draft           key-management-service                July 2015
 
 
+   JWE(K_ephemeral, {
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "post",
+     "uri": "kms://kms.example.com/gks",
+     "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c"
+   })
+
+   The response message conforms to the basic response message
+   structure, and includes a representation of the created GK.
+
+   Response payload definition:
+
+   signed-group-key: JWS(K_kms_priv, group-key)
+
+   root {
+     response,
+     "gk": signed-group-key
+   }
+
    Response message example:
 
    JWE(K_ephemeral, {
      "status": 201,
      "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
-     "resource-uris": [
-         "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+     "gk": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+   }
 
-     ]
+   Deserialized payload of the gk attribute:
+
+   JWS(K_kms_priv, {
+     "uri": "kms://kms.example.com/gks/8ed72cd2",
+     "creator": "kms://kms.example.com",
+     "created": "2015-11-02T19:19:15Z",
+     "key": "eyJraWQiOiJmZjNjNWM5Ni0zOTJlLTQ2ZWYtYTg..."
    })
 
-   If successful, the KMS response to a create resource request MUST
-   have a status of 201.  In the case of a request failure, the KMS
-   response status SHOULD be that of an [RFC7231] defined status code
-   with semantics that correspond to the failure condition.
+   If successful, the KMS response to this request MUST have a status of
+   201.  In the case of a request failure, the KMS response status
+   SHOULD be that of an [RFC7231] defined status code with semantics
+   that correspond to the failure condition.
 
-4.6.7.  Post GK
 
-   Once a client has generated the GK, or when a client is modifying the
-   GK, it must post the GK to the KMS.
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 33]
+
+Internet-Draft           key-management-service                July 2015
+
+
+4.6.7.  Post GK (update)
+
+   A GK is often generated ahead of time, before the requesting client
+   knows which communications resource the GK will be used to secure.
+   As such, they are created without being initially associated with any
+   particular GMBC.  These are referred to as "unbound" GKs, as
+   discussed in the previous section.  An unbound GK is not useful for
+   E2E communications until it is bound to a GMBC block and thereby made
+   accessible to members of that group.
+
+   A client can bind an unbound GK to a GMBC block by sending a post
+   request to the KMS with the GKs URI and the hash of the block to
+   which it should be bound.  In response to this request the KMS will
+   update the GK payload to include the block hash provided in the
+   request, re-sign the GK with its private key, and return the updated
+   GK to the client.
 
    The request message conforms to the basic request message structure,
-   where the method is "update", the uri is "/gk".
+   where the method is "post", and the uri is that of the GK to be
+   updated.
+
+   Request payload definition:
+
+   root {
+     request,
+     "block": string
+   }
 
    Request message example:
 
@@ -1827,34 +1887,48 @@ Internet-Draft           key-management-service                July 2015
          "bearer": "ZWU5NGE2YWYtMGE2NC0..."
        }
      }
-     "method": "update",
-     "uri": "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+     "method": "post",
+     "uri": "kms://kms.example.com/gks/8ed72cd2",
      "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
-     "resource": {
-        TODO: GK example
-     }
+     "block": "14b6290c88a9b40ee519832b878ccc1896bef8900d0f9d2..."
    })
 
-   The response message conforms to the basic response message structure
+   The response message conforms to the basic response message
+   structure, and includes a representation of the updated GK.
 
    Response payload definition:
 
-   root {
-     response
-   }
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 33]
+Biggs & Cooley           Expires January 4, 2016               [Page 34]
 
 Internet-Draft           key-management-service                July 2015
 
+
+   signed-group-key: JWS(K_kms_priv, group-key)
+
+   root {
+     response,
+     "gk": signed-group-key
+   }
 
    Response message example:
 
    JWE(K_ephemeral, {
      "status": 200,
      "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+     "gk": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+   }
+
+   Deserialized payload of the gk attribute:
+
+   JWS(K_kms_priv, {
+     "uri": "kms://kms.example.com/gks/8ed72cd2",
+     "creator": "kms://kms.example.com",
+     "created": "2015-11-02T19:19:15Z",
+     "key": "eyJraWQiOiJmZjNjNWM5Ni0zOTJlLTQ2ZWYtYTg...",
+     "block": "14b6290c88a9b40ee519832b878ccc1896bef8900d0f9d2..."
    })
 
    If successful, the KMS response to a create resource request MUST
@@ -1879,6 +1953,15 @@ Internet-Draft           key-management-service                July 2015
 
    Request message example:
 
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 35]
+
+Internet-Draft           key-management-service                July 2015
+
+
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -1895,16 +1978,6 @@ Internet-Draft           key-management-service                July 2015
    structure, and includes a representation of the retrieved GK.
 
    Response payload definition:
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 34]
-
-Internet-Draft           key-management-service                July 2015
-
 
    root {
      response,
@@ -1937,6 +2010,14 @@ Internet-Draft           key-management-service                July 2015
 
    Request payload definition:
 
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 36]
+
+Internet-Draft           key-management-service                July 2015
+
+
    root {
      request
    }
@@ -1954,13 +2035,6 @@ Internet-Draft           key-management-service                July 2015
      "method": "update",
      "uri": "/ping"
    })
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 35]
-
-Internet-Draft           key-management-service                July 2015
-
 
    The response message conforms to the basic response message structure
    with no additional data.
@@ -1993,6 +2067,13 @@ Internet-Draft           key-management-service                July 2015
 
    o  "EC" for the Ephemeral Diffie Hellman exchange
 
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 37]
+
+Internet-Draft           key-management-service                July 2015
+
+
    o  "oct" for all symmetric keys
 
    Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
@@ -2010,13 +2091,6 @@ Internet-Draft           key-management-service                July 2015
    Implementations MUST support "dir" (Direct Key Agreement Key
    Management Mode) from [I-D.ietf-jose-json-web-algorithms] for all
    operations other than Section 4.6.1.
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 36]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Implementations MUST support "A256GCM" (AES GCM using 256 bit key)
    from [I-D.ietf-jose-json-web-algorithms] for content encryption for
@@ -2045,6 +2119,17 @@ Internet-Draft           key-management-service                July 2015
 
 9.1.  Normative References
 
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 38]
+
+Internet-Draft           key-management-service                July 2015
+
+
    [I-D.abiggs-saag-primitives-for-conf-group-comms]
               Biggs, A. and S. Cooley, "Primitives for Confidential
               Group Communications", draft-abiggs-saag-primitives-for-
@@ -2062,17 +2147,6 @@ Internet-Draft           key-management-service                July 2015
    [I-D.ietf-jose-json-web-key]
               Jones, M., "JSON Web Key (JWK)", draft-ietf-jose-json-web-
               key-33 (work in progress), September 2014.
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 37]
-
-Internet-Draft           key-management-service                July 2015
-
 
    [I-D.ietf-jose-json-web-signature]
               Jones, M., Bradley, J., and N. Sakimura, "JSON Web
@@ -2105,6 +2179,13 @@ Internet-Draft           key-management-service                July 2015
               (PKIX) Certificates in the Context of Transport Layer
               Security (TLS)", RFC 6125, March 2011.
 
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 39]
+
+Internet-Draft           key-management-service                July 2015
+
+
    [RFC6749]  Hardt, D., "The OAuth 2.0 Authorization Framework", RFC
               6749, October 2012.
 
@@ -2121,14 +2202,6 @@ Internet-Draft           key-management-service                July 2015
               "Pervasive Attack: A Threat Model and Problem Statement",
               draft-barnes-pervasive-problem-01 (work in progress), July
               2014.
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 38]
-
-Internet-Draft           key-management-service                July 2015
-
 
    [I-D.ietf-xmpp-posh]
               Miller, M. and P. Saint-Andre, "PKIX over Secure HTTP
@@ -2158,6 +2231,17 @@ Internet-Draft           key-management-service                July 2015
 
 Authors' Addresses
 
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 40]
+
+Internet-Draft           key-management-service                July 2015
+
+
    Andrew Biggs
    Cisco Systems
 
@@ -2181,4 +2265,32 @@ Authors' Addresses
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 39]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 41]

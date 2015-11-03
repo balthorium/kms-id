@@ -749,8 +749,8 @@ Request payload definition:
 
 ~~~
 root {
-    request,
-    "blockPayload": gmbc-block
+  request,
+  "blockPayload": gmbc-block
 }
 ~~~
 
@@ -768,18 +768,18 @@ JWE(K_ephemeral, {
   "uri": "kms://kms.example.com/blocks",
   "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
   "blockPayload": {
-      "creator": "bob@example.com",
-      "created": "2015-11-02T19:02:15Z",
-      "operations": [
-          {
-              "entity": "bob@example.com",
-              "optype": "add"
-          },
-          {
-              "entity": "alice@example.com",
-              "optype": "add"
-          }
-      ]
+    "creator": "bob@example.com",
+    "created": "2015-11-02T19:02:15Z",
+    "operations": [
+      {
+        "entity": "bob@example.com",
+        "optype": "add"
+      },
+      {
+        "entity": "alice@example.com",
+        "optype": "add"
+      }
+    ]
   }
 })
 ~~~
@@ -811,26 +811,25 @@ Deserialized payload of the block attribute:
 
 ~~~
 JWS(K_kms_priv, {
-      "uri": "kms://kms.example.com/blocks/7f35c3eb",
-      "nonce": "32088b07-1a19-466b-a779-ef8dc8c61be9",
-      "curator": "kms://kms.example.com",
-      "creator": "kms://kms.example.com",
-      "created": "2015-11-02T19:02:15Z",
-      "operations": [
-          {
-              "entity": "bob@example.com",
-              "optype": "add"
-          },
-          {
-              "entity": "alice@example.com",
-              "optype": "add"
-          }
-      ]
-  }
+  "uri": "kms://kms.example.com/blocks/7f35c3eb",
+  "nonce": "32088b07-1a19-466b-a779-ef8dc8c61be9",
+  "curator": "kms://kms.example.com",
+  "creator": "kms://kms.example.com",
+  "created": "2015-11-02T19:02:15Z",
+  "operations": [
+    {
+      "entity": "bob@example.com",
+      "optype": "add"
+    },
+    {
+      "entity": "alice@example.com",
+      "optype": "add"
+    }
+  ]
 })
 ~~~
 
-If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+If successful, the KMS response to a this request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 ### Post GMBC Block
 
@@ -838,7 +837,7 @@ Once a GMBC genesis block has been created, any member may append new blocks in 
 
 The client may submit one or more blocks to be appended, the order of which they appear in the request representing the order in which they should be appended.  The KMS will validate that the antecedent hash of the first block matches the hash of the last block of the current chain, and that the antecedent of each subsequent block matches the hash of the previous block.  The KMS will also validate that each block is signed by an entity that qualifies as a member of the chain.  If any of these checks fails, the KMS will fail the request in its entirety.
 
-The request message conforms to the basic request message structure, where the method is "post", and the uri is that of the GMBC.
+The request message conforms to the basic request message structure, where the method is "post", and the uri is that of the genesis block of the GMBC to which the provided block should be appended.
 
 Request payload definition:
 
@@ -846,8 +845,8 @@ Request payload definition:
 signed-gmbc-appended-block: JWS(K_user_priv, gmbc-appended-block)
 
 root {
-    request,
-    "blocks" [ *: signed-gmbc-appended-block ]
+  request,
+  "blocks" [ *: signed-gmbc-appended-block ]
 }
 ~~~
 
@@ -865,7 +864,7 @@ JWE(K_ephemeral, {
   "uri": "kms://kms.example.com/blocks/7f35c3eb",
   "requestId": "6205452b-c555-484f-8445-bb94c8044882",
   "blocks": [ 
-       "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVud..."
+    "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVud..."
   ]
 })
 ~~~
@@ -874,20 +873,19 @@ Deserialized payload of the block attribute:
 
 ~~~
 JWS(K_alice_priv, {
-      "antecedent": "3a2371f8fb6bb0f96e65dc535010b4004afc...",
-      "creator": "alice@example.com",
-      "created": "2015-11-02T19:13:15Z",
-      "operations": [
-          {
-              "entity": "charlie@example.com",
-              "optype": "add"
-          },
-          {
-              "entity": "bob@example.com",
-              "optype": "remove"
-          }
-      ]
-  }
+  "antecedent": "3a2371f8fb6bb0f96e65dc535010b4004afc...",
+  "creator": "alice@example.com",
+  "created": "2015-11-02T19:13:15Z",
+  "operations": [
+    {
+      "entity": "charlie@example.com",
+      "optype": "add"
+    },
+    {
+       "entity": "bob@example.com",
+       "optype": "remove"
+    }
+  ]
 })
 ~~~
 
@@ -906,11 +904,11 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 200,
-  "requestId": "6205452b-c555-484f-8445-bb94c8044882",
+  "requestId": "6205452b-c555-484f-8445-bb94c8044882"
 })
 ~~~
 
-If successful, the KMS response to a create resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+If successful, the KMS response to this request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 ### Get GMBC
 
@@ -962,7 +960,7 @@ Response message example:
 ~~~
 JWE(K_ephemeral, {
   "status": 201,
-  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "requestId": "db1e4d2a-d483-4fe7-a802-ec5c0d32295f",
   "blocks": [
     "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjogImttczovL...",
     "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAiYW50ZWNlZGVudCI6I..."
@@ -970,13 +968,24 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-If successful, the KMS response to a retrieve resource request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+If successful, the KMS response to this request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Create GK
+### Post GK (create)
 
-When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a GK URL.  This resource serves as a placeholder for the GK until the orignating client can post the contents of the GK.
+When a client intends to initiate E2E encryption of a communications resource, it obtains the necessary keying material by requesting a new GK from the KMS.  The KMS generates the GK as specified in {{I-D.abiggs-saag-primitives-for-conf-group-comms}}.
 
-The request message conforms to the basic request message structure, where the method is "create", the uri is "/gk".
+In the request, the client has the option to include a block attribute representing the hash of a GMBC block to which the GK should be immediately associated, or "bound".  This is appropriate in cases where the block to which the GK is to be bound already exists and is known by the client.  When this is not the case, a client may omit the block attribute from the request and receive back a GK that has its block attribute similarly omitted.  Such a block-less GK is referred to as "unbound" because it is not yet associated with any GMBC block.
+
+The request message conforms to the basic request message structure, where the method is "post", the path part of the URI is "/gks".
+
+Request payload definition:
+
+~~~
+root {
+  request,
+  "block": string
+}
+~~~
 
 Request message example:
 
@@ -988,9 +997,9 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "create",
-  "uri": "/gk",
-  "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
+  "method": "post",
+  "uri": "kms://kms.example.com/gks",
+  "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c"
 })
 ~~~
 
@@ -999,9 +1008,11 @@ The response message conforms to the basic response message structure, and inclu
 Response payload definition:
 
 ~~~
+signed-group-key: JWS(K_kms_priv, group-key)
+
 root {
   response,
-  resource-uris
+  "gk": signed-group-key
 }
 ~~~
 
@@ -1011,20 +1022,39 @@ Response message example:
 JWE(K_ephemeral, {
   "status": 201,
   "requestId": "8c198748-36fb-4318-89c9-bfc8bb0a967c",
-  "resource-uris": [
-      "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+  "gk": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+}
+~~~
+  
+Deserialized payload of the gk attribute:
 
-  ]
+~~~
+JWS(K_kms_priv, {
+  "uri": "kms://kms.example.com/gks/8ed72cd2",
+  "creator": "kms://kms.example.com",
+  "created": "2015-11-02T19:19:15Z",
+  "key": "eyJraWQiOiJmZjNjNWM5Ni0zOTJlLTQ2ZWYtYTg..."
 })
 ~~~
 
-If successful, the KMS response to a create resource request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
+If successful, the KMS response to this request MUST have a status of 201.  In the case of a request failure, the KMS response status SHOULD be that of an {{!RFC7231}} defined status code with semantics that correspond to the failure condition.
 
-### Post GK
+### Post GK (update)
 
-Once a client has generated the GK, or when a client is modifying the GK, it must post the GK to the KMS.
+A GK is often generated ahead of time, before the requesting client knows which communications resource the GK will be used to secure.  As such, they are created without being initially associated with any particular GMBC.  These are referred to as "unbound" GKs, as discussed in the previous section.  An unbound GK is not useful for E2E communications until it is bound to a GMBC block and thereby made accessible to members of that group.
 
-The request message conforms to the basic request message structure, where the method is "update", the uri is "/gk".
+A client can bind an unbound GK to a GMBC block by sending a post request to the KMS with the GKs URI and the hash of the block to which it should be bound.  In response to this request the KMS will update the GK payload to include the block hash provided in the request, re-sign the GK with its private key, and return the updated GK to the client.
+
+The request message conforms to the basic request message structure, where the method is "post", and the uri is that of the GK to be updated.
+
+Request payload definition:
+
+~~~
+root {
+  request,
+  "block": string
+}
+~~~
 
 Request message example:
 
@@ -1036,22 +1066,23 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "update",
-  "uri": "/gk/ee5f8984-2300-45af-872c-46aa874e0a8e",
+  "method": "post",
+  "uri": "kms://kms.example.com/gks/8ed72cd2",
   "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
-  "resource": {
-     TODO: GK example
-  }
+  "block": "14b6290c88a9b40ee519832b878ccc1896bef8900d0f9d2..."
 })
 ~~~
 
-The response message conforms to the basic response message structure
+The response message conforms to the basic response message structure, and includes a representation of the updated GK.
 
 Response payload definition:
 
 ~~~
+signed-group-key: JWS(K_kms_priv, group-key)
+
 root {
-  response
+  response,
+  "gk": signed-group-key
 }
 ~~~
 
@@ -1061,6 +1092,19 @@ Response message example:
 JWE(K_ephemeral, {
   "status": 200,
   "requestId": "e0f9b55c-d0a5-4f70-aafd-309541fe51ab",
+  "gk": "eyAiYWxnIjogIlBTMjU2IiB9.ewogICAgICAidXJpIjo..."
+}
+~~~
+  
+Deserialized payload of the gk attribute:
+
+~~~
+JWS(K_kms_priv, {
+  "uri": "kms://kms.example.com/gks/8ed72cd2",
+  "creator": "kms://kms.example.com",
+  "created": "2015-11-02T19:19:15Z",
+  "key": "eyJraWQiOiJmZjNjNWM5Ni0zOTJlLTQ2ZWYtYTg...",
+  "block": "14b6290c88a9b40ee519832b878ccc1896bef8900d0f9d2..."
 })
 ~~~
 
