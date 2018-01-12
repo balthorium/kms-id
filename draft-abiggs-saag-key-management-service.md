@@ -1485,6 +1485,61 @@ JWE(K_ephemeral, {
 
 If successful, the KMS response to a retrieve bound keys request MUST have a status of 200.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
 
+### Retrieve Authorizations By User
+
+To query an authorization for the specific user from a KMS resource object, any user currently authorized on the same resource object may issue retrieve authorization request for the specific user. The request message conforms to the basic request message structure, where the method is "retrieve", and the URI is "/authorizations" followed by authorization id.
+
+Request payload definition:
+
+~~~
+root {
+  request
+}
+~~~
+
+Request message example:
+
+~~~
+JWE(K_ephemeral, {
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "retrieve",
+  "uri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c/authorizations@authId=119a0582-2e2b-4c0c-ba6a-753d05171803",
+  "requestId": "d4a741cd-0e16-4ff8-9a61-4a4b841d9e93"
+})
+~~~
+
+If successful, the KMS response to a retrieve authorization for the specific user request MUST have a status of 200.  The response message conforms to the basic response message structure and includes an array of KMS authorization object representations. The array will be empty if specific user is not authorized for the KMS resource object. The array will contain one single authorization entry for the specific user if user is authorized for the KMS resource object. .  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
+
+Response payload definition:
+
+~~~
+root {
+  response,
+  authorizations
+}
+~~~
+
+Response message example:
+
+~~~
+JWE(K_ephemeral, {
+{
+  "status": 200,
+  "requestId": "d4a741cd-0e16-4ff8-9a61-4a4b841d9e93",
+  "authorizations": [
+  {
+    "uri": "/authorizations/ef0a5291-49cb-413f-832b-b437bc542825",
+    "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
+    "resourceUri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c"
+  }]
+})
+~~~
+
 ### Delete Authorization
 
 To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the URI is either that of the authorization object to be deleted, or the URI of the collection of authorizations within a particular KMS resource object appended with an authId query parameter whose value matches that of the authorization object to be deleted.
