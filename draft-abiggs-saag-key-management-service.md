@@ -1508,12 +1508,12 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c/authorizations@authId=119a0582-2e2b-4c0c-ba6a-753d05171803",
+  "uri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c/authorizations?authId=119a0582-2e2b-4c0c-ba6a-753d05171803",
   "requestId": "d4a741cd-0e16-4ff8-9a61-4a4b841d9e93"
 })
 ~~~
 
-If successful, the KMS response to a retrieve authorization for the specific user request MUST have a status of 200.  The response message conforms to the basic response message structure and includes an array of KMS authorization object representations. The array will be empty if specific user is not authorized for the KMS resource object. The array will contain one single authorization entry for the specific user if user is authorized for the KMS resource object. .  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
+If successful, the KMS response to a retrieve authorization for the specific user request MUST have a status of 200.  The response message conforms to the basic response message structure and includes an array of KMS authorization object representations. The array will be empty if the specified user is not authorized for the KMS resource object. The array will contain one single authorization entry for the specified user if that user is authorized for the KMS resource object.  In the case of a request failure, the KMS response status SHOULD be that of an {{RFC7231}} defined status code with semantics that correspond to the failure condition.
 
 Response payload definition:
 
