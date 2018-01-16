@@ -99,13 +99,13 @@ Table of Contents
        4.7.7.  Retrieve Keys . . . . . . . . . . . . . . . . . . . .  39
        4.7.8.  Create Authorizations . . . . . . . . . . . . . . . .  43
        4.7.9.  Retrieve Authorizations . . . . . . . . . . . . . . .  45
-       4.7.10. Delete Authorization  . . . . . . . . . . . . . . . .  47
-       4.7.11. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  48
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  49
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  50
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  50
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  50
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  50
+       4.7.10. Retrieve Authorizations By User . . . . . . . . . . .  47
+       4.7.11. Delete Authorization  . . . . . . . . . . . . . . . .  48
+       4.7.12. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  50
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  51
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  51
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  51
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  52
 
 
 
@@ -114,9 +114,10 @@ Biggs & Cooley           Expires January 4, 2016                [Page 2]
 Internet-Draft           key-management-service                July 2015
 
 
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  50
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  52
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  52
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  52
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  52
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  53
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  54
 
 1.  Introduction
 
@@ -161,7 +162,6 @@ Internet-Draft           key-management-service                July 2015
 
    In the interest of addressing these challenges this document presents
    an architecture for the deployment of E2E encryption key management
-   services (KMS).  In this architecture a KMS service provides to its
 
 
 
@@ -170,6 +170,7 @@ Biggs & Cooley           Expires January 4, 2016                [Page 3]
 Internet-Draft           key-management-service                July 2015
 
 
+   services (KMS).  In this architecture a KMS service provides to its
    users a means by which their communications clients may securely
    create, share, rotate, and store E2E encryption keying material.  It
    does so in a fashion that permits the decoupling of such services
@@ -215,9 +216,8 @@ Internet-Draft           key-management-service                July 2015
 
    E2E encryption
 
-      Shorthand for end-to-end encryption, as defined in [RFC4949],
-      particularly as it applies to the establishment of confidentiality
-      and integrity of communications resources.
+
+
 
 
 
@@ -225,6 +225,10 @@ Biggs & Cooley           Expires January 4, 2016                [Page 4]
 
 Internet-Draft           key-management-service                July 2015
 
+
+      Shorthand for end-to-end encryption, as defined in [RFC4949],
+      particularly as it applies to the establishment of confidentiality
+      and integrity of communications resources.
 
    KMS server
 
@@ -269,10 +273,6 @@ Internet-Draft           key-management-service                July 2015
    "certification authority", "certification path", "certificate",
    "credential", "identity", "self-signed certificate", "trust", "trust
    anchor", "trust chain", "validate", and "verify".
-
-
-
-
 
 
 
@@ -2578,7 +2578,75 @@ Biggs & Cooley           Expires January 4, 2016               [Page 46]
 Internet-Draft           key-management-service                July 2015
 
 
-4.7.10.  Delete Authorization
+4.7.10.  Retrieve Authorizations By User
+
+   To query an authorization for the specific user from a KMS resource
+   object, any user currently authorized on the same resource object may
+   issue retrieve authorization request for the specific user.  The
+   request message conforms to the basic request message structure,
+   where the method is "retrieve", and the URI is "/authorizations"
+   followed by authorization id.
+
+   Request payload definition:
+
+   root {
+     request
+   }
+
+   Request message example:
+
+JWE(K_ephemeral, {
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }
+  "method": "retrieve",
+  "uri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c/authorizations?authId=119a0582-2e2b-4c0c-ba6a-753d05171803",
+  "requestId": "d4a741cd-0e16-4ff8-9a61-4a4b841d9e93"
+})
+
+   If successful, the KMS response to a retrieve authorization for the
+   specific user request MUST have a status of 200.  The response
+   message conforms to the basic response message structure and includes
+   an array of KMS authorization object representations.  The array will
+   be empty if the specified user is not authorized for the KMS resource
+   object.  The array will contain one single authorization entry for
+   the specified user if that user is authorized for the KMS resource
+   object.  In the case of a request failure, the KMS response status
+   SHOULD be that of an [RFC7231] defined status code with semantics
+   that correspond to the failure condition.
+
+   Response payload definition:
+
+   root {
+     response,
+     authorizations
+   }
+
+   Response message example:
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 47]
+
+Internet-Draft           key-management-service                July 2015
+
+
+   JWE(K_ephemeral, {
+   {
+     "status": 200,
+     "requestId": "d4a741cd-0e16-4ff8-9a61-4a4b841d9e93",
+     "authorizations": [
+     {
+       "uri": "/authorizations/ef0a5291-49cb-413f-832b-b437bc542825",
+       "authId": "119a0582-2e2b-4c0c-ba6a-753d05171803",
+       "resourceUri": "/resources/a8c3c42f-5348-4289-83f0-d833d31ba93c"
+     }]
+   })
+
+4.7.11.  Delete Authorization
 
    To remove an authorization from a KMS resource object, any user
    currently authorized on the same resource object may issue a delete
@@ -2614,6 +2682,14 @@ Internet-Draft           key-management-service                July 2015
    object to be deleted by the KMS resource object to which it belongs
    plus the value of its authId attribute:
 
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 48]
+
+Internet-Draft           key-management-service                July 2015
+
+
   JWE(K_ephemeral, {
     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
     "client": {
@@ -2626,13 +2702,6 @@ Internet-Draft           key-management-service                July 2015
     "uri": "/resources/7f35c3eb-95d6-4558-1942e5f03094
            /authorizations?authId=557ac05d-5751-43b4-a04b-e7eb1499ee0a",
   })
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 47]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Note, in the example above, the URI attribute value is a continuous
    string of non-whitespace characters.  Whitespace has been added here
@@ -2668,7 +2737,16 @@ Internet-Draft           key-management-service                July 2015
    KMS response status SHOULD be that of an [RFC7231] defined status
    code with semantics that correspond to the failure condition.
 
-4.7.11.  Ping
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 49]
+
+Internet-Draft           key-management-service                July 2015
+
+
+4.7.12.  Ping
 
    Ping is a simple request intended to provide an efficient means for
    verifying the integrity of the secure channel between client and KMS.
@@ -2682,13 +2760,6 @@ Internet-Draft           key-management-service                July 2015
    root {
      request
    }
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 48]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Request message example:
 
@@ -2723,6 +2794,14 @@ Internet-Draft           key-management-service                July 2015
 
    If successful, the client may deduce that the KMS was able to
    successfully decrypt the received KMS request message, parse the
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 50]
+
+Internet-Draft           key-management-service                July 2015
+
+
    contents, confirm the identity and authorization of the requesting
    client, and return a suitable response.
 
@@ -2736,15 +2815,6 @@ Internet-Draft           key-management-service                July 2015
    o  "EC" for the Ephemeral Diffie Hellman exchange
 
    o  "oct" for all symmetric keys
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 49]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Implementations MUST support "PS256" (RSASSA-PSS using SHA-256 and
    MGF1 with SHA-256) from [I-D.ietf-jose-json-web-algorithms] for
@@ -2779,6 +2849,15 @@ Internet-Draft           key-management-service                July 2015
 
    Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
 
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 51]
+
+Internet-Draft           key-management-service                July 2015
+
+
 8.  Appendix B.  Document History
 
    -00
@@ -2791,72 +2870,80 @@ Internet-Draft           key-management-service                July 2015
 
    [I-D.ietf-jose-json-web-algorithms]
               Jones, M., "JSON Web Algorithms (JWA)", draft-ietf-jose-
-              json-web-algorithms-33 (work in progress), September 2014.
+              json-web-algorithms-40 (work in progress), January 2015.
+
+   [I-D.ietf-jose-json-web-encryption]
+              Jones, M. and J. Hildebrand, "JSON Web Encryption (JWE)",
+              draft-ietf-jose-json-web-encryption-40 (work in progress),
+              January 2015.
+
+   [I-D.ietf-jose-json-web-key]
+              Jones, M., "JSON Web Key (JWK)", draft-ietf-jose-json-web-
+              key-41 (work in progress), January 2015.
+
+   [I-D.ietf-jose-json-web-signature]
+              Jones, M., Bradley, J., and N. Sakimura, "JSON Web
+              Signature (JWS)", draft-ietf-jose-json-web-signature-41
+              (work in progress), January 2015.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2822]  Resnick, P., Ed., "Internet Message Format", RFC 2822,
+              DOI 10.17487/RFC2822, April 2001,
+              <https://www.rfc-editor.org/info/rfc2822>.
+
+   [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
+              Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
+              <https://www.rfc-editor.org/info/rfc3339>.
+
+   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
+              FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
+              <https://www.rfc-editor.org/info/rfc4949>.
 
 
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 50]
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 52]
 
 Internet-Draft           key-management-service                July 2015
 
 
-   [I-D.ietf-jose-json-web-encryption]
-              Jones, M. and J. Hildebrand, "JSON Web Encryption (JWE)",
-              draft-ietf-jose-json-web-encryption-33 (work in progress),
-              September 2014.
-
-   [I-D.ietf-jose-json-web-key]
-              Jones, M., "JSON Web Key (JWK)", draft-ietf-jose-json-web-
-              key-33 (work in progress), September 2014.
-
-   [I-D.ietf-jose-json-web-signature]
-              Jones, M., Bradley, J., and N. Sakimura, "JSON Web
-              Signature (JWS)", draft-ietf-jose-json-web-signature-33
-              (work in progress), September 2014.
-
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, March 1997.
-
-   [RFC2822]  Resnick, P., "Internet Message Format", RFC 2822, April
-              2001.
-
-   [RFC3339]  Klyne, G., Ed. and C. Newman, "Date and Time on the
-              Internet: Timestamps", RFC 3339, July 2002.
-
-   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2", RFC
-              4949, August 2007.
-
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
               Housley, R., and W. Polk, "Internet X.509 Public Key
               Infrastructure Certificate and Certificate Revocation List
-              (CRL) Profile", RFC 5280, May 2008.
+              (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
+              <https://www.rfc-editor.org/info/rfc5280>.
 
    [RFC5869]  Krawczyk, H. and P. Eronen, "HMAC-based Extract-and-Expand
-              Key Derivation Function (HKDF)", RFC 5869, May 2010.
+              Key Derivation Function (HKDF)", RFC 5869,
+              DOI 10.17487/RFC5869, May 2010,
+              <https://www.rfc-editor.org/info/rfc5869>.
 
    [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
               Verification of Domain-Based Application Service Identity
               within Internet Public Key Infrastructure Using X.509
               (PKIX) Certificates in the Context of Transport Layer
-              Security (TLS)", RFC 6125, March 2011.
+              Security (TLS)", RFC 6125, DOI 10.17487/RFC6125, March
+              2011, <https://www.rfc-editor.org/info/rfc6125>.
 
-   [RFC6749]  Hardt, D., "The OAuth 2.0 Authorization Framework", RFC
-              6749, October 2012.
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/info/rfc6749>.
 
-   [RFC7159]  Bray, T., "The JavaScript Object Notation (JSON) Data
-              Interchange Format", RFC 7159, March 2014.
+   [RFC7159]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", RFC 7159, DOI 10.17487/RFC7159, March
+              2014, <https://www.rfc-editor.org/info/rfc7159>.
 
-   [RFC7231]  Fielding, R. and J. Reschke, "Hypertext Transfer Protocol
-              (HTTP/1.1): Semantics and Content", RFC 7231, June 2014.
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 51]
-
-Internet-Draft           key-management-service                July 2015
-
+   [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
+              DOI 10.17487/RFC7231, June 2014,
+              <https://www.rfc-editor.org/info/rfc7231>.
 
 9.2.  Informative References
 
@@ -2868,29 +2955,42 @@ Internet-Draft           key-management-service                July 2015
 
    [I-D.ietf-xmpp-posh]
               Miller, M. and P. Saint-Andre, "PKIX over Secure HTTP
-              (POSH)", draft-ietf-xmpp-posh-02 (work in progress),
-              October 2014.
+              (POSH)", draft-ietf-xmpp-posh-06 (work in progress),
+              September 2015.
 
    [I-D.newton-json-content-rules]
-              Newton, A., "A Language for Rules Describing JSON
-              Content", draft-newton-json-content-rules-02 (work in
-              progress), August 2014.
+              Newton, A. and P. Cordell, "A Language for Rules
+              Describing JSON Content", draft-newton-json-content-
+              rules-09 (work in progress), September 2017.
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 53]
+
+Internet-Draft           key-management-service                July 2015
+
 
    [OTR]      Borisov, N., Goldberg, I., and E. Brewer, "Off-the-Record
               Communication, or, Why Not To Use PGP", 2012,
               <https://otr.cypherpunks.ca/otr-wpes.pdf>.
 
    [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
-              Internet Protocol", RFC 4301, December 2005.
+              Internet Protocol", RFC 4301, DOI 10.17487/RFC4301,
+              December 2005, <https://www.rfc-editor.org/info/rfc4301>.
 
    [RFC4880]  Callas, J., Donnerhacke, L., Finney, H., Shaw, D., and R.
-              Thayer, "OpenPGP Message Format", RFC 4880, November 2007.
+              Thayer, "OpenPGP Message Format", RFC 4880,
+              DOI 10.17487/RFC4880, November 2007,
+              <https://www.rfc-editor.org/info/rfc4880>.
 
    [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
-              (TLS) Protocol Version 1.2", RFC 5246, August 2008.
+              (TLS) Protocol Version 1.2", RFC 5246,
+              DOI 10.17487/RFC5246, August 2008,
+              <https://www.rfc-editor.org/info/rfc5246>.
 
    [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
-              RFC 5652, September 2009.
+              RFC 5652, DOI 10.17487/RFC5652, September 2009,
+              <https://www.rfc-editor.org/info/rfc5652>.
 
 Authors' Addresses
 
@@ -2909,4 +3009,16 @@ Authors' Addresses
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 52]
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley           Expires January 4, 2016               [Page 54]
