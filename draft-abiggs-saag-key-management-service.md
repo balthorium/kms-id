@@ -898,7 +898,7 @@ As part of a create resource request, a KMS server MUST create at least one auth
 
 As part of a create resource request, a client MAY request the immediate binding of one or more unbound KMS keys to the new resource object.  If any key indicated in the request is already bound, or is otherwise invalid (e.g. expired), the entire create resource request MUST be failed by the KMS.
 
-Also, the client MAY request a time to live for the new resource object. The TTL is in seconds with a default of 0 (never expires) and has a minimum value of 3600. If the TTL is less than 3600, the entire create resource request MUST be failed by the KMS.
+Also, the client MAY request a time to live for the new resource object. The TTL is in seconds with a default of 0 (never expires). Implementations MAY enforce minimum and/or maximum values for TTL. If a requested TTL value is not within the server's acceptable range, it SHOULD respond with a 400 and response message indicating the server's acceptable range.
 
 The request message conforms to the basic request message structure, where the method is "create", the uri is "/resources", and additional user identifiers and/or key URIs are provided in a manner consistent with the following.
 
