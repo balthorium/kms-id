@@ -558,7 +558,8 @@ The JSON representation for KMS resource objects is defined as follows using JSO
 resourceRep {
   kmsUri,
   keys / keyUris,
-  authorizations / authorizationUris
+  authorizations / authorizationUris,
+  ttl
 }
 
 resource (
@@ -897,6 +898,8 @@ As part of a create resource request, a KMS server MUST create at least one auth
 
 As part of a create resource request, a client MAY request the immediate binding of one or more unbound KMS keys to the new resource object.  If any key indicated in the request is already bound, or is otherwise invalid (e.g. expired), the entire create resource request MUST be failed by the KMS.
 
+Also, the client MAY request a time to live for the new resource object. The TTL is in seconds with a default of 0 (never expires). Implementations MAY enforce minimum and/or maximum values for TTL. If a requested TTL value is not within the server's acceptable range, it SHOULD respond with a 400 and response message indicating the server's acceptable range.
+
 The request message conforms to the basic request message structure, where the method is "create", the uri is "/resources", and additional user identifiers and/or key URIs are provided in a manner consistent with the following.
 
 Request payload definition:
@@ -909,7 +912,8 @@ authIds (
 root {
   request,
   ?authIds,
-  ?keyUris
+  ?keyUris,
+  ?ttl
 }
 ~~~
 
@@ -933,7 +937,8 @@ JWE(K_ephemeral, {
   "keyUris": [
     "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
     "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-  ]
+  ],
+  "ttl": 604800
 })
 ~~~
 
@@ -963,7 +968,8 @@ JWE(K_ephemeral, {
       "keyUris": [
         "/keys/b4cba4da-a984-4af2-b54f-3ca04acfe461",
         "/keys/2671413c-ab80-4f19-a0a4-ae07e1a94e90"
-      ]
+      ],
+      "expirationDate": "2014-10-09T16:54:48Z"
   }
 })
 ~~~
