@@ -1,6 +1,5 @@
 *.html
-*.xml
 *.pdf
-*.bak
+*.txt
 .*swp
 *~

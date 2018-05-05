@@ -29,6 +29,8 @@ normative:
 
   RFC7159:
 
+  RFC6120:
+
   I-D.ietf-jose-json-web-encryption:
 
   I-D.ietf-jose-json-web-key:
@@ -74,7 +76,7 @@ Existing E2E strategies such as ECS {{?RFC5652}}, PGP {{?RFC4880}}, and Off-the-
 
 Equally problematic is the paucity of E2E encryption options that satisfy common organizational obligations such as regulatory compliance and legal discovery.  Entities that must operate within such frameworks require mechanisms by which they (and they alone) may recover the keys used to secure their communications.  Existing E2E encryption solutions are not, by themselves, well suited for this purpose.
 
-In the interest of addressing these challenges this document presents an architecture for the deployment of E2E encryption key management services (KMS).  In this architecture a KMS service provides to its users a means by which their communications clients may securely create, share, rotate, and store E2E encryption keying material.  It does so in a fashion that permits the decoupling of such services from the communications media, thereby permitting the former to reside under the direct control of the communicating parties or the organizations within which they do business.
+In the interest of addressing these challenges this document presents an architecture for the deployment of E2E encryption key management services (KMS).  In this architecture, a KMS provides to its users a means by which their communications clients may securely create, share, rotate, and store E2E encryption keying material.  It does so in a fashion that permits the decoupling of such services from the communications media, thereby permitting the former to reside under the direct control of the communicating parties or the organizations within which they do business.
 
 ## Terminology {#terminology}
 
@@ -104,7 +106,7 @@ E2E encryption
 
 KMS server
 
-> A key management server (KMS) is responsible for creating, storing, and providing access to E2E encryption keying material by communications resource clients. 
+> A key management service (KMS) server is responsible for creating, storing, and providing access to E2E encryption keying material by communications resource clients. 
 
 KMS protocol
 
@@ -175,9 +177,9 @@ The architectural reference model for this specification is illustrated in {{ref
 
 In addition to the familiar elements described above, this model also includes a key management server, or *KMS*, operated by a *KMS provider*. The KMS server exposes an API through which clients may securely establish and share cryptographic keying material used for the E2E encryption of content that is transited through the cloud provider's services.  This API is secured in such a way as to ensure these keys are visible to none but the KMS server itself and the clients authorized to consume the content they protect.  This highlights an important distinction between the KMS provider and the cloud provider: while the KMS provider is necessarily a *trusted party*, the cloud provider need not be.  
 
-It is an explicit objective of this specification to promote an ecosystem of providers of KMS implementations and KMS services that are distinct and independent of the cloud providers over whose services users communicate.  To that end, this specification seeks to standardize a KMS service protocol though which clients and KMS servers interoperate.  This protocol provides for the establishment of a confidential and authenticated channel between each client and KMS server, and defines an API of request and response messages to be exchanged over this secure channel for the purpose of creating, retrieving, and exchanging keys.  
+It is an explicit objective of this specification to promote an ecosystem of providers of KMS implementations and KMS services that are distinct and independent of the cloud providers over whose services users communicate.  To that end, this specification seeks to standardize a KMS protocol through which clients and KMS servers interoperate.  This protocol provides for the establishment of a confidential and authenticated channel between each client and KMS server, and defines an API of request and response messages to be exchanged over this secure channel for the purpose of creating, retrieving, and exchanging keys.  
 
-While the KMS service protocol constitutes a central focus of this specification, the means by which this protocol is transported is expressly out of scope.  This role may be readily addressed through either standards-based or proprietary protocols, and so we refer to this simply as the *KMS transport* for the remainder of this document.  Over this transport, the communication paths between clients and KMS server are encrypted using keys established through an authenticated ephemeral key agreement.  As such, the KMS transport provider need not be regarded as a trusted party, and in fact may be the cloud provider itself.
+While the KMS protocol constitutes a central focus of this specification, the means by which this protocol is transported is expressly out of scope.  This role may be readily addressed through either standards-based or proprietary protocols, and so we refer to this simply as the *KMS transport* for the remainder of this document.  Over this transport, the communication paths between clients and KMS server are encrypted using keys established through an authenticated ephemeral key agreement.  As such, the KMS transport provider need not be regarded as a trusted party, and in fact may be the cloud provider itself.
 
 An important non-goal of this specification is the standardization of any aspect of the cloud provider's services or the means by which clients utilize shared keys for the E2E encryption of data transiting those services.  By avoiding the application of constraints on the communications services and protocols we enable the use of this specification in the context of existing service deployments, both standards-based and proprietary.  It is similarly a non-goal of this specification to enable federation of secure communications between vendors of different cloud services, as that is the realm of standardized application protocols.  The scope of this specification is intended to be narrowly focused on the task of separating E2E encryption key management from the communications services they secure, thereby facilitating the broadest possible adoption of secure communications though existing services.
 
@@ -277,7 +279,7 @@ It is worth noting that a race condition does exist where step (6) could occur b
 
 ## Securing an XMPP Multi-User Chat
 
-Let A, B and C be users that wish to engage in secure chat through an existing XMPP multi-user chat room.  In the context of the KMS architecture we may regard the XMPP MUC service as the resource server, the users' XMPP clients as the resource clients, and the XMPP service itself (not shown) as the KMS transport.  
+Let A, B and C be users that wish to engage in secure chat through an existing XMPP {{RFC6120}} multi-user chat (MUC) room.  In the context of the KMS architecture we may regard the XMPP MUC service as the resource server, the users' XMPP clients as the resource clients, and the XMPP service itself (not shown) as the KMS transport.  
 
 ~~~
      XMPP           XMPP           XMPP         XMPP MUC        KMS
@@ -757,7 +759,7 @@ The following sections provide detailed descriptions for each of the request and
 
 The first operation between a client and KMS MUST be the establishment of a shared secret and derived ephemeral key.  This is necessary as all other requests and responses are encrypted with the ephemeral key.  
 
-The client request for creating an ephemeral key conforms to the basic request message payload, where the method is "create" and the uri is "/ecdhe".  In addition to the basic payload, the client provides a jwk attribute for which the value is a JWK object {{I-D.ietf-jose-json-web-key}} containing the public part of an EC key pair generated by the client.  Unlike a basic request message, however, the request payload is encrypted as the content of a JWE {{I-D.ietf-jose-json-web-key}} secured with the static public key of the KMS server (K_kms_pub) as obtained from the server's validated PKIX certificate {{RFC5280}}.
+The client request for creating an ephemeral key conforms to the basic request message payload, where the method is "create" and the uri is "/ecdhe".  In addition to the basic payload, the client provides a jwk attribute for which the value is a JWK object {{I-D.ietf-jose-json-web-key}} containing the public part of an EC key pair generated by the client.  Unlike a basic request message, however, the request payload is encrypted as the content of a JWE {{I-D.ietf-jose-json-web-key}} object secured with the static public key of the KMS server (K_kms_pub) as obtained from the server's validated PKIX certificate {{RFC5280}}.
 
 Note, the client MUST generate a new EC key pair for every create ephemeral key request sent to the KMS server.
 
