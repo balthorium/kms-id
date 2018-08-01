@@ -514,9 +514,11 @@ The JSON representations for KMS authorization objects is defined as follows usi
 ~~~
 authorizationRep {
   kmsUri,
-  "authId" : string,
+  ?"authId" : string,
+  ?"bearer" : string,
   "createDate" : date-time,
   "resourceUri" : kmsUri,
+  ?"roleUri" : Uri
 }
 
 authorization (
@@ -540,7 +542,11 @@ uri
 
 authId
 
-> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS.  The value of this attribute may also be the URI of a KRO, in which case all authorizations on the indicated KRO will be regarded by the KMS as also applying to the KRO to which this authorization object belongs.
+> A unique identifier of the authorized entity.  The exact semantics of this attribute are out of scope for this document, however it is RECOMMENDED that an implementation regard the value of this attribute as mapped to either an individual identity or a grouping of identities as recognized by the identity provider employed by the KMS.  The value of this attribute may also be the URI of a KRO, in which case all authorizations on the indicated KRO will be regarded by the KMS as also applying to the KRO to which this authorization object belongs. Either authId or bearer needs to be present, but not both.
+
+bearer
+
+> A KMS generated JWT bearer token for a generated anonymous authorization that identifies the issuing KMS, the anonymous authorization ID, the KRO to which it applies, and a TTL that matches the expiration of the authorization itself. Either authId or bearer needs to be present, but not both.
 
 createDate
 
@@ -549,6 +555,10 @@ createDate
 resourceUri
 
 > The object identifier of the resource to which the authorization applies.
+
+roleUri
+
+> An identifier in the form of Uri to specify the role of the authorization, could be participant, cloudAgent, orgAgent, etc. by default without the roleUri explicitly specified, it is participant role.
 
 Note, with respect to this specification user identifiers are opaque, however they MUST map to unique identifiers provided as part of user authentication.
 
@@ -896,7 +906,7 @@ On successful deletion of an ephemeral key, the KMS MUST NOT, from that time for
 
 When a client intends to initiate E2E encryption of a communications resource, it begins by requesting the creation of a KMS resource object.  This resource object logically represents the communications resource within the KMS data model.  
 
-As part of a create resource request, a KMS server MUST create at least one authorization object on the newly created resource object to explicitly authorize the user making the request.  A client MAY request the immediate creation of one or more additional authorizations such that corresponding users may be immediately authorized to access and operate on the new resource object.  If for any reason one or more requested authorizations cannot be applied to the new resource object, the entire create resource request MUST be failed by the KMS.
+As part of a create resource request, a KMS server MUST create at least one authorization object on the newly created resource object to explicitly authorize the user making the request.  A client MAY request the immediate creation of one or more additional authorizations such that corresponding users may be immediately authorized to access and operate on the new resource object. Also, a client MAY request number of anonymous authorizations to be created on the new resource object, specified by anonymous attribute in the request. If for any reason one or more requested authorizations cannot be applied to the new resource object, the entire create resource request MUST be failed by the KMS.
 
 As part of a create resource request, a client MAY request the immediate binding of one or more unbound KMS keys to the new resource object.  If any key indicated in the request is already bound, or is otherwise invalid (e.g. expired), the entire create resource request MUST be failed by the KMS.
 
@@ -914,6 +924,7 @@ authIds (
 root {
   request,
   ?authIds,
+  ?anonymous,
   ?keyUris,
   ?ttl
 }
@@ -1365,13 +1376,14 @@ If successful, the KMS response to a retrieve bound keys request MUST have a sta
 
 An authorization establishes a relationship between a resource and a user that entitles the user to retrieve bound keys from, and bind new keys to, that resource.  The KMS resource authorization model is viral in the sense that, once a user has been authorized on a resource, that user is also entitled to authorize other users on that resource.  These authorizations are created through create authorization requests.
 
-The request message conforms to the basic request message structure, where the method is "create", and the uri is "/authorizations".  Additional attributes are required to indicate the resource on which authorizations are to be added, as well as the set of users for whom these new authorizations are to be created.
+The request message conforms to the basic request message structure, where the method is "create", and the uri is "/authorizations".  Additional attributes are required to indicate the resource on which authorizations are to be added, as well as the set of users for whom these new authorizations are to be created, also the number of anonymous authorization to be created.
 
 ~~~
 root {
   request,
   "resourceUri" : kmsUri,
-  "authIds" : [ *string ]
+  "authIds" : [ *string ],
+  "anonymous" : int
 }
 ~~~
 
@@ -1392,7 +1404,8 @@ JWE(K_ephemeral, {
   "authIds": [
     "119a0582-2e2b-4c0c-ba6a-753d05171803",
     "557ac05d-5751-43b4-a04b-e7eb1499ee0a"
-  ]
+  ],
+  "anonymous": 1
 })
 ~~~
 
@@ -1423,6 +1436,11 @@ JWE(K_ephemeral, {
   {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
     "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  },
+  {
+    "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
+    "bearer": "EYHHBGGE2YWYtMGE2NC0...",
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
   }]
 })
