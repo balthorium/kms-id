@@ -2,8 +2,8 @@
 title: Key Management Service Architecture
 abbrev: key-management-service
 docname: draft-abiggs-saag-key-management-service-02
-date: 2015-07-03
-category: std
+date: 2018-08-01
+category: info
 ipr: trust200902
 pi: [toc, sortrefs, symrefs]
 
@@ -1719,7 +1719,7 @@ Security considerations are discussed throughout this document.  Additional cons
 
 This specification is the work of several contributors.  In particular, the following individuals contributed ideas, feedback, and wording that influenced this specification:
 
-Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
+Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg, Bo Zou
 
 # Appendix B. Document History
 

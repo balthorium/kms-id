@@ -4,8 +4,8 @@
 
 Network Working Group                                           A. Biggs
 Internet-Draft                                                 S. Cooley
-Intended status: Standards Track                           Cisco Systems
-Expires: January 4, 2016                                   July 03, 2015
+Intended status: Informational                             Cisco Systems
+Expires: February 2, 2019                                August 01, 2018
 
 
                   Key Management Service Architecture
@@ -33,29 +33,29 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 4, 2016.
+   This Internet-Draft will expire on February 2, 2019.
 
 Copyright Notice
 
-   Copyright (c) 2015 IETF Trust and the persons identified as the
+   Copyright (c) 2018 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 1]
+Biggs & Cooley          Expires February 2, 2019                [Page 1]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    publication of this document.  Please review these documents
@@ -83,16 +83,16 @@ Table of Contents
      4.4.  Object Types  . . . . . . . . . . . . . . . . . . . . . .  17
        4.4.1.  KMS Key Objects . . . . . . . . . . . . . . . . . . .  17
        4.4.2.  KMS Authorization Objects . . . . . . . . . . . . . .  19
-       4.4.3.  KMS Resource Objects (KRO)  . . . . . . . . . . . . .  20
+       4.4.3.  KMS Resource Objects (KRO)  . . . . . . . . . . . . .  21
      4.5.  Request Types . . . . . . . . . . . . . . . . . . . . . .  22
-     4.6.  Message Structure . . . . . . . . . . . . . . . . . . . .  22
-       4.6.1.  Basic Request Payload . . . . . . . . . . . . . . . .  23
+     4.6.  Message Structure . . . . . . . . . . . . . . . . . . . .  23
+       4.6.1.  Basic Request Payload . . . . . . . . . . . . . . . .  24
        4.6.2.  Basic Response Payload  . . . . . . . . . . . . . . .  25
        4.6.3.  Error Response Payload  . . . . . . . . . . . . . . .  26
      4.7.  Requests  . . . . . . . . . . . . . . . . . . . . . . . .  26
-       4.7.1.  Create Ephemeral Key  . . . . . . . . . . . . . . . .  26
-       4.7.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  29
-       4.7.3.  Create Resource . . . . . . . . . . . . . . . . . . .  30
+       4.7.1.  Create Ephemeral Key  . . . . . . . . . . . . . . . .  27
+       4.7.2.  Delete Ephemeral Key  . . . . . . . . . . . . . . . .  30
+       4.7.3.  Create Resource . . . . . . . . . . . . . . . . . . .  31
        4.7.4.  Retrieve Resource . . . . . . . . . . . . . . . . . .  33
        4.7.5.  Create Keys . . . . . . . . . . . . . . . . . . . . .  35
        4.7.6.  Update Key (Bind) . . . . . . . . . . . . . . . . . .  37
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 2]
+Biggs & Cooley          Expires February 2, 2019                [Page 2]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  52
@@ -165,9 +165,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 3]
+Biggs & Cooley          Expires February 2, 2019                [Page 3]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    services (KMS).  In this architecture, a KMS provides to its users a
@@ -221,9 +221,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 4]
+Biggs & Cooley          Expires February 2, 2019                [Page 4]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
       Shorthand for end-to-end encryption, as defined in [RFC4949],
@@ -277,9 +277,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 5]
+Biggs & Cooley          Expires February 2, 2019                [Page 5]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 1.3.  Notational Conventions
@@ -333,9 +333,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 6]
+Biggs & Cooley          Expires February 2, 2019                [Page 6]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    provider_. The KMS server exposes an API through which clients may
@@ -389,9 +389,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 7]
+Biggs & Cooley          Expires February 2, 2019                [Page 7]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 3.  Use Cases
@@ -445,9 +445,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 8]
+Biggs & Cooley          Expires February 2, 2019                [Page 8]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    5.  Client B obtains, through some means not defined by this
@@ -501,9 +501,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016                [Page 9]
+Biggs & Cooley          Expires February 2, 2019                [Page 9]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    This sequence begins with the assumption that each client has, at
@@ -557,9 +557,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 10]
+Biggs & Cooley          Expires February 2, 2019               [Page 10]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
         XMPP           XMPP           XMPP         XMPP MUC        KMS
@@ -613,9 +613,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 11]
+Biggs & Cooley          Expires February 2, 2019               [Page 11]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    7.  Client C performs steps (5) and (6) in the same fashion as client
@@ -669,9 +669,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 12]
+Biggs & Cooley          Expires February 2, 2019               [Page 12]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    HTTP Client    HTTP Client     HTTP File      KMS Server   KMS Server
@@ -725,9 +725,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 13]
+Biggs & Cooley          Expires February 2, 2019               [Page 13]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
         bound to the newly created KRO and that the user Bob@DomainB be
@@ -781,9 +781,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 14]
+Biggs & Cooley          Expires February 2, 2019               [Page 14]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    and explicitly manage access authorizations on those keys.  The
@@ -837,9 +837,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 15]
+Biggs & Cooley          Expires February 2, 2019               [Page 15]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 4.2.  User Identity
@@ -893,9 +893,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 16]
+Biggs & Cooley          Expires February 2, 2019               [Page 16]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    clients MUST be able to validate the KMS's entire certificate path
@@ -949,9 +949,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 17]
+Biggs & Cooley          Expires February 2, 2019               [Page 17]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    jwk : ; see [JWK]
@@ -1005,9 +1005,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 18]
+Biggs & Cooley          Expires February 2, 2019               [Page 18]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
       An opaque unique identifier provided by the client that created
@@ -1039,11 +1039,40 @@ Internet-Draft           key-management-service                July 2015
    follows using JSON content rules with references to rules defined in
    previous sections.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 19]
+
+Internet-Draft           key-management-service              August 2018
+
+
    authorizationRep {
      kmsUri,
-     "authId" : string,
+     ?"authId" : string,
+     ?"bearer" : string,
      "createDate" : date-time,
      "resourceUri" : kmsUri,
+     ?"roleUri" : Uri
    }
 
    authorization (
@@ -1057,14 +1086,6 @@ Internet-Draft           key-management-service                July 2015
    authorizationUris (
      "authorizationUris" : [ *kmsUri ]
    )
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 19]
-
-Internet-Draft           key-management-service                July 2015
-
 
    The attributes of a KMS authorization object are defined as follows.
 
@@ -1082,7 +1103,24 @@ Internet-Draft           key-management-service                July 2015
       the KMS.  The value of this attribute may also be the URI of a
       KRO, in which case all authorizations on the indicated KRO will be
       regarded by the KMS as also applying to the KRO to which this
-      authorization object belongs.
+      authorization object belongs.  Either authId or bearer needs to be
+      present, but not both.
+
+   bearer
+
+      A KMS generated JWT bearer token for a generated anonymous
+      authorization that identifies the issuing KMS, the anonymous
+      authorization ID, the KRO to which it applies, and a TTL that
+      matches the expiration of the authorization itself.  Either authId
+      or bearer needs to be present, but not both.
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 20]
+
+Internet-Draft           key-management-service              August 2018
+
 
    createDate
 
@@ -1094,6 +1132,13 @@ Internet-Draft           key-management-service                July 2015
       The object identifier of the resource to which the authorization
       applies.
 
+   roleUri
+
+      An identifier in the form of Uri to specify the role of the
+      authorization, could be participant, cloudAgent, orgAgent, etc. by
+      default without the roleUri explicitly specified, it is
+      participant role.
+
    Note, with respect to this specification user identifiers are opaque,
    however they MUST map to unique identifiers provided as part of user
    authentication.
@@ -1103,24 +1148,6 @@ Internet-Draft           key-management-service                July 2015
    The JSON representation for KMS resource objects is defined as
    follows using JSON content rules with references to rules defined in
    previous sections.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 20]
-
-Internet-Draft           key-management-service                July 2015
-
 
    resourceRep {
      kmsUri,
@@ -1142,6 +1169,14 @@ Internet-Draft           key-management-service                July 2015
    )
 
    The attributes of a KMS resource object are defined as follows.
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 21]
+
+Internet-Draft           key-management-service              August 2018
+
 
    uri
 
@@ -1170,14 +1205,6 @@ Internet-Draft           key-management-service                July 2015
       or authorizationUris may be present in a resource object
       representation.
 
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 21]
-
-Internet-Draft           key-management-service                July 2015
-
-
 4.5.  Request Types
 
    The KMS protocol defines four types of requests: create, retrieve,
@@ -1197,6 +1224,15 @@ Internet-Draft           key-management-service                July 2015
       in the response a representation of one or more object instances.
 
    Update
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 22]
+
+Internet-Draft           key-management-service              August 2018
+
 
       An update operation acts upon an object, altering mutable
       properties of that object.
@@ -1226,14 +1262,6 @@ Internet-Draft           key-management-service                July 2015
 
    Ephemeral Key Agreement Messages
 
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 22]
-
-Internet-Draft           key-management-service                July 2015
-
-
       Ephemeral key agreement messages are those exchanged between the
       client and KMS for the purpose of establishing a new shared
       ephemeral key (see Section 4.7.1).  Key agreement request payloads
@@ -1255,6 +1283,13 @@ Internet-Draft           key-management-service                July 2015
       in Section 4.6.3, and signed using the KMS server's static public
       key.
 
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 23]
+
+Internet-Draft           key-management-service              August 2018
+
+
    The basic JSON representations for the request and response payloads
    are defined in the following sections.
 
@@ -1263,32 +1298,6 @@ Internet-Draft           key-management-service                July 2015
    The basic JSON representation for KMS request message payloads is
    defined as follows using JSON content rules with references to rules
    defined in previous sections.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 23]
-
-Internet-Draft           key-management-service                July 2015
-
 
    requestId (
      "requestId" : integer
@@ -1329,6 +1338,14 @@ Internet-Draft           key-management-service                July 2015
       identity can be securely derived from either the bearer token or
       jwk.
 
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 24]
+
+Internet-Draft           key-management-service              August 2018
+
+
    bearer
 
       An [RFC6749] access token issued by the client's identity provider
@@ -1336,15 +1353,6 @@ Internet-Draft           key-management-service                July 2015
       provider.  See Section 4.2.
 
    jwk
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 24]
-
-Internet-Draft           key-management-service                July 2015
-
 
       A JWK object, in JSON format as defined in
       [I-D.ietf-jose-json-web-key], containing the public key of the
@@ -1387,20 +1395,19 @@ Internet-Draft           key-management-service                July 2015
 
    status
 
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 25]
+
+Internet-Draft           key-management-service              August 2018
+
+
       Indicates the success or failure of the request.  The value
       returned in a response status attribute SHOULD be that of an
       [RFC7231] defined status code with semantics that correspond to
       the success or failure condition of the KMS request.
 
    reason
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 25]
-
-Internet-Draft           key-management-service                July 2015
-
 
       An optional natural language string to describe the response
       status in terms that are useful for tracing and troubleshooting
@@ -1440,6 +1447,17 @@ Internet-Draft           key-management-service                July 2015
    request and response operations that may occur between a resource
    client and the KMS.
 
+
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 26]
+
+Internet-Draft           key-management-service              August 2018
+
+
 4.7.1.  Create Ephemeral Key
 
    The first operation between a client and KMS MUST be the
@@ -1450,14 +1468,6 @@ Internet-Draft           key-management-service                July 2015
    The client request for creating an ephemeral key conforms to the
    basic request message payload, where the method is "create" and the
    uri is "/ecdhe".  In addition to the basic payload, the client
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 26]
-
-Internet-Draft           key-management-service                July 2015
-
-
    provides a jwk attribute for which the value is a JWK object
    [I-D.ietf-jose-json-web-key] containing the public part of an EC key
    pair generated by the client.  Unlike a basic request message,
@@ -1496,6 +1506,14 @@ Internet-Draft           key-management-service                July 2015
      }
    })
 
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 27]
+
+Internet-Draft           key-management-service              August 2018
+
+
    On receiving the ephemeral key creation request, the KMS server MUST
    verify the credential provided in the request.  If a bearer token is
    provided, the KMS MUST validate the token in cooperation with the
@@ -1506,13 +1524,6 @@ Internet-Draft           key-management-service                July 2015
    of the KMS or an authorized trusted service.  If verification fails,
    the KMS MUST NOT use the server response to continue with key
    agreement.
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 27]
-
-Internet-Draft           key-management-service                July 2015
-
 
    Upon successful authentication and authorization of the request, the
    KMS responds by generating its own EC key pair using the same curve
@@ -1534,6 +1545,30 @@ Internet-Draft           key-management-service                July 2015
    }
 
    Response message example:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 28]
+
+Internet-Draft           key-management-service              August 2018
+
 
    JWS(K_kms_priv, {
      "status": 201,
@@ -1562,14 +1597,6 @@ Internet-Draft           key-management-service                July 2015
    in time before which the key may be used for encrypting messages
    (both in [RFC3339] date-time format).
 
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 28]
-
-Internet-Draft           key-management-service                July 2015
-
-
    On receiving the ephemeral key creation response, the resource client
    MUST verify the received JWS against the KMS server's validated
    static public key.  If verification fails, the client MUST NOT use
@@ -1590,6 +1617,14 @@ Internet-Draft           key-management-service                July 2015
    to the client in the KMS response message described above.  This
    provides the recipient with a means for identifying the key necessary
    to decrypt the message.
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 29]
+
+Internet-Draft           key-management-service              August 2018
+
 
    The KMS SHOULD accept messages encrypted with the ephemeral key up to
    and until the key expiration date as provided in the response message
@@ -1616,16 +1651,6 @@ Internet-Draft           key-management-service                July 2015
 
    Request message example:
 
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 29]
-
-Internet-Draft           key-management-service                July 2015
-
-
    JWE(K_ephemeral, {
      "client": {
        "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
@@ -1649,6 +1674,13 @@ Internet-Draft           key-management-service                July 2015
    }
 
    Response message example:
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 30]
+
+Internet-Draft           key-management-service              August 2018
+
 
    JWE(K_ephemeral, {
      "status": 204,
@@ -1674,20 +1706,14 @@ Internet-Draft           key-management-service                July 2015
    As part of a create resource request, a KMS server MUST create at
    least one authorization object on the newly created resource object
    to explicitly authorize the user making the request.  A client MAY
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 30]
-
-Internet-Draft           key-management-service                July 2015
-
-
    request the immediate creation of one or more additional
    authorizations such that corresponding users may be immediately
-   authorized to access and operate on the new resource object.  If for
-   any reason one or more requested authorizations cannot be applied to
-   the new resource object, the entire create resource request MUST be
-   failed by the KMS.
+   authorized to access and operate on the new resource object.  Also, a
+   client MAY request number of anonymous authorizations to be created
+   on the new resource object, specified by anonymous attribute in the
+   request.  If for any reason one or more requested authorizations
+   cannot be applied to the new resource object, the entire create
+   resource request MUST be failed by the KMS.
 
    As part of a create resource request, a client MAY request the
    immediate binding of one or more unbound KMS keys to the new resource
@@ -1704,6 +1730,14 @@ Internet-Draft           key-management-service                July 2015
 
    The request message conforms to the basic request message structure,
    where the method is "create", the uri is "/resources", and additional
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 31]
+
+Internet-Draft           key-management-service              August 2018
+
+
    user identifiers and/or key URIs are provided in a manner consistent
    with the following.
 
@@ -1716,27 +1750,12 @@ Internet-Draft           key-management-service                July 2015
    root {
      request,
      ?authIds,
+     ?anonymous,
      ?keyUris,
      ?ttl
    }
 
    Request message example:
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 31]
-
-Internet-Draft           key-management-service                July 2015
-
 
    JWE(K_ephemeral, {
      "client": {
@@ -1765,34 +1784,22 @@ Internet-Draft           key-management-service                July 2015
 
    Response payload definition:
 
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 32]
+
+Internet-Draft           key-management-service              August 2018
+
+
    root {
      response,
      resource
    }
 
    Response message example:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 32]
-
-Internet-Draft           key-management-service                July 2015
-
 
    JWE(K_ephemeral, {
      "status": 201,
@@ -1838,16 +1845,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 33]
+Biggs & Cooley          Expires February 2, 2019               [Page 33]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -1901,9 +1901,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 34]
+Biggs & Cooley          Expires February 2, 2019               [Page 34]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 4.7.5.  Create Keys
@@ -1957,9 +1957,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 35]
+Biggs & Cooley          Expires February 2, 2019               [Page 35]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    Response message example:
@@ -2013,9 +2013,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 36]
+Biggs & Cooley          Expires February 2, 2019               [Page 36]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    object uris.  It is at the KMS server's discretion which of these is
@@ -2069,9 +2069,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 37]
+Biggs & Cooley          Expires February 2, 2019               [Page 37]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    The response message conforms to the basic response message
@@ -2125,9 +2125,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 38]
+Biggs & Cooley          Expires February 2, 2019               [Page 38]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 4.7.7.  Retrieve Keys
@@ -2181,9 +2181,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 39]
+Biggs & Cooley          Expires February 2, 2019               [Page 39]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    response MUST NOT include any key with a "bindDate" that is either
@@ -2237,9 +2237,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 40]
+Biggs & Cooley          Expires February 2, 2019               [Page 40]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -2293,9 +2293,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 41]
+Biggs & Cooley          Expires February 2, 2019               [Page 41]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -2349,9 +2349,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 42]
+Biggs & Cooley          Expires February 2, 2019               [Page 42]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -2405,9 +2405,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 43]
+Biggs & Cooley          Expires February 2, 2019               [Page 43]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    resource.  These authorizations are created through create
@@ -2417,12 +2417,14 @@ Internet-Draft           key-management-service                July 2015
    where the method is "create", and the uri is "/authorizations".
    Additional attributes are required to indicate the resource on which
    authorizations are to be added, as well as the set of users for whom
-   these new authorizations are to be created.
+   these new authorizations are to be created, also the number of
+   anonymous authorization to be created.
 
    root {
      request,
      "resourceUri" : kmsUri,
-     "authIds" : [ *string ]
+     "authIds" : [ *string ],
+     "anonymous" : int
    }
 
    Request message example:
@@ -2441,7 +2443,8 @@ Internet-Draft           key-management-service                July 2015
      "authIds": [
        "119a0582-2e2b-4c0c-ba6a-753d05171803",
        "557ac05d-5751-43b4-a04b-e7eb1499ee0a"
-     ]
+     ],
+     "anonymous": 1
    })
 
    The response message conforms to the basic response message
@@ -2455,16 +2458,15 @@ Internet-Draft           key-management-service                July 2015
      authorizations
    }
 
-   Response message example:
 
 
 
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 44]
+Biggs & Cooley          Expires February 2, 2019               [Page 44]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
+
+   Response message example:
 
    JWE(K_ephemeral, {
    {
@@ -2479,6 +2481,11 @@ Internet-Draft           key-management-service                July 2015
      {
        "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
        "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     },
+     {
+       "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
+       "bearer": "EYHHBGGE2YWYtMGE2NC0...",
        "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
      }]
    })
@@ -2510,16 +2517,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-
-
-
-
-
-
-
-Biggs & Cooley           Expires January 4, 2016               [Page 45]
+Biggs & Cooley          Expires February 2, 2019               [Page 45]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -2573,9 +2573,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 46]
+Biggs & Cooley          Expires February 2, 2019               [Page 46]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 4.7.10.  Retrieve Authorizations By User
@@ -2629,9 +2629,9 @@ JWE(K_ephemeral, {
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 47]
+Biggs & Cooley          Expires February 2, 2019               [Page 47]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    JWE(K_ephemeral, {
@@ -2685,9 +2685,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 48]
+Biggs & Cooley          Expires February 2, 2019               [Page 48]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
   JWE(K_ephemeral, {
@@ -2741,9 +2741,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 49]
+Biggs & Cooley          Expires February 2, 2019               [Page 49]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 4.7.12.  Ping
@@ -2797,9 +2797,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 50]
+Biggs & Cooley          Expires February 2, 2019               [Page 50]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    contents, confirm the identity and authorization of the requesting
@@ -2847,15 +2847,15 @@ Internet-Draft           key-management-service                July 2015
    particular, the following individuals contributed ideas, feedback,
    and wording that influenced this specification:
 
-   Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg
+   Cullen Jennings, Matt Miller, Suhas Nandakumar, Jonathan Rosenberg,
+   Bo Zou
 
 
 
 
-
-Biggs & Cooley           Expires January 4, 2016               [Page 51]
+Biggs & Cooley          Expires February 2, 2019               [Page 51]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
 8.  Appendix B.  Document History
@@ -2909,9 +2909,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 52]
+Biggs & Cooley          Expires February 2, 2019               [Page 52]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
@@ -2965,9 +2965,9 @@ Internet-Draft           key-management-service                July 2015
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 53]
+Biggs & Cooley          Expires February 2, 2019               [Page 53]
 
-Internet-Draft           key-management-service                July 2015
+Internet-Draft           key-management-service              August 2018
 
 
    [I-D.newton-json-content-rules]
@@ -3021,4 +3021,4 @@ Authors' Addresses
 
 
 
-Biggs & Cooley           Expires January 4, 2016               [Page 54]
+Biggs & Cooley          Expires February 2, 2019               [Page 54]
