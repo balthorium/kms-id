@@ -766,7 +766,9 @@ JWE(K_ephemeral, {
 
 ### Reset Message Payload {#proto-reset}
 
-The JSON representation for KMS reset message payloads is defined as follows using JSON content rules with references to rules defined in previous sections.  Note that the reset message is not encrypted with the ephemeral key but rather signed using the KMS static private key.  Clients SHOULD verify the signature on received reset messages before taking action based on their content.
+The JSON representation for KMS reset message payloads is defined as follows using JSON content rules with references to rules defined in previous sections.  
+
+The reset message is not encrypted with the ephemeral key but is signed using the KMS static private key.  Clients SHOULD verify the signature on received reset messages before taking action based on their content.
 
 The status attribute of a reset message MUST be 499 and MUST be interpreted by clients as a command to discard all current shared ephemeral keys and previously cached unbound keys.  
 
