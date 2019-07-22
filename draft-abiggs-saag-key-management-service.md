@@ -314,7 +314,7 @@ This sequence begins with the assumption that a MUC room already exists on the M
 
 5. Client B requests from the KMS all keys bound to the KRO associated with the MUC room's URI.  Recognizing client B as authorized on the KRO, the KMS returns the key bound to the KRO by client A in step (2).
 
-6. Client B decrypts the shared file using the key selected in step (1).
+6. Client B decrypts the shared message using the key selected in step (1).
 
 7. Client C performs steps (5) and (6) in the same fashion as client B.
 
@@ -710,6 +710,10 @@ method
 uri
 
 > The KMS object or object type to which the request applies.
+
+authId
+
+> The authorization token that is paired with a resource to allow a user to access it. 
 
 The JSON content rules above are used in conjunction with additional request type specific rules, defined later in this document, to produce the full request payload definition for each KMS operation.
 
@@ -1599,7 +1603,7 @@ JWE(K_ephemeral, {
 
 ### Delete Authorization
 
-To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the URI is either that of the authorization object to be deleted, or the URI of the collection of authorizations within a particular KMS resource object appended with an authId query parameter whose value matches that of the authorization object to be deleted.
+To remove an authorization from a KMS resource object, any user currently authorized on the same resource object may issue a delete authorization request.  The request message conforms to the basic request message structure, where the method is "delete", and the URI is either that of the authorization object to be deleted, or a collection of authorizations within a particular KMS resource object appended to an authIds variable parameter whose value matches that of the authorization object to be deleted.
 
 Request payload definition:
 
@@ -1644,6 +1648,27 @@ JWE(K_ephemeral, {
 
 Note, in the example above, the URI attribute value is a continuous string of non-whitespace characters. Whitespace has been added here for readability.
 
+A bulk delete authorization can be run to delete multiple authorizations for a single resource. In this request the URI simply lists "/authorizations" while the attribute "authIds" lists all the authorizations to delete for a specific resource. Restrictions can be placed within the KMS to restrict the size of this bulk operation.
+
+~~~
+JWE(K_ephemeral, {
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "client": {
+    "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+    "credential": {
+      "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+    }
+  }  
+  "method": "delete",
+  "uri": "/authorizations",
+  "authIds": {
+    "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "c1047d54-c485-4aa1-9704-fee07adae46c",
+    ...
+  }
+})
+~~~
+
 The response message conforms to the basic response message structure, and includes a representation of the authorization object that was deleted.
 
 Response payload definition:
@@ -1665,6 +1690,25 @@ JWE(K_ephemeral, {
   "authorization": {
     "uri": "/authorizations/5aaca3eb-ca4c-47c9-b8e2-b20f47568b7b",
     "authId": "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+    "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+  }
+})
+~~~
+
+Buld Delete response message example:
+
+~~~
+JWE(K_ephemeral, {
+{
+  "status": 200,
+  "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+  "authorization": {
+    "uri": "/authorizations",
+    "authIds": {
+      "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+      "c1047d54-c485-4aa1-9704-fee07adae46c",
+      ...
+    }
     "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
   }
 })

@@ -87,7 +87,7 @@ Table of Contents
      4.5.  Request Types . . . . . . . . . . . . . . . . . . . . . .  22
      4.6.  Message Structure . . . . . . . . . . . . . . . . . . . .  23
        4.6.1.  Basic Request Payload . . . . . . . . . . . . . . . .  24
-       4.6.2.  Basic Response Payload  . . . . . . . . . . . . . . .  25
+       4.6.2.  Basic Response Payload  . . . . . . . . . . . . . . .  26
        4.6.3.  Error Response Payload  . . . . . . . . . . . . . . .  26
        4.6.4.  Reset Message Payload . . . . . . . . . . . . . . . .  27
      4.7.  Requests  . . . . . . . . . . . . . . . . . . . . . . . .  27
@@ -103,9 +103,9 @@ Table of Contents
        4.7.10. Retrieve Authorizations By User . . . . . . . . . . .  48
        4.7.11. Delete Authorization  . . . . . . . . . . . . . . . .  49
        4.7.12. Ping  . . . . . . . . . . . . . . . . . . . . . . . .  51
-   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  52
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  52
-   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  52
+   5.  Mandatory-to-Implement  . . . . . . . . . . . . . . . . . . .  53
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  53
+   7.  Appendix A. Acknowledgments . . . . . . . . . . . . . . . . .  53
 
 
 
@@ -114,11 +114,11 @@ Biggs & Cooley          Expires February 2, 2019                [Page 2]
 Internet-Draft           key-management-service              August 2018
 
 
-   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  53
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  53
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  53
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  54
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  55
+   8.  Appendix B. Document History  . . . . . . . . . . . . . . . .  54
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  54
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  54
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  55
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  56
 
 1.  Introduction
 
@@ -608,8 +608,8 @@ Internet-Draft           key-management-service              August 2018
        authorized on the KRO, the KMS returns the key bound to the KRO
        by client A in step (2).
 
-   6.  Client B decrypts the shared file using the key selected in step
-       (1).
+   6.  Client B decrypts the shared message using the key selected in
+       step (1).
 
 
 
@@ -1381,15 +1381,15 @@ Internet-Draft           key-management-service              August 2018
 
       The KMS object or object type to which the request applies.
 
+   authId
+
+      The authorization token that is paired with a resource to allow a
+      user to access it.
+
    The JSON content rules above are used in conjunction with additional
    request type specific rules, defined later in this document, to
    produce the full request payload definition for each KMS operation.
 
-4.6.2.  Basic Response Payload
-
-   The basic JSON representation for KMS request message payloads is
-   defined as follows using JSON content rules with references to rules
-   defined in previous sections.
 
 
 
@@ -1401,6 +1401,12 @@ Biggs & Cooley          Expires February 2, 2019               [Page 25]
 
 Internet-Draft           key-management-service              August 2018
 
+
+4.6.2.  Basic Response Payload
+
+   The basic JSON representation for KMS request message payloads is
+   defined as follows using JSON content rules with references to rules
+   defined in previous sections.
 
    response (
      "status" : integer,
@@ -1444,12 +1450,6 @@ Internet-Draft           key-management-service              August 2018
      response
    }
 
-   Error response message example:
-
-
-
-
-
 
 
 
@@ -1457,6 +1457,8 @@ Biggs & Cooley          Expires February 2, 2019               [Page 26]
 
 Internet-Draft           key-management-service              August 2018
 
+
+   Error response message example:
 
    JWE(K_ephemeral, {
      "status": 403,
@@ -1503,8 +1505,6 @@ Internet-Draft           key-management-service              August 2018
    The following sections provide detailed descriptions for each of the
    request and response operations that may occur between a resource
    client and the KMS.
-
-
 
 
 
@@ -2708,10 +2708,10 @@ Internet-Draft           key-management-service              August 2018
    currently authorized on the same resource object may issue a delete
    authorization request.  The request message conforms to the basic
    request message structure, where the method is "delete", and the URI
-   is either that of the authorization object to be deleted, or the URI
-   of the collection of authorizations within a particular KMS resource
-   object appended with an authId query parameter whose value matches
-   that of the authorization object to be deleted.
+   is either that of the authorization object to be deleted, or a
+   collection of authorizations within a particular KMS resource object
+   appended to an authIds variable parameter whose value matches that of
+   the authorization object to be deleted.
 
    Request payload definition:
 
@@ -2763,11 +2763,44 @@ Internet-Draft           key-management-service              August 2018
    string of non-whitespace characters.  Whitespace has been added here
    for readability.
 
+   A bulk delete authorization can be run to delete multiple
+   authorizations for a single resource.  In this request the URI simply
+   lists "/authorizations" while the attribute "authIds" lists all the
+   authorizations to delete for a specific resource.  Restrictions can
+   be placed within the KMS to restrict the size of this bulk operation.
+
+   JWE(K_ephemeral, {
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "client": {
+       "clientId": "android_a6aa012a-0795-4fb4-bddb-f04abda9e34f",
+       "credential": {
+         "bearer": "ZWU5NGE2YWYtMGE2NC0..."
+       }
+     }
+     "method": "delete",
+     "uri": "/authorizations",
+     "authIds": {
+       "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+       "c1047d54-c485-4aa1-9704-fee07adae46c",
+       ...
+     }
+   })
+
    The response message conforms to the basic response message
    structure, and includes a representation of the authorization object
    that was deleted.
 
    Response payload definition:
+
+
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 50]
+
+Internet-Draft           key-management-service              August 2018
+
 
    root {
      response,
@@ -2787,20 +2820,28 @@ Internet-Draft           key-management-service              August 2018
      }
    })
 
+   Buld Delete response message example:
+
+   JWE(K_ephemeral, {
+   {
+     "status": 200,
+     "requestId": "10992782-e096-4fd3-9458-24dca7a92fa5",
+     "authorization": {
+       "uri": "/authorizations",
+       "authIds": {
+         "557ac05d-5751-43b4-a04b-e7eb1499ee0a",
+         "c1047d54-c485-4aa1-9704-fee07adae46c",
+         ...
+       }
+       "resourceUri": "/resources/7f35c3eb-95d6-4558-a7fc-1942e5f03094"
+     }
+   })
+
    If successful, the KMS response to a delete authorization request
    MUST have a status of 200 if the authorization object representation
    is included, and 204 if not.  In the case of a request failure, the
    KMS response status SHOULD be that of an [RFC7231] defined status
    code with semantics that correspond to the failure condition.
-
-
-
-
-
-Biggs & Cooley          Expires February 2, 2019               [Page 50]
-
-Internet-Draft           key-management-service              August 2018
-
 
 4.7.12.  Ping
 
@@ -2808,6 +2849,15 @@ Internet-Draft           key-management-service              August 2018
    verifying the integrity of the secure channel between client and KMS.
    Ping MUST be implemented as a safe and idempotent operation that
    causes the server to do nothing more than return a basic response
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 51]
+
+Internet-Draft           key-management-service              August 2018
+
+
    payload in reaction to the client request.  The method of a ping
    request is "update" and the uri is "/ping".
 
@@ -2850,16 +2900,19 @@ Internet-Draft           key-management-service              August 2018
 
    If successful, the client may deduce that the KMS was able to
    successfully decrypt the received KMS request message, parse the
+   contents, confirm the identity and authorization of the requesting
+   client, and return a suitable response.
 
 
 
-Biggs & Cooley          Expires February 2, 2019               [Page 51]
+
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 52]
 
 Internet-Draft           key-management-service              August 2018
 
-
-   contents, confirm the identity and authorization of the requesting
-   client, and return a suitable response.
 
 5.  Mandatory-to-Implement
 
@@ -2909,7 +2962,10 @@ Internet-Draft           key-management-service              August 2018
 
 
 
-Biggs & Cooley          Expires February 2, 2019               [Page 52]
+
+
+
+Biggs & Cooley          Expires February 2, 2019               [Page 53]
 
 Internet-Draft           key-management-service              August 2018
 
@@ -2965,7 +3021,7 @@ Internet-Draft           key-management-service              August 2018
 
 
 
-Biggs & Cooley          Expires February 2, 2019               [Page 53]
+Biggs & Cooley          Expires February 2, 2019               [Page 54]
 
 Internet-Draft           key-management-service              August 2018
 
@@ -3021,7 +3077,7 @@ Internet-Draft           key-management-service              August 2018
 
 
 
-Biggs & Cooley          Expires February 2, 2019               [Page 54]
+Biggs & Cooley          Expires February 2, 2019               [Page 55]
 
 Internet-Draft           key-management-service              August 2018
 
@@ -3077,4 +3133,4 @@ Authors' Addresses
 
 
 
-Biggs & Cooley          Expires February 2, 2019               [Page 55]
+Biggs & Cooley          Expires February 2, 2019               [Page 56]
