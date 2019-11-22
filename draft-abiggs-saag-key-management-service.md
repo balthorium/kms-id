@@ -1795,11 +1795,8 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "create",
-  "uri": "/cmk",
-  "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5",
-  "keyUris": [
-    "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5"
-  ]
+  "uri": "kms://{hostname}/cmk/",
+  "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -1819,9 +1816,8 @@ Response message example:
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "keyUris": [
-    "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5"
-  ]
+  "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
+  "state":"active"
 })
 ~~~
 
@@ -1847,11 +1843,8 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "update",
-  "uri": "/cmk",
+  ""uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
   "state": "inactive"
-  "keyUris": [
-    "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5"
-  ]
 })
 ~~~
 
@@ -1871,7 +1864,8 @@ Response message example:
 JWE(K_ephemeral, {
   {
     "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
-    "state": "inactive"
+    "state": "inactive",
+    "status": 200
   }
 }
 ~~~
@@ -1890,7 +1884,7 @@ JWE(K_ephemeral, {
       "bearer": "ZWU5NGE2YWYtMGE2NC0..."
     }
   }  
-  "method": "get",
+  "method": "retrieve",
   "uri": "/cmk",
   "org": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
@@ -1912,7 +1906,7 @@ Response message example:
 JWE(K_ephemeral, {
 {
   "status": 200,
-  "keyUris": [
+  "keys": [
     {
       "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
       "state": "active"
