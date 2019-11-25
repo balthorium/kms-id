@@ -1885,8 +1885,8 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "retrieve",
-  "uri": "/cmk",
-  "org": "10992782-e096-4fd3-9458-24dca7a92fa5"
+  "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
+  "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
 
@@ -1909,11 +1909,13 @@ JWE(K_ephemeral, {
   "keys": [
     {
       "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
-      "state": "active"
+      "state": "active",
+      "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5"
     },
     {
       "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
-      "state": "inactive"
+      "state": "inactive",
+      "assignedOrgId": null
     }
   ]
 })
