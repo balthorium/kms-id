@@ -796,7 +796,7 @@ JWS(K_kms_priv, {
 })
 ~~~
 
-## Requests
+## Application API
 
 The following sections provide detailed descriptions for each of the request and response operations that may occur between a resource client and the KMS.
 
@@ -1766,15 +1766,11 @@ JWE(K_ephemeral, {
 
 If successful, the client may deduce that the KMS was able to successfully decrypt the received KMS request message, parse the contents, confirm the identity and authorization of the requesting client, and return a suitable response.  
 
-##  Configuration Requests
+##  Administrative API
 
-The KMS employs a hierarchical encryption scheme for securing key material. An instance is provided a master key in an environment variable and this key is used to encrypt and decrypt content keys stored in the database. This scheme provides for encryption at rest of stored key material, however there are significant limitations and security vulnerabilities in this model.
+The following sections provide detailed descriptions for each of the administrative request and response operations that may occur between a client and the KMS.
 
-One vulnerability is the potential for exposure of the master key. Although it is stored in encrypted form, where the key required to decrypt it is accessible only to a small number of operations engineers, it is nonetheless subject to exploit. An attacker that somehow gains access to that key, as well as the contents of the encrypted database, would be able to decrypt all contained KMS keys. If the attacker were to make copies of both, there would be no mitigating the complete exposure of all KMS keys.
-
-An industry standard solution for protecting keys from exposure is to store them in a hardware security module (HSM). HSMs are designed to create keys internally, with strong CS-PRNG algorithms and high-quality entropy, and to make it virtually impossible to extract these keys either physically or electronically. 
-
-### Key Creation
+### Create New Active CMK/KEK (rotation)
 
 This command creates a new active CMK or KEK, and rotates the previous one (i.e. it changes the previously active CMK or KEK to inactive). If an assignedOrgId is provided in the request, then the created CMK/KEK will be specific to that org. If the requesting account has kmsAdmin role, it can create both unassigned and assigned CMK/KEK keys. If the requesting account has orgAgent role, it can create only assigned CMKs/KEKs where the assignedOrgId is the same org as the requesting account.
 
@@ -1784,7 +1780,7 @@ root {
 }
 ~~~
 
-Request message example:
+Request message example for CMK:
 
 ~~~
 JWE(K_ephemeral, {
@@ -1795,7 +1791,7 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "create",
-  "uri": "kms://{hostname}/cmk/",
+  "uri": "kms://{hostname}/cmk",
   "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5"
 })
 ~~~
@@ -1821,8 +1817,7 @@ JWE(K_ephemeral, {
 })
 ~~~
 
-
-### Key State 
+### Update CMK/KEK State
 
 This command transitions the CMK or KEK with the given URI to the desired state If the requesting account has kmsAdmin role, it can change the state on both unassigned and assigned CMK/KEK keys. If the requesting account has orgAgent role, it can change the state on only assigned CMKs/KEKs where the assignedOrgId is the same org as the requesting account.
 
@@ -1843,7 +1838,7 @@ JWE(K_ephemeral, {
     }
   }  
   "method": "update",
-  ""uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
+  "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
   "state": "inactive"
 })
 ~~~
@@ -1870,9 +1865,9 @@ JWE(K_ephemeral, {
 }
 ~~~
 
-### Key Listings
+### List CMKs/KEKs
 
-To review and manage the lifecycles of CMKs and KEKs, an administrator needs be be able to discover what keys already exist, and the states they are in. This API command is intended to make that information querable over protocol.
+To review and manage the lifecycles of CMKs and KEKs, an administrator needs be be able to discover what keys already exist, and the states they are in. This API command is intended to make that information queryable over protocol.
 
 Request message example:
 
@@ -1913,8 +1908,8 @@ JWE(K_ephemeral, {
       "assignedOrgId": "10992782-e096-4fd3-9458-24dca7a92fa5"
     },
     {
-      "uri": "kms://{hostname}/cmk/10992782-e096-4fd3-9458-24dca7a92fa5",
-      "state": "inactive",
+      "uri": "kms://{hostname}/cmk/9a78d16b-54b3-4e05-be29-e4dce1946f3d",
+      "state": "active",
       "assignedOrgId": null
     }
   ]
