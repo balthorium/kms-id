@@ -658,7 +658,7 @@ The basic JSON representation for KMS request message payloads is defined as fol
 
 ~~~
 requestId (
-  "requestId" : integer
+  "requestId" : string
 )
 
 credential {
